@@ -40,8 +40,7 @@ body{font-family:'Nunito',sans-serif;background:#F7F3ED;-webkit-tap-highlight-co
 .rel{position:relative;z-index:1;padding-bottom:20px}
 
 /* ── COMMON COMPONENTS ── */
-.status{padding:12px 20px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--dk)}
-.hdr{padding:8px 20px 0;display:flex;align-items:center;justify-content:space-between}
+.hdr{padding:16px 20px 0;display:flex;align-items:center;justify-content:space-between}
 .logo{font-family:'Baloo 2',cursive;font-size:26px;font-weight:800;color:var(--teal)}
 .card{background:white;border-radius:20px;padding:14px 16px;box-shadow:0 4px 16px rgba(0,0,0,.06);margin:0 20px 12px}
 .sh{display:flex;align-items:center;justify-content:space-between;margin:0 20px 8px}
@@ -118,6 +117,15 @@ body{font-family:'Nunito',sans-serif;background:#F7F3ED;-webkit-tap-highlight-co
 .mavatar img{width:100%;height:100%;object-fit:cover}
 .add-mem{background:var(--cream);border:2px dashed #C8D8DC;border-radius:20px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer}
 
+/* ── FIDELITE ── */
+.fid-card{border-radius:18px;padding:16px;color:white;box-shadow:0 6px 16px rgba(0,0,0,.12);margin-bottom:10px}
+.fid-name{font-family:'Baloo 2',cursive;font-size:18px;font-weight:800}
+.fid-num{font-size:12px;font-weight:600;opacity:.95;margin-top:4px}
+.fid-actions{display:flex;gap:8px;margin-top:10px}
+.fid-btn{flex:1;border:none;border-radius:12px;padding:10px 12px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer}
+.fid-btn-light{background:rgba(255,255,255,.2);color:white}
+.fid-btn-danger{background:rgba(0,0,0,.15);color:white}
+
 /* ── MODAL ── */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:500;backdrop-filter:blur(6px)}
 .modal{background:white;border-radius:28px 28px 0 0;padding:20px 20px 40px;width:100%;max-width:390px;max-height:90vh;overflow-y:auto}
@@ -150,7 +158,6 @@ body{font-family:'Nunito',sans-serif;background:#F7F3ED;-webkit-tap-highlight-co
 <div class="page on" id="pg-home">
   <div class="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
   <div class="rel">
-    <div class="status"><span id="htime">9:41</span><span>●●● WiFi 🔋</span></div>
     <div class="hdr">
       <div class="logo">maivi</div>
       <div style="width:40px;height:40px;border-radius:50%;background:var(--coral-s);border:3px solid var(--coral);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer" onclick="go('membres')">👧</div>
@@ -284,6 +291,25 @@ body{font-family:'Nunito',sans-serif;background:#F7F3ED;-webkit-tap-highlight-co
   </div>
 </div>
 
+<!-- ═══ FIDELITE ═══ -->
+<div class="page" id="pg-fidelite">
+  <div class="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+  <div class="rel">
+    <div style="padding:52px 20px 12px">
+      <div style="font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:var(--dk)">Cartes de fidélité 🎁</div>
+      <div style="font-size:12px;color:var(--mid);font-weight:600;margin-top:2px">Toutes tes cartes au même endroit</div>
+    </div>
+
+    <div style="padding:0 20px 10px">
+      <button class="sav" onclick="openFidModal()">➕ Ajouter une carte</button>
+    </div>
+
+    <div id="fidelite-list" style="padding:0 20px 20px">
+      <div class="empty">Chargement...</div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ TAB BAR GLOBALE ═══ -->
 <div id="tab-bar">
   <div class="tab" id="tab-agenda" onclick="go('agenda')"><div class="ti">📅</div><div class="tlab">AGENDA</div></div>
@@ -291,6 +317,7 @@ body{font-family:'Nunito',sans-serif;background:#F7F3ED;-webkit-tap-highlight-co
   <div class="tab on" id="tab-home" onclick="go('home')"><div class="thome">🏠</div><div class="tlab" style="color:var(--teal)">ACCUEIL</div></div>
   <div class="tab" id="tab-sante" onclick="go('sante')"><div class="ti">💊</div><div class="tlab">SANTÉ</div></div>
   <div class="tab" id="tab-membres" onclick="go('membres')"><div class="ti">👨‍👩‍👧</div><div class="tlab">FAMILLE</div></div>
+  <div class="tab" id="tab-fidelite" onclick="go('fidelite')"><div class="ti">🪪</div><div class="tlab">FIDÉLITÉ</div></div>
 </div>
 
 <!-- ═══ MODALS ═══ -->
@@ -433,6 +460,29 @@ body{font-family:'Nunito',sans-serif;background:#F7F3ED;-webkit-tap-highlight-co
   </div>
 </div>
 
+<div class="modal-bg" id="mfid" style="display:none" onclick="if(event.target===this)cm('mfid')">
+  <div class="modal">
+    <div class="mh"></div><div class="mt" id="fid-title">Nouvelle carte 🎁</div>
+    <label class="fl">ENSEIGNE</label><input class="fi" id="fid-enseigne" placeholder="Ex: Carrefour">
+    <label class="fl">NUMÉRO</label><input class="fi" id="fid-numero" placeholder="Ex: 1234 5678 9012">
+    <label class="fl">CODE BARRES</label><input class="fi" id="fid-barcode" placeholder="Ex: 3760000000000">
+    <label class="fl">NOTES</label><input class="fi" id="fid-notes" placeholder="Ex: carte perso">
+    <label class="fl">COULEUR</label>
+    <div class="crow" id="fid-cols">
+      <div class="co sel" data-c="#2D9E8E" style="background:#2D9E8E" onclick="selFidC(this)"></div>
+      <div class="co" data-c="#E8735A" style="background:#E8735A" onclick="selFidC(this)"></div>
+      <div class="co" data-c="#9B7FD4" style="background:#9B7FD4" onclick="selFidC(this)"></div>
+      <div class="co" data-c="#F5A623" style="background:#F5A623" onclick="selFidC(this)"></div>
+      <div class="co" data-c="#378ADD" style="background:#378ADD" onclick="selFidC(this)"></div>
+      <div class="co" data-c="#4CAF50" style="background:#4CAF50" onclick="selFidC(this)"></div>
+    </div>
+    <input type="hidden" id="fid-id">
+    <button class="sav" onclick="saveFid()">Enregistrer</button>
+    <button class="can" id="fid-delbtn" style="display:none;background:#FEE;color:#E85A5A;border-color:#F5C5C5" onclick="delFid()">🗑 Supprimer</button>
+    <button class="can" onclick="cm('mfid')">Annuler</button>
+  </div>
+</div>
+
 <script>
 const SU='https://blzmitanecalzmmqulsa.supabase.co';
 const SK='sb_publishable_VuTn-3pbAlRX_69ZH3FGEg_cdrU-ICU';
@@ -454,8 +504,8 @@ function isVac(d){return VACS.find(v=>d>=v.s&&d<v.e)||null;}
 
 let tod=new Date();tod.setHours(0,0,0,0);
 let selD=new Date(tod),ws=getMon(tod),mCur=new Date(tod);
-let evs=[],cos=[],meds=[],mems=[];
-let selC='#4CAF50',selCp='#9B7FD4',delEvId=null,sfilt='today',agV='semaine';
+let evs=[],cos=[],meds=[],mems=[],fids=[];
+let selC='#4CAF50',selCp='#9B7FD4',selFid='#2D9E8E',delEvId=null,delFidId=null,sfilt='today',agV='semaine';
 let agFilters=new Set(),memPhoto=null;
 
 function getMon(d){const dt=new Date(d);const dy=dt.getDay();dt.setDate(dt.getDate()+(dy===0?-6:1-dy));dt.setHours(0,0,0,0);return dt;}
@@ -489,32 +539,36 @@ function go(p){
   if(p==='courses')rCo();
   if(p==='sante')rSa();
   if(p==='membres')rMem();
+  if(p==='fidelite')rFid();
   if(p==='home')rHome();
 }
 
-function updateClock(){const n=new Date();document.getElementById('htime').textContent=`${pad(n.getHours())}:${pad(n.getMinutes())}`;}
-setInterval(updateClock,10000);updateClock();
-
 // ── INIT ────────────────────────────────────────
 async function init(){
-  rHome(); // immediate
+  rHome();
   try{
-    const[r0,r1,r2,r3]=await Promise.allSettled([
+    const[r0,r1,r2,r3,r4]=await Promise.allSettled([
       db.from('maivi_evenements').select('*').order('date_debut'),
       db.from('maivi_courses').select('*').order('categorie,nom'),
       db.from('maivi_medicaments').select('*').order('heure'),
-      db.from('maivi_membres').select('*').order('created_at')
+      db.from('maivi_membres').select('*').order('created_at'),
+      db.from('maivi_fidelite').select('*').order('created_at',{ascending:false})
     ]);
     if(r0.value?.data)evs=r0.value.data;
     if(r1.value?.data)cos=r1.value.data;
     if(r2.value?.data)meds=r2.value.data;
     if(r3.value?.data)mems=r3.value.data;
-    rHome();
-    db.channel('mv').on('postgres_changes',{event:'*',schema:'public',table:'maivi_evenements'},async()=>{const{data}=await db.from('maivi_evenements').select('*').order('date_debut');if(data)evs=data;rHome();rAg();})
+    if(r4.value?.data)fids=r4.value.data;
+    rHome();rCo();rSa();rMem();rFid();
+
+    db.channel('mv')
+    .on('postgres_changes',{event:'*',schema:'public',table:'maivi_evenements'},async()=>{const{data}=await db.from('maivi_evenements').select('*').order('date_debut');if(data)evs=data;rHome();rAg();})
     .on('postgres_changes',{event:'*',schema:'public',table:'maivi_courses'},async()=>{const{data}=await db.from('maivi_courses').select('*').order('categorie,nom');if(data)cos=data;rHome();rCo();})
     .on('postgres_changes',{event:'*',schema:'public',table:'maivi_medicaments'},async()=>{const{data}=await db.from('maivi_medicaments').select('*').order('heure');if(data)meds=data;rSa();})
     .on('postgres_changes',{event:'*',schema:'public',table:'maivi_membres'},async()=>{const{data}=await db.from('maivi_membres').select('*').order('created_at');if(data)mems=data;rMem();rAgFilters();})
+    .on('postgres_changes',{event:'*',schema:'public',table:'maivi_fidelite'},async()=>{const{data}=await db.from('maivi_fidelite').select('*').order('created_at',{ascending:false});if(data)fids=data;rFid();})
     .subscribe();
+
     schedNotifs();
   }catch(e){console.error(e);}
 }
@@ -711,15 +765,116 @@ function selMemC(el,t){if(t==='p'){selC=el.dataset.c;document.querySelectorAll('
 async function saveMem(){const nom=document.getElementById('mmem-nom').value.trim();if(!nom){toast('❌ Nom requis');return;}const p={nom,emoji:document.getElementById('mmem-emoji').value||'👤',role:document.getElementById('mmem-role').value,couleur:selC,couleur_pro:selCp,avatar_url:memPhoto||null};const id=document.getElementById('mmem-id').value;const{error}=id?await db.from('maivi_membres').update(p).eq('id',id):await db.from('maivi_membres').insert(p);if(error){toast('❌ '+error.message);return;}cm('mmem');toast(id?'✅ Modifié !':'✅ Ajouté !');}
 async function delMem(){const id=document.getElementById('mmem-id').value;document.getElementById('cmsg').textContent='Supprimer ce membre ?';document.getElementById('cyb').onclick=async()=>{await db.from('maivi_membres').delete().eq('id',id);cm('mconf');cm('mmem');toast('🗑 Supprimé');};om('mconf');}
 
+// ── FIDELITE ─────────────────────────────────────
+function rFid(){
+  const el=document.getElementById('fidelite-list');
+  if(!el)return;
+  if(!fids.length){
+    el.innerHTML=`<div class="empty">🎁 Aucune carte.<br><span style="color:var(--teal);font-weight:700;cursor:pointer" onclick="openFidModal()">+ Ajouter une carte</span></div>`;
+    return;
+  }
+  let h='';
+  fids.forEach(f=>{
+    h+=`<div class="fid-card" style="background:${f.couleur||'#2D9E8E'}" onclick="openFidModal('${f.id}')">
+      <div class="fid-name">${f.enseigne||'Carte'}</div>
+      <div class="fid-num">${f.numero||''}</div>
+      ${f.code_barres?`<div class="fid-num">Code : ${f.code_barres}</div>`:''}
+      ${f.notes?`<div class="fid-num">${f.notes}</div>`:''}
+      <div class="fid-actions">
+        <button class="fid-btn fid-btn-light" onclick="event.stopPropagation();openFidModal('${f.id}')">✏️ Modifier</button>
+        <button class="fid-btn fid-btn-danger" onclick="event.stopPropagation();askDelFid('${f.id}','${(f.enseigne||'cette carte').replace(/'/g,"&#39;")}')">🗑 Supprimer</button>
+      </div>
+    </div>`;
+  });
+  el.innerHTML=h;
+}
+function openFidModal(id){
+  selFid='#2D9E8E';
+  document.querySelectorAll('#fid-cols .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selFid));
+  if(id){
+    const f=fids.find(x=>x.id===id);
+    if(f){
+      document.getElementById('fid-id').value=f.id;
+      document.getElementById('fid-enseigne').value=f.enseigne||'';
+      document.getElementById('fid-numero').value=f.numero||'';
+      document.getElementById('fid-barcode').value=f.code_barres||'';
+      document.getElementById('fid-notes').value=f.notes||'';
+      selFid=f.couleur||'#2D9E8E';
+      document.querySelectorAll('#fid-cols .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selFid));
+      document.getElementById('fid-title').textContent='Modifier la carte ✏️';
+      document.getElementById('fid-delbtn').style.display='block';
+      delFidId=f.id;
+    }
+  }else{
+    document.getElementById('fid-id').value='';
+    document.getElementById('fid-enseigne').value='';
+    document.getElementById('fid-numero').value='';
+    document.getElementById('fid-barcode').value='';
+    document.getElementById('fid-notes').value='';
+    document.getElementById('fid-title').textContent='Nouvelle carte 🎁';
+    document.getElementById('fid-delbtn').style.display='none';
+    delFidId=null;
+  }
+  om('mfid');
+}
+function selFidC(el){
+  selFid=el.dataset.c;
+  document.querySelectorAll('#fid-cols .co').forEach(o=>o.classList.toggle('sel',o===el));
+}
+async function saveFid(){
+  const enseigne=document.getElementById('fid-enseigne').value.trim();
+  if(!enseigne){toast('❌ Enseigne requise');return;}
+  const p={
+    enseigne,
+    numero:document.getElementById('fid-numero').value.trim()||null,
+    code_barres:document.getElementById('fid-barcode').value.trim()||null,
+    notes:document.getElementById('fid-notes').value.trim()||null,
+    couleur:selFid
+  };
+  const id=document.getElementById('fid-id').value;
+  const {error}=id?await db.from('maivi_fidelite').update(p).eq('id',id):await db.from('maivi_fidelite').insert(p);
+  if(error){toast('❌ '+error.message);return;}
+  cm('mfid');
+  toast(id?'✅ Carte modifiée !':'✅ Carte ajoutée !');
+}
+function askDelFid(id,name){
+  delFidId=id;
+  document.getElementById('cmsg').textContent=`Supprimer "${name}" ?`;
+  document.getElementById('cyb').onclick=async()=>{await db.from('maivi_fidelite').delete().eq('id',delFidId);cm('mconf');cm('mfid');toast('🗑 Carte supprimée');};
+  om('mconf');
+}
+function delFid(){
+  const id=document.getElementById('fid-id').value||delFidId;
+  if(!id)return;
+  const f=fids.find(x=>x.id===id);
+  askDelFid(id,f?.enseigne||'cette carte');
+}
+
 // ── NOTIFS ────────────────────────────────────────
 function schedNotifs(){
   if(!('Notification' in window)||Notification.permission!=='granted')return;
-  evs.forEach(e=>{if(!e.heure_debut)return;const[h,m]=(e.heure_debut||'0:0').split(':').map(Number);const evD=new Date(e.date_debut+'T00:00:00');evD.setHours(h,m,0,0);const now=Date.now();const t1h=evD.getTime()-3600000;if(t1h>now)setTimeout(()=>{new Notification('⏰ Dans 1h — Maivi',{body:`${e.emoji||'📅'} ${e.titre}`,icon:'/icon-192.png'});},t1h-now);const veille=new Date(evD);veille.setDate(veille.getDate()-1);veille.setHours(20,0,0,0);if(veille.getTime()>now)setTimeout(()=>{new Notification('📅 Demain — Maivi',{body:`${e.emoji||'📅'} ${e.titre}`,icon:'/icon-192.png'});},veille.getTime()-now);});
+  evs.forEach(e=>{
+    if(!e.heure_debut)return;
+    const[h,m]=(e.heure_debut||'0:0').split(':').map(Number);
+    const evD=new Date(e.date_debut+'T00:00:00');
+    evD.setHours(h,m,0,0);
+    const now=Date.now();
+    const t1h=evD.getTime()-3600000;
+    if(t1h>now)setTimeout(()=>{new Notification('⏰ Dans 1h — Maivi',{body:`${e.emoji||'📅'} ${e.titre}`,icon:'./icon-192.png'});},t1h-now);
+    const veille=new Date(evD);
+    veille.setDate(veille.getDate()-1);
+    veille.setHours(20,0,0,0);
+    if(veille.getTime()>now)setTimeout(()=>{new Notification('📅 Demain — Maivi',{body:`${e.emoji||'📅'} ${e.titre}`,icon:'./icon-192.png'});},veille.getTime()-now);
+  });
 }
 
 init();
 setTimeout(()=>{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission().then(p=>{if(p==='granted'){schedNotifs();toast('🔔 Notifications activées !');}});},1000);
 </script>
-<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+</script>
 </body>
 </html>
