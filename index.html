@@ -12,7 +12,7 @@
 <meta name="theme-color" content="#2D9E8E">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{overflow:hidden;height:100%;position:fixed;width:100%;-webkit-overflow-scrolling:touch}
@@ -711,18 +711,23 @@ body{
   <div class="modal">
     <div class="mh"></div>
     <div class="mt">Scanner un article</div>
-    <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:12px;line-height:1.5">Scannez le code-barres d'un article pour l'identifier automatiquement et mémoriser son prix.</div>
-    <div id="scan-co-reader" style="width:100%;min-height:300px;border-radius:20px;overflow:hidden;background:#111;margin-bottom:12px"></div>
-    <div id="scan-co-status" style="font-size:12px;font-weight:700;color:var(--mid);text-align:center;margin-bottom:12px">Autorise la caméra pour scanner</div>
+    <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:12px;line-height:1.5">Scannez le code-barres pour identifier l'article et mémoriser son prix.</div>
+    <div style="position:relative;width:100%;border-radius:20px;overflow:hidden;background:#000;margin-bottom:12px">
+      <video id="scan-co-video" style="width:100%;display:block;border-radius:20px" autoplay muted playsinline></video>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+        <div style="width:220px;height:80px;border:2px solid rgba(126,169,159,.9);border-radius:10px;box-shadow:0 0 0 4000px rgba(0,0,0,.4)"></div>
+      </div>
+    </div>
+    <div id="scan-co-status" style="font-size:12px;font-weight:700;color:var(--mid);text-align:center;margin-bottom:12px">Visez le code-barres dans le cadre</div>
     <div id="scan-co-result" style="display:none">
       <div style="background:var(--teal-s);border-radius:16px;padding:14px;margin-bottom:12px">
         <div style="font-size:15px;font-weight:900;color:var(--dk)" id="scan-co-nom"></div>
         <div style="font-size:12px;font-weight:700;color:var(--mid);margin-top:4px" id="scan-co-marque"></div>
       </div>
-      <label class="fl">PRIX EN RAYON (€)</label>
-      <input class="fi" id="scan-co-prix" type="number" step="0.01" placeholder="0.00">
-      <label class="fl">QUANTITÉ</label>
-      <input class="fi" id="scan-co-qte" placeholder="x1" value="x1">
+      <div class="fr">
+        <div style="flex:1"><label class="fl">PRIX EN RAYON (€)</label><input class="fi" id="scan-co-prix" type="number" step="0.01" placeholder="0.00"></div>
+        <div style="flex:1"><label class="fl">QUANTITÉ</label><input class="fi" id="scan-co-qte" placeholder="x1" value="x1"></div>
+      </div>
       <button class="sav" onclick="addScannedItem()">Ajouter à la liste</button>
     </div>
     <button class="can" onclick="closeScanCo()">Fermer</button>
@@ -1783,86 +1788,82 @@ function openScanCourse(){
   document.getElementById('scan-co-result').style.display='none';
   document.getElementById('scan-co-status').textContent='Ouverture de la caméra...';
   om('mscan-co');
-  // Attendre que le modal soit visible avant d'init le scanner
-  setTimeout(()=>startScanCo(),500);
+  setTimeout(()=>startScanCo(),400);
 }
+
 function closeScanCo(){
   if(scanCoReader){
-    try{scanCoReader.stop().catch(()=>{});}catch(e){}
-    try{scanCoReader.clear();}catch(e){}
+    try{scanCoReader.reset();}catch(e){}
+    scanCoReader=null;
   }
-  scanCoReader=null;
+  const video=document.getElementById('scan-co-video');
+  if(video&&video.srcObject){
+    video.srcObject.getTracks().forEach(t=>t.stop());
+    video.srcObject=null;
+  }
   cm('mscan-co');
 }
+
 async function startScanCo(){
-  // Vérifier que la lib est chargée
-  if(typeof Html5Qrcode==='undefined'){
-    document.getElementById('scan-co-status').textContent='Librairie non chargée — rechargez la page';
-    return;
-  }
-  // Nettoyer un éventuel scan précédent
-  const el=document.getElementById('scan-co-reader');
-  if(!el){toast('Erreur: élément introuvable');return;}
-  el.innerHTML='';
   try{
-    scanCoReader=new Html5Qrcode('scan-co-reader');
-    const config={
-      fps:15,
-      qrbox:(w,h)=>({width:Math.min(w*.8,300),height:Math.min(h*.4,150)}),
-      formatsToSupport:[
-        Html5QrcodeSupportedFormats.EAN_13,
-        Html5QrcodeSupportedFormats.EAN_8,
-        Html5QrcodeSupportedFormats.UPC_A,
-        Html5QrcodeSupportedFormats.UPC_E,
-        Html5QrcodeSupportedFormats.CODE_128,
-        Html5QrcodeSupportedFormats.CODE_39,
-      ]
-    };
-    await scanCoReader.start(
-      {facingMode:'environment'},
-      config,
-      async(code)=>{
-        try{await scanCoReader.stop();}catch(e){}
-        document.getElementById('scan-co-status').textContent='Code détecté — recherche du produit...';
-        try{
-          const r=await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
-          const d=await r.json();
-          if(d.status===1&&d.product){
-            const nom=d.product.product_name_fr||d.product.product_name||'Produit '+code;
-            const marque=d.product.brands||'';
-            document.getElementById('scan-co-nom').textContent=nom;
-            document.getElementById('scan-co-marque').textContent=marque;
-            document.getElementById('scan-co-result').style.display='block';
-            document.getElementById('scan-co-result').dataset.code=code;
-            document.getElementById('scan-co-result').dataset.nom=nom;
-            document.getElementById('scan-co-result').dataset.rayon='Épicerie';
-            document.getElementById('scan-co-qte').value='x1';
-            // Prix mémorisé ?
-            const bibItem=biblio.find(b=>b.code_barre===code||b.nom.toLowerCase()===nom.toLowerCase());
-            if(bibItem?.prix)document.getElementById('scan-co-prix').value=bibItem.prix.toFixed(2);
-            else document.getElementById('scan-co-prix').value='';
-            document.getElementById('scan-co-status').textContent='Produit identifié';
-          } else {
-            // Produit inconnu — on utilise le code comme nom
-            document.getElementById('scan-co-nom').textContent='Article '+code;
-            document.getElementById('scan-co-marque').textContent='Produit non référencé';
-            document.getElementById('scan-co-result').style.display='block';
-            document.getElementById('scan-co-result').dataset.code=code;
-            document.getElementById('scan-co-result').dataset.nom='Article '+code;
-            document.getElementById('scan-co-result').dataset.rayon='Épicerie';
-            document.getElementById('scan-co-qte').value='x1';
-            document.getElementById('scan-co-prix').value='';
-            document.getElementById('scan-co-status').textContent='Produit non trouvé — saisissez le nom';
-          }
-        }catch(e){
-          document.getElementById('scan-co-status').textContent='Erreur réseau — vérifiez votre connexion';
-        }
-      },
-      ()=>{}
-    );
-    document.getElementById('scan-co-status').textContent='Visez le code-barres';
+    const video=document.getElementById('scan-co-video');
+    if(!video){toast('Erreur vidéo');return;}
+
+    // Demander accès caméra directement
+    const stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}
+    });
+    video.srcObject=stream;
+    await video.play();
+
+    document.getElementById('scan-co-status').textContent='Visez le code-barres dans le cadre';
+
+    // ZXing reader
+    const hints=new Map();
+    const formats=[
+      ZXing.BarcodeFormat.EAN_13,
+      ZXing.BarcodeFormat.EAN_8,
+      ZXing.BarcodeFormat.UPC_A,
+      ZXing.BarcodeFormat.UPC_E,
+      ZXing.BarcodeFormat.CODE_128,
+    ];
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+    const reader=new ZXing.BrowserMultiFormatReader(hints);
+    scanCoReader=reader;
+
+    reader.decodeFromVideoElement(video, async(result, err)=>{
+      if(result){
+        const code=result.getText();
+        reader.reset();
+        document.getElementById('scan-co-status').textContent='Code détecté — recherche...';
+        await lookupBarcode(code);
+      }
+    });
   }catch(e){
-    document.getElementById('scan-co-status').textContent='Caméra non disponible : '+e.message;
+    document.getElementById('scan-co-status').textContent='Caméra non disponible : vérifiez les autorisations';
+  }
+}
+
+async function lookupBarcode(code){
+  try{
+    const r=await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
+    const d=await r.json();
+    const nom=d.status===1&&d.product?(d.product.product_name_fr||d.product.product_name||code):code;
+    const marque=d.status===1&&d.product?(d.product.brands||''):'';
+    document.getElementById('scan-co-nom').textContent=nom;
+    document.getElementById('scan-co-marque').textContent=marque||'Saisissez le nom si incorrect';
+    document.getElementById('scan-co-result').style.display='block';
+    document.getElementById('scan-co-result').dataset.code=code;
+    document.getElementById('scan-co-result').dataset.nom=nom;
+    document.getElementById('scan-co-qte').value='x1';
+    const bibItem=biblio.find(b=>b.code_barre===code||b.nom.toLowerCase()===nom.toLowerCase());
+    document.getElementById('scan-co-prix').value=bibItem?.prix?bibItem.prix.toFixed(2):'';
+    document.getElementById('scan-co-status').textContent=d.status===1?'Produit identifié':'Code non référencé — modifiez le nom';
+    // Stopper la caméra
+    const video=document.getElementById('scan-co-video');
+    if(video&&video.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());}
+  }catch(e){
+    document.getElementById('scan-co-status').textContent='Erreur réseau — réessayez';
   }
 }
 async function addScannedItem(){const res=document.getElementById('scan-co-result');const nom=res.dataset.nom;const code=res.dataset.code;const rayon=res.dataset.rayon||'Épicerie';const prix=parseFloat(document.getElementById('scan-co-prix').value)||null;const qte=document.getElementById('scan-co-qte').value||'x1';if(!nom||!curListeId){toast('Erreur');return;}const{data,error}=await db.from('maivi_courses').insert({nom,quantite:qte,categorie:rayon,prix,fait:false,liste_id:curListeId}).select().single();if(error){toast('Erreur');return;}if(data)cos.unshift(data);const existing=biblio.find(b=>b.code_barre===code||b.nom.toLowerCase()===nom.toLowerCase());if(existing){await db.from('maivi_biblio').update({prix:prix||existing.prix,code_barre:code}).eq('id',existing.id);}else{const{data:bd}=await db.from('maivi_biblio').insert({nom,rayon,prix,code_barre:code,nb_achats:0}).select().single();if(bd)biblio.unshift(bd);}updateBiblioDatalist();closeScanCo();rCo();rHome();toast(nom+' ajouté');}
@@ -1983,7 +1984,7 @@ async function delFid(){
 async function openScanModal(){
   om('mfscan');
   document.getElementById('scan-status').textContent='Autorise la caméra puis vise le code-barres.';
-  if(typeof Html5Qrcode==='undefined'){ document.getElementById('scan-status').textContent="Le module scan ne s'est pas chargé. Recharge la page."; return; }
+  if(typeof Html5Qrcode==='undefined'){ document.getElementById('scan-status').textContent="Scanner non disponible."; return; }
   try{
     if(scanReader){ try{ await scanReader.stop(); }catch(e){} try{ await scanReader.clear(); }catch(e){} }
     scanReader=new Html5Qrcode('scan-reader');
