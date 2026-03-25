@@ -302,17 +302,23 @@ body{
   <div class="bg"><div class="blob b1"></div><div class="blob b2"></div></div>
   <div class="rel">
     <!-- Header -->
-    <div style="padding:16px 20px 10px;display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <div style="font-size:28px;font-weight:900;color:var(--dk);letter-spacing:-.5px" id="ag-big-title">Mars</div>
-        <div style="font-size:13px;font-weight:700;color:var(--mid)" id="ag-big-year">2026</div>
+    <div style="padding:16px 20px 10px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div>
+          <div style="font-size:28px;font-weight:900;color:var(--dk);letter-spacing:-.5px" id="ag-big-title">Mars</div>
+          <div style="font-size:13px;font-weight:700;color:var(--mid)" id="ag-big-year">2026</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding-top:4px">
+          <button onclick="openEvModal()" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,#F0D5C6,#EAB796);border:none;font-size:18px;font-weight:900;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(234,183,150,.35);line-height:1">+</button>
+          <button onclick="openGardeModal()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.8);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mid)">⚙</button>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <button class="fp on" id="vw-sem" onclick="setView('semaine')" style="padding:7px 12px">Semaine</button>
-        <button class="fp off" id="vw-mois" onclick="setView('mois')" style="padding:7px 12px">Mois</button>
-        <button class="fp off" id="vw-plan" onclick="setView('planning')" style="padding:7px 12px">Planning</button>
-        <button class="ab" onclick="openEvModal()" style="width:38px;height:38px;font-size:20px">+</button>
-        <button onclick="openGardeModal()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.8);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">⚙️</button>
+
+      <!-- Segmented control iOS style -->
+      <div style="margin-top:12px;background:rgba(47,65,75,.07);border-radius:12px;padding:3px;display:flex;gap:2px">
+        <button id="vw-sem" onclick="setView('semaine')" style="flex:1;padding:7px 0;border-radius:10px;border:none;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .18s;background:white;color:var(--dk);box-shadow:0 2px 6px rgba(0,0,0,.08)">Semaine</button>
+        <button id="vw-mois" onclick="setView('mois')" style="flex:1;padding:7px 0;border-radius:10px;border:none;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .18s;background:transparent;color:var(--mid);box-shadow:none">Mois</button>
+        <button id="vw-plan" onclick="setView('planning')" style="flex:1;padding:7px 0;border-radius:10px;border:none;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .18s;background:transparent;color:var(--mid);box-shadow:none">Planning</button>
       </div>
     </div>
 
@@ -471,7 +477,7 @@ body{
         <button class="ev-type-btn" data-type="mariage" onclick="selEvType(this)">Mariage</button>
         <button class="ev-type-btn" data-type="portrait" onclick="selEvType(this)">Portrait</button>
         <button class="ev-type-btn" data-type="garde_papa" onclick="selEvType(this)">Garde papa</button>
-        <button class="ev-type-btn" data-type="garde_partage" onclick="selEvType(this)">Partagé</button>
+        <button class="ev-type-btn" data-type="garde_partage" onclick="selEvType(this)">Pro</button>
         <button class="ev-type-btn" data-type="vacances" onclick="selEvType(this)">Vacances</button>
       </div>
     </div>
@@ -1008,9 +1014,15 @@ function togFilt(id){agFilters.has(id)?agFilters.delete(id):agFilters.add(id);rA
 function fEvs(){return agFilters.size===0?evs:evs.filter(e=>agFilters.has(e.membre_id));}
 function setView(v){
   agV=v;
-  document.getElementById('vw-sem').className='fp '+(v==='semaine'?'on':'off');
-  document.getElementById('vw-mois').className='fp '+(v==='mois'?'on':'off');
-  document.getElementById('vw-plan').className='fp '+(v==='planning'?'on':'off');
+  // Segmented control styling
+  const btns={semaine:'vw-sem',mois:'vw-mois',planning:'vw-plan'};
+  Object.entries(btns).forEach(([view,id])=>{
+    const btn=document.getElementById(id);if(!btn)return;
+    const active=view===v;
+    btn.style.background=active?'white':'transparent';
+    btn.style.color=active?'var(--dk)':'var(--mid)';
+    btn.style.boxShadow=active?'0 2px 6px rgba(0,0,0,.08)':'none';
+  });
   document.getElementById('view-semaine').style.display=v==='semaine'?'block':'none';
   document.getElementById('view-mois').style.display=v==='mois'?'block':'none';
   document.getElementById('view-planning').style.display=v==='planning'?'block':'none';
@@ -1142,7 +1154,7 @@ const TYPE_HEADERS={
   'portrait': {bg:'linear-gradient(135deg,#6B8FA3,#8AAFC4)', label:'Portrait'},
   'pro':      {bg:'linear-gradient(135deg,#547189,#6B8FA3)', label:'Professionnel'},
   'garde_papa':{bg:'linear-gradient(135deg,#7EA99F,#5C8F85)', label:'Garde chez papa'},
-  'garde_partage':{bg:'linear-gradient(135deg,#B79AD6,#9B80C0)', label:'Garde partagée'},
+  'garde_partage':{bg:'linear-gradient(135deg,#547189,#6B8FA3)', label:'Pro'},
   'vacances': {bg:'linear-gradient(135deg,#EDB777,#D4965A)', label:'Vacances'},
 };
 
