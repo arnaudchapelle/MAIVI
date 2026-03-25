@@ -491,10 +491,35 @@ body{
   </div>
 </div>
 
-<!-- ═══ TAB BAR GLOBALE ═══ -->
+<!-- ═══ CONTACTS ═══ -->
+<div class="page" id="pg-contacts">
+  <div class="bg"><div class="blob b1"></div><div class="blob b2"></div></div>
+  <div class="rel">
+    <div style="padding:16px 20px 10px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:28px;font-weight:900;color:var(--dk);letter-spacing:-.5px">Contacts</div>
+        <div style="font-size:13px;font-weight:700;color:var(--mid)" id="contacts-count">—</div>
+      </div>
+      <button onclick="openContactModal()" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,#F0D5C6,#EAB796);border:none;font-size:18px;font-weight:900;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(234,183,150,.35)">+</button>
+    </div>
+    <!-- Filtres -->
+    <div style="margin:0 20px 12px;display:flex;gap:6px">
+      <button class="fp on" id="cf-all" onclick="setContactFilter('all')">Tous</button>
+      <button class="fp off" id="cf-photo" onclick="setContactFilter('photo')">Photo</button>
+      <button class="fp off" id="cf-perso" onclick="setContactFilter('perso')">Personnel</button>
+    </div>
+    <!-- Search -->
+    <div style="margin:0 20px 12px">
+      <input style="width:100%;background:rgba(255,255,255,.8);border-radius:16px;padding:10px 16px;font-size:14px;font-family:'Nunito',sans-serif;border:1px solid rgba(255,255,255,.85);color:var(--dk);box-shadow:var(--shadow-soft);outline:none" placeholder="Rechercher..." id="contact-search" oninput="rContacts()">
+    </div>
+    <div id="contacts-list"><div class="load"><div class="spin"></div></div></div>
+  </div>
+</div>
+
+
 <div id="tab-bar">
   <div class="tab" id="tab-agenda" onclick="go('agenda')"><div class="ti">📅</div><div class="tlab">AGENDA</div></div>
-  <div class="tab" id="tab-courses" onclick="go('courses')"><div class="ti">✅</div><div class="tlab">COURSES</div></div>
+  <div class="tab" id="tab-contacts" onclick="go('contacts')"><div class="ti">👤</div><div class="tlab">CONTACTS</div></div>
   <div class="tab on" id="tab-home" onclick="go('home')"><div class="thome">🏠</div><div class="tlab" style="color:var(--teal)">ACCUEIL</div></div>
   <div class="tab" id="tab-sante" onclick="go('sante')"><div class="ti">💊</div><div class="tlab">SANTÉ</div></div>
   <div class="tab" id="tab-pro" onclick="go('pro')"><div class="ti">📸</div><div class="tlab">PRO</div></div>
@@ -694,6 +719,84 @@ body{
 </div>
 
 
+<!-- ═══ MODAL CONTACT ═══ -->
+<div class="modal-bg" id="mcontact" style="display:none" onclick="if(event.target===this)cm('mcontact')">
+  <div class="modal">
+    <div class="mh"></div>
+    <div class="mt" id="mcontact-title">Nouveau contact</div>
+    <div class="fr">
+      <div style="flex:1"><label class="fl">PRÉNOM</label><input class="fi" id="ct-prenom" placeholder="Prénom"></div>
+      <div style="flex:1"><label class="fl">NOM</label><input class="fi" id="ct-nom" placeholder="Nom"></div>
+    </div>
+    <label class="fl">TYPE</label>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button class="fp on" id="ct-type-photo" onclick="selCtType('photo')" style="flex:1">Client photo</button>
+      <button class="fp off" id="ct-type-perso" onclick="selCtType('perso')" style="flex:1">Personnel</button>
+    </div>
+    <label class="fl">TÉLÉPHONE</label>
+    <input class="fi" id="ct-tel" type="tel" placeholder="06 00 00 00 00">
+    <label class="fl">EMAIL</label>
+    <input class="fi" id="ct-email" type="email" placeholder="email@exemple.com">
+    <label class="fl">ADRESSE COMPLÈTE</label>
+    <input class="fi" id="ct-adresse" placeholder="Rue, code postal, ville">
+    <label class="fl">NOTE</label>
+    <textarea class="fi" id="ct-note" placeholder="Informations, contexte..." style="min-height:60px;resize:none"></textarea>
+    <input type="hidden" id="ct-id">
+    <input type="hidden" id="ct-type-val" value="photo">
+    <button class="sav" onclick="saveContact()">Enregistrer</button>
+    <button class="can" id="ct-delbtn" style="display:none;background:#FEE;color:#E85A5A;border-color:#F5C5C5" onclick="delContact()">Supprimer</button>
+    <button class="can" onclick="cm('mcontact')">Annuler</button>
+  </div>
+</div>
+
+<!-- ═══ ONBOARDING ═══ -->
+<div id="onboarding" style="display:none;position:fixed;inset:0;z-index:900;background:#FAF5F1">
+  <div style="height:100%;display:flex;flex-direction:column">
+    <div id="ob-slides" style="flex:1;overflow:hidden;position:relative">
+      <div class="ob-slide on" id="ob-1">
+        <div style="height:45%;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#E3F0EC,#D4E8E4)">
+          <div style="text-align:center"><div style="font-size:72px;line-height:1;margin-bottom:12px">📅</div><div style="font-size:12px;font-weight:900;color:var(--teal);letter-spacing:.8px">CALENDRIER</div></div>
+        </div>
+        <div style="padding:32px 28px"><div style="font-size:26px;font-weight:900;color:var(--dk);letter-spacing:-.4px;margin-bottom:12px">Un calendrier<br>conçu pour la famille</div><div style="font-size:15px;font-weight:600;color:var(--mid);line-height:1.6">Vue semaine, mois, planning et annuelle. Swipe pour naviguer. Météo intégrée sur chaque jour sélectionné.</div></div>
+      </div>
+      <div class="ob-slide" id="ob-2">
+        <div style="height:45%;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#EEE7F8,#E4DAF5)">
+          <div style="text-align:center"><div style="display:flex;gap:16px;justify-content:center;margin-bottom:12px"><div style="width:60px;height:60px;border-radius:18px;background:rgba(126,169,159,.2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:var(--teal)">A</div><div style="width:60px;height:60px;border-radius:18px;background:rgba(183,154,214,.2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:var(--purple)">B</div></div><div style="font-size:12px;font-weight:900;color:var(--purple);letter-spacing:.8px">GARDE ALTERNÉE</div></div>
+        </div>
+        <div style="padding:32px 28px"><div style="font-size:26px;font-weight:900;color:var(--dk);letter-spacing:-.4px;margin-bottom:12px">Semaines A et B<br>visualisées d'un coup</div><div style="font-size:15px;font-weight:600;color:var(--mid);line-height:1.6">Le calendrier colore automatiquement chaque semaine selon la garde. Réglez votre semaine de référence dans les réglages.</div></div>
+      </div>
+      <div class="ob-slide" id="ob-3">
+        <div style="height:45%;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#FDF3D7,#FAE8B4)">
+          <div style="text-align:center"><div style="display:flex;gap:10px;justify-content:center;margin-bottom:12px"><div style="padding:10px 16px;border-radius:14px;background:rgba(201,169,110,.2);font-size:13px;font-weight:900;color:#A07840">Mariage</div><div style="padding:10px 16px;border-radius:14px;background:rgba(107,143,163,.2);font-size:13px;font-weight:900;color:#4A6B7E">Portrait</div></div><div style="font-size:12px;font-weight:900;color:#A07840;letter-spacing:.8px">VUE PRO</div></div>
+        </div>
+        <div style="padding:32px 28px"><div style="font-size:26px;font-weight:900;color:var(--dk);letter-spacing:-.4px;margin-bottom:12px">Votre planning photo<br>toujours visible</div><div style="font-size:15px;font-weight:600;color:var(--mid);line-height:1.6">La vue Pro liste tous vos mariages et portraits. Durée automatique, lieu avec lien Maps, contacts clients intégrés.</div></div>
+      </div>
+      <div class="ob-slide" id="ob-4">
+        <div style="height:45%;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#FCE8DF,#F8D4C4)">
+          <div style="text-align:center"><img src="mascotte.png" style="width:90px;height:90px;object-fit:contain"><div style="font-size:12px;font-weight:900;color:var(--coral);letter-spacing:.8px;margin-top:8px">MAIVI</div></div>
+        </div>
+        <div style="padding:32px 28px"><div style="font-size:26px;font-weight:900;color:var(--dk);letter-spacing:-.4px;margin-bottom:12px">Tout pour la famille<br>en un seul endroit</div><div style="font-size:15px;font-weight:600;color:var(--mid);line-height:1.6">Courses, santé, contacts, fidélité. Maivi centralise tout ce dont votre famille a besoin au quotidien.</div></div>
+      </div>
+    </div>
+    <div style="padding:20px 28px 40px;background:#FAF5F1">
+      <div style="display:flex;justify-content:center;gap:6px;margin-bottom:20px">
+        <div style="height:5px;border-radius:3px;transition:all .3s;background:var(--dk)" id="od-1"></div>
+        <div style="height:5px;border-radius:3px;transition:all .3s;background:rgba(47,65,75,.18)" id="od-2"></div>
+        <div style="height:5px;border-radius:3px;transition:all .3s;background:rgba(47,65,75,.18)" id="od-3"></div>
+        <div style="height:5px;border-radius:3px;transition:all .3s;background:rgba(47,65,75,.18)" id="od-4"></div>
+      </div>
+      <button id="ob-btn" onclick="obNext()" style="width:100%;padding:16px;border-radius:20px;background:var(--dk);color:white;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;border:none;cursor:pointer">Suivant</button>
+      <div style="text-align:center;margin-top:12px"><span onclick="obSkip()" style="font-size:13px;font-weight:700;color:var(--soft);cursor:pointer">Passer l'introduction</span></div>
+    </div>
+  </div>
+</div>
+
+<style>
+.ob-slide{display:none;position:absolute;inset:0}
+.ob-slide.on{display:flex;flex-direction:column;animation:obIn .28s ease}
+@keyframes obIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+</style>
+
 <div class="modal-bg" id="mfid" style="display:none" onclick="if(event.target===this)cm('mfid')">
   <div class="modal">
     <div class="mh"></div><div class="mt" id="mfid-title">Nouvelle carte 🎁</div>
@@ -781,7 +884,7 @@ function ec(e){
 }
 
 // ── NAVIGATION ──────────────────────────────────
-const PAGE_ORDER=['home','agenda','pro','courses','sante','membres','fidelite'];
+const PAGE_ORDER=['home','agenda','contacts','pro','courses','sante','membres','fidelite'];
 let curPage='home';
 
 function go(p){
@@ -815,6 +918,7 @@ function go(p){
   if(p==='home')rHome();
   if(p==='pro')rPro();
   if(p==='annee')rAnnee();
+  if(p==='contacts')rContacts();
 }
 
 // ── TYPES PHOTO ───────────────────────────────
@@ -1635,19 +1739,148 @@ function schedNotifs(){
 
 init();
 
+// ── ONBOARDING ────────────────────────────────
+let obSlide=1;
+function showOnboarding(){
+  document.getElementById('onboarding').style.display='block';
+  obSlide=1;obUpdateUI();
+}
+function obNext(){
+  if(obSlide<4){obSlide++;obUpdateUI();}
+  else obSkip();
+}
+function obSkip(){
+  document.getElementById('onboarding').style.display='none';
+  localStorage.setItem('maivi_onboarded','1');
+}
+function obUpdateUI(){
+  for(let i=1;i<=4;i++){
+    const s=document.getElementById('ob-'+i);
+    if(s)s.classList.toggle('on',i===obSlide);
+    const d=document.getElementById('od-'+i);
+    if(d){d.style.width=i===obSlide?'20px':'6px';d.style.background=i===obSlide?'var(--dk)':'rgba(47,65,75,.18)';}
+  }
+  const btn=document.getElementById('ob-btn');
+  if(btn)btn.textContent=obSlide===4?'Commencer':'Suivant';
+}
+// Lancer l'onboarding au premier démarrage
+if(!localStorage.getItem('maivi_onboarded'))setTimeout(showOnboarding,400);
+
+// ── CONTACTS ──────────────────────────────────
+let contacts=[];
+let contactFilter='all';
+
+async function loadContacts(){
+  const{data}=await db.from('maivi_contacts').select('*').order('nom');
+  contacts=data||[];
+  rContacts();
+}
+
+function setContactFilter(f){
+  contactFilter=f;
+  document.getElementById('cf-all').className='fp '+(f==='all'?'on':'off');
+  document.getElementById('cf-photo').className='fp '+(f==='photo'?'on':'off');
+  document.getElementById('cf-perso').className='fp '+(f==='perso'?'on':'off');
+  rContacts();
+}
+
+function rContacts(){
+  const search=(document.getElementById('contact-search')?.value||'').toLowerCase();
+  let list=contacts;
+  if(contactFilter!=='all')list=list.filter(c=>c.type===contactFilter);
+  if(search)list=list.filter(c=>(c.prenom+' '+c.nom+' '+(c.email||'')+(c.tel||'')).toLowerCase().includes(search));
+  const count=document.getElementById('contacts-count');
+  if(count)count.textContent=list.length+' contact'+(list.length>1?'s':'');
+  if(!list.length){
+    document.getElementById('contacts-list').innerHTML=`<div class="empty" style="padding:40px 20px">Aucun contact.<br><span onclick="openContactModal()" style="color:var(--teal);cursor:pointer;font-weight:800">+ Ajouter</span></div>`;
+    return;
+  }
+  // Group by first letter
+  const groups={};
+  list.forEach(c=>{const l=(c.nom||c.prenom||'?')[0].toUpperCase();if(!groups[l])groups[l]=[];groups[l].push(c);});
+  let h='';
+  Object.keys(groups).sort().forEach(letter=>{
+    h+=`<div style="margin:0 20px 4px;font-size:11px;font-weight:900;color:var(--soft);letter-spacing:1px">${letter}</div>`;
+    h+=`<div style="margin:0 20px 12px;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.7));border:1px solid rgba(255,255,255,.8);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-soft)">`;
+    groups[letter].forEach((c,i)=>{
+      const evCount=evs.filter(e=>e.contact_id===c.id).length;
+      const isLast=i===groups[letter].length-1;
+      h+=`<div style="padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:${isLast?'none':'.5px solid rgba(47,65,75,.08)'}" onclick="openContactModal('${c.id}')">
+        <div style="width:40px;height:40px;border-radius:50%;background:${c.type==='photo'?'rgba(201,169,110,.15)':'rgba(126,169,159,.15)'};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:${c.type==='photo'?'#A07840':'var(--teal)'};">${(c.prenom||c.nom||'?')[0].toUpperCase()}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:900;color:var(--dk)">${c.prenom||''} ${c.nom||''}</div>
+          <div style="font-size:11px;font-weight:700;color:var(--mid);margin-top:2px">${c.type==='photo'?'Client photo':'Personnel'}${evCount?' · '+evCount+' rdv':''}</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          ${c.tel?`<a href="tel:${c.tel}" onclick="event.stopPropagation()" style="width:32px;height:32px;border-radius:50%;background:rgba(126,169,159,.12);display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px">📞</a>`:''}
+          ${c.email?`<a href="mailto:${c.email}" onclick="event.stopPropagation()" style="width:32px;height:32px;border-radius:50%;background:rgba(126,169,159,.12);display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px">✉️</a>`:''}
+        </div>
+      </div>`;
+    });
+    h+=`</div>`;
+  });
+  document.getElementById('contacts-list').innerHTML=h;
+}
+
+function selCtType(t){
+  document.getElementById('ct-type-val').value=t;
+  document.getElementById('ct-type-photo').className='fp '+(t==='photo'?'on':'off');
+  document.getElementById('ct-type-perso').className='fp '+(t==='perso'?'on':'off');
+}
+
+function openContactModal(id){
+  if(id){
+    const c=contacts.find(x=>x.id===id);
+    if(c){
+      document.getElementById('ct-prenom').value=c.prenom||'';
+      document.getElementById('ct-nom').value=c.nom||'';
+      document.getElementById('ct-tel').value=c.tel||'';
+      document.getElementById('ct-email').value=c.email||'';
+      document.getElementById('ct-adresse').value=c.adresse||'';
+      document.getElementById('ct-note').value=c.note||'';
+      selCtType(c.type||'photo');
+      document.getElementById('ct-id').value=id;
+      document.getElementById('mcontact-title').textContent='Modifier le contact';
+      document.getElementById('ct-delbtn').style.display='block';
+    }
+  } else {
+    ['ct-prenom','ct-nom','ct-tel','ct-email','ct-adresse','ct-note'].forEach(x=>document.getElementById(x).value='');
+    selCtType('photo');
+    document.getElementById('ct-id').value='';
+    document.getElementById('mcontact-title').textContent='Nouveau contact';
+    document.getElementById('ct-delbtn').style.display='none';
+  }
+  om('mcontact');
+}
+
+async function saveContact(){
+  const prenom=document.getElementById('ct-prenom').value.trim();
+  const nom=document.getElementById('ct-nom').value.trim();
+  if(!prenom&&!nom){toast('Nom requis');return;}
+  const p={prenom,nom,type:document.getElementById('ct-type-val').value,tel:document.getElementById('ct-tel').value||null,email:document.getElementById('ct-email').value||null,adresse:document.getElementById('ct-adresse').value||null,note:document.getElementById('ct-note').value||null};
+  const id=document.getElementById('ct-id').value;
+  const{error}=id?await db.from('maivi_contacts').update(p).eq('id',id):await db.from('maivi_contacts').insert(p);
+  if(error){toast('Erreur : '+error.message);return;}
+  cm('mcontact');await loadContacts();toast(id?'Contact modifié':'Contact ajouté');
+}
+
+async function delContact(){
+  const id=document.getElementById('ct-id').value;
+  document.getElementById('cmsg').textContent='Supprimer ce contact ?';
+  document.getElementById('cyb').onclick=async()=>{
+    await db.from('maivi_contacts').delete().eq('id',id);
+    cm('mconf');cm('mcontact');await loadContacts();toast('Contact supprimé');
+  };
+  om('mconf');
+}
+
 setTimeout(()=>{
-  // Swipe sur agenda — mois et semaine
   const ag=document.getElementById('pg-agenda');
-  if(ag){
-    addSwipe(ag,
-      ()=>{if(agV==='semaine')nw();else nm();},
-      ()=>{if(agV==='semaine')pw();else pm();}
-    );
-  }
-  // Notifs
+  if(ag){addSwipe(ag,()=>{if(agV==='semaine')nw();else if(agV==='mois')nm();},()=>{if(agV==='semaine')pw();else if(agV==='mois')pm();});}
   if('Notification' in window&&Notification.permission==='default'){
-    Notification.requestPermission().then(p=>{if(p==='granted')toast('🔔 Notifications activées !');});
+    Notification.requestPermission().then(p=>{if(p==='granted')toast('Notifications activées');});
   }
+  loadContacts();
 },600);
 </script>
 <!-- Modal réglages garde A/B -->
