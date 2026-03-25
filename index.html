@@ -47,8 +47,8 @@ body{
 .ev-type-btn{padding:10px 8px;border-radius:14px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;letter-spacing:.3px;transition:all .15s;background:rgba(255,255,255,.25);color:rgba(255,255,255,.7)}
 .ev-type-btn.active{background:rgba(255,255,255,.95);color:var(--dk);box-shadow:0 4px 12px rgba(0,0,0,.1)}
 .ev-body{flex:1;overflow-y:auto;padding:20px 20px 0;-webkit-overflow-scrolling:touch}
-.ev-title-input{width:100%;font-size:22px;font-weight:900;color:var(--dk);background:transparent;border:none;outline:none;font-family:'Nunito',sans-serif;padding:0;margin-bottom:20px;letter-spacing:-.3px}
-.ev-title-input::placeholder{color:var(--soft)}
+.ev-title-input{width:100%;font-size:20px;font-weight:900;color:var(--dk);background:rgba(255,255,255,.85);border:none;outline:none;font-family:'Nunito',sans-serif;padding:10px 14px;margin-bottom:16px;letter-spacing:-.3px;border-radius:14px}
+.ev-title-input::placeholder{color:#9BB0BF;font-weight:700}
 .ev-date-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .ev-date-block{background:rgba(47,65,75,.04);border-radius:16px;padding:12px 14px;cursor:pointer}
 .ev-date-label{font-size:10px;font-weight:800;color:var(--soft);letter-spacing:.6px;margin-bottom:4px}
@@ -1524,7 +1524,12 @@ async function saveEv(){
   const id=document.getElementById('eid').value;
   const{error}=id?await db.from('maivi_evenements').update(p).eq('id',id):await db.from('maivi_evenements').insert(p);
   if(error){toast('Erreur : '+error.message);return;}
-  cm('mev');toast(id?'Modifié':'Ajouté');
+  // Mise à jour immédiate sans attendre le realtime
+  const{data:newEvs}=await db.from('maivi_evenements').select('*').order('date_debut');
+  if(newEvs)evs=newEvs;
+  cm('mev');
+  rHome();rAg();rPro();
+  toast(id?'Modifié':'Ajouté');
 }
 
 function showEv(id){
