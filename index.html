@@ -398,20 +398,39 @@ body{
 <div class="page" id="pg-courses">
   <div class="bg"><div class="blob b1"></div><div class="blob b2"></div></div>
   <div class="rel">
-    <div class="ptop"><input class="sb" placeholder="🔍  Rechercher..."><button class="ab" onclick="openCModal()">+</button></div>
-    <div class="card" style="display:flex;align-items:center">
-      <div style="flex:1"><div style="font-family:'Baloo 2',cursive;font-size:17px;font-weight:800;color:var(--dk)">Salut !</div><div style="font-size:12px;color:var(--mid);font-weight:600;margin-top:2px">On prépare la liste ?</div></div>
-      <div style="font-size:44px">🧺</div>
+    <!-- Header -->
+    <div style="padding:16px 20px 10px;display:flex;align-items:flex-start;justify-content:space-between">
+      <div>
+        <div style="font-size:28px;font-weight:900;color:var(--dk);letter-spacing:-.5px">Courses</div>
+        <div style="font-size:13px;font-weight:700;color:var(--mid)" id="courses-estimtotal">Liste vide</div>
+      </div>
+      <div style="display:flex;gap:8px;padding-top:4px">
+        <button onclick="openScanCourse()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.8);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mid)">⊙</button>
+        <button onclick="openBibliotheque()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.8);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mid);font-weight:900">★</button>
+        <button onclick="openCModal()" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,#F0D5C6,#EAB796);border:none;font-size:18px;font-weight:900;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(234,183,150,.35)">+</button>
+      </div>
     </div>
-    <div class="cadd">
-      <input class="ci" id="cqi" placeholder="+ Ajouter un article..." onkeydown="if(event.key==='Enter')qadd()">
-      <button class="cs" onclick="qadd()">Ajouter</button>
+
+    <!-- Listes onglets -->
+    <div style="margin:0 20px 12px;display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch" id="listes-tabs"></div>
+
+    <!-- Ajout rapide -->
+    <div style="margin:0 20px 14px;display:flex;gap:8px">
+      <input style="flex:1;background:rgba(255,255,255,.82);border-radius:16px;padding:11px 16px;font-size:14px;font-family:'Nunito',sans-serif;border:1px solid rgba(255,255,255,.9);color:var(--dk);box-shadow:var(--shadow-soft);outline:none" id="cqi" placeholder="Ajouter un article..." onkeydown="if(event.key==='Enter')qadd()" list="biblio-datalist">
+      <datalist id="biblio-datalist"></datalist>
+      <button onclick="qadd()" style="background:linear-gradient(180deg,#9CC0B8,#7EA99F);color:white;border:none;border-radius:14px;padding:11px 16px;font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;white-space:nowrap">Ajouter</button>
     </div>
-    <div id="clist"><div class="empty">🛒 Liste vide !</div></div>
-    <div class="cfooter">
-      <button class="fb" onclick="checkAll()">✅ Tout cocher</button>
-      <button class="fb red" onclick="delChecked()">🗑 Supprimer cochés</button>
+
+    <!-- Liste articles -->
+    <div id="clist" style="padding:0 20px"><div class="empty">Liste vide</div></div>
+
+    <!-- Estimation total -->
+    <div id="courses-total-bar" style="display:none;margin:12px 20px;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.7));border:1px solid rgba(255,255,255,.8);border-radius:18px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow-soft)">
+      <div style="font-size:13px;font-weight:700;color:var(--mid)">Estimation</div>
+      <div style="font-size:18px;font-weight:900;color:var(--dk)" id="courses-total-val">0 €</div>
     </div>
+
+    <div style="height:80px"></div>
   </div>
 </div>
 
@@ -652,19 +671,80 @@ body{
   </div>
 </div>
 
+<!-- Modal ajout article -->
 <div class="modal-bg" id="mco" style="display:none" onclick="if(event.target===this)cm('mco')">
   <div class="modal">
-    <div class="mh"></div><div class="mt">Ajouter un article 🛒</div>
-    <label class="fl">NOM</label><input class="fi" id="cnom" placeholder="Ex: Lait, Pain...">
-    <label class="fl">QUANTITÉ</label><input class="fi" id="cqte" placeholder="Ex: 2, 500g...">
-    <label class="fl">CATÉGORIE</label>
+    <div class="mh"></div>
+    <div class="mt">Nouvel article</div>
+    <label class="fl">NOM DE L'ARTICLE</label>
+    <input class="fi" id="cnom" placeholder="Lait, Pain, Yaourt...">
+    <div class="fr">
+      <div style="flex:1"><label class="fl">QUANTITÉ</label><input class="fi" id="cqte" placeholder="x1 x2 x3..."></div>
+      <div style="flex:1"><label class="fl">PRIX ESTIMÉ</label><input class="fi" id="cprix" type="number" step="0.01" placeholder="0.00 €"></div>
+    </div>
+    <label class="fl">LISTE</label>
+    <select class="fi" id="cliste-sel"></select>
+    <label class="fl">RAYON</label>
     <select class="fi" id="ccat">
-      <option>🥕 Fruits & légumes</option><option>🥛 Produits laitiers</option>
-      <option>🍳 Petit déjeuner</option><option>🥩 Viandes & poissons</option>
-      <option>🥫 Épicerie</option><option>🧹 Entretien</option><option>💊 Pharmacie</option>
+      <option value="Fruits & légumes">Fruits & légumes</option>
+      <option value="Produits frais">Produits frais</option>
+      <option value="Petit déjeuner">Petit déjeuner</option>
+      <option value="Viandes & poissons">Viandes & poissons</option>
+      <option value="Épicerie">Épicerie</option>
+      <option value="Boissons">Boissons</option>
+      <option value="Entretien">Entretien</option>
+      <option value="Hygiène">Hygiène</option>
+      <option value="Pharmacie">Pharmacie</option>
     </select>
-    <button class="sav" onclick="saveCo()">Ajouter</button>
+    <button class="sav" onclick="saveCo()">Ajouter à la liste</button>
     <button class="can" onclick="cm('mco')">Annuler</button>
+  </div>
+</div>
+
+<!-- Modal scan code-barres -->
+<div class="modal-bg" id="mscan-co" style="display:none" onclick="if(event.target===this)closeScanCo()">
+  <div class="modal">
+    <div class="mh"></div>
+    <div class="mt">Scanner un article</div>
+    <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:12px;line-height:1.5">Scannez le code-barres d'un article pour l'identifier automatiquement et mémoriser son prix.</div>
+    <div id="scan-co-reader" style="width:100%;min-height:220px;border-radius:20px;overflow:hidden;background:#111;margin-bottom:12px"></div>
+    <div id="scan-co-status" style="font-size:12px;font-weight:700;color:var(--mid);text-align:center;margin-bottom:12px">Autorise la caméra pour scanner</div>
+    <div id="scan-co-result" style="display:none">
+      <div style="background:var(--teal-s);border-radius:16px;padding:14px;margin-bottom:12px">
+        <div style="font-size:15px;font-weight:900;color:var(--dk)" id="scan-co-nom"></div>
+        <div style="font-size:12px;font-weight:700;color:var(--mid);margin-top:4px" id="scan-co-marque"></div>
+      </div>
+      <label class="fl">PRIX EN RAYON (€)</label>
+      <input class="fi" id="scan-co-prix" type="number" step="0.01" placeholder="0.00">
+      <label class="fl">QUANTITÉ</label>
+      <input class="fi" id="scan-co-qte" placeholder="x1" value="x1">
+      <button class="sav" onclick="addScannedItem()">Ajouter à la liste</button>
+    </div>
+    <button class="can" onclick="closeScanCo()">Fermer</button>
+  </div>
+</div>
+
+<!-- Modal bibliothèque -->
+<div class="modal-bg" id="mbiblio" style="display:none" onclick="if(event.target===this)cm('mbiblio')">
+  <div class="modal">
+    <div class="mh"></div>
+    <div class="mt">Ma bibliothèque</div>
+    <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:12px">Articles déjà achetés — tap pour ajouter à la liste.</div>
+    <input class="fi" style="margin-bottom:12px" placeholder="Rechercher..." id="biblio-search" oninput="rBiblio()">
+    <div id="biblio-list" style="max-height:50vh;overflow-y:auto"></div>
+    <button class="can" onclick="cm('mbiblio')">Fermer</button>
+  </div>
+</div>
+
+<!-- Modal nouvelle liste -->
+<div class="modal-bg" id="mnewliste" style="display:none" onclick="if(event.target===this)cm('mnewliste')">
+  <div class="modal">
+    <div class="mh"></div>
+    <div class="mt">Nouvelle liste</div>
+    <label class="fl">NOM DE LA LISTE</label>
+    <input class="fi" id="newliste-nom" placeholder="Ex: Leclerc, Pharmacie, Marché...">
+    <button class="sav" onclick="saveNewListe()">Créer</button>
+    <button class="can" onclick="cm('mnewliste')">Annuler</button>
   </div>
 </div>
 
@@ -1572,32 +1652,126 @@ function confDelEv(){
 }
 
 // ── COURSES ──────────────────────────────────────
-function rCo(){
-  const cats=[...new Set(cos.map(c=>c.categorie))];
-  if(!cats.length){document.getElementById('clist').innerHTML=`<div class="empty">🛒 Liste vide !<br><span style="color:var(--teal);font-weight:700;cursor:pointer" onclick="openCModal()">+ Ajouter</span></div>`;return;}
-  let h='';
-  cats.forEach(cat=>{
-    const its=cos.filter(c=>c.categorie===cat);if(!its.length)return;
-    const em=cat.split(' ')[0],nm=cat.split(' ').slice(1).join(' ');
-    h+=`<div style="margin:0 20px 10px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:18px">${em}</span><span style="font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--dk)">${nm}</span></div><div class="ccard">`;
-    its.forEach(c=>{h+=`<div class="cit" onclick="togCo('${c.id}')"><div class="cck ${c.fait?'on':'off'}">${c.fait?'<span style="color:white;font-size:11px">✓</span>':''}</div><div style="flex:1;font-size:13px;font-weight:600;color:${c.fait?'var(--soft)':'var(--dk)'};${c.fait?'text-decoration:line-through':''}">${c.nom}${c.quantite?' ('+c.quantite+')':''}</div><div style="font-size:14px;color:var(--soft);padding:4px;cursor:pointer" onclick="event.stopPropagation();delCo('${c.id}')">🗑</div></div>`;});
-    h+=`</div></div>`;
-  });
-  document.getElementById('clist').innerHTML=h;
-}
-async function togCo(id){
-  const c=cos.find(x=>x.id===id);if(!c)return;
-  c.fait=!c.fait; rHome(); rCo();
-  const {error}=await db.from('maivi_courses').update({fait:c.fait}).eq('id',id);
-  if(error){c.fait=!c.fait; rHome(); rCo(); toast('❌ '+error.message);}
+// ── COURSES ──────────────────────────────────────
+let listes=[];
+let biblio=[];
+let curListeId=null;
+let scanCoReader=null;
+
+async function initCourses(){
+  const{data:ld}=await db.from('maivi_listes').select('*').order('created_at');
+  listes=ld||[];
+  if(!listes.length){
+    const{data}=await db.from('maivi_listes').insert({nom:'Leclerc'}).select().single();
+    if(data){listes=[data];curListeId=data.id;}
+  } else {curListeId=listes[0].id;}
+  const{data:bd}=await db.from('maivi_biblio').select('*').order('nb_achats',{ascending:false});
+  biblio=bd||[];
+  rListesTabs();rCo();updateBiblioDatalist();
 }
 
-async function delCo(id){await db.from('maivi_courses').delete().eq('id',id);toast('🗑 Supprimé');}
-async function qadd(){const i=document.getElementById('cqi');const n=i.value.trim();if(!n)return;const temp={id:'tmp-'+Date.now(),nom:n,categorie:'🥫 Épicerie',fait:false};cos.unshift(temp);rHome();rCo();i.value='';const {data,error}=await db.from('maivi_courses').insert({nom:n,categorie:'🥫 Épicerie',fait:false}).select().single();if(error){cos=cos.filter(x=>x.id!==temp.id);rHome();rCo();toast('❌ '+error.message);return;}cos=cos.filter(x=>x.id!==temp.id);if(data)cos.unshift(data);rHome();rCo();toast('✅ Ajouté !');}
-async function checkAll(){cos.forEach(c=>c.fait=true);rHome();rCo();await Promise.all(cos.map(c=>db.from('maivi_courses').update({fait:true}).eq('id',c.id)));}
-async function delChecked(){const ch=cos.filter(c=>c.fait);if(!ch.length){toast('Rien de coché');return;}document.getElementById('cmsg').textContent=`Supprimer ${ch.length} article${ch.length>1?'s':''} ?`;document.getElementById('cyb').onclick=async()=>{await Promise.all(ch.map(c=>db.from('maivi_courses').delete().eq('id',c.id)));cm('mconf');};om('mconf');}
-function openCModal(){om('mco');document.getElementById('cnom').value='';document.getElementById('cqte').value='';}
-async function saveCo(){const n=document.getElementById('cnom').value.trim();if(!n){toast('❌ Nom requis');return;}const temp={id:'tmp-'+Date.now(),nom:n,quantite:document.getElementById('cqte').value||null,categorie:document.getElementById('ccat').value,fait:false};cos.unshift(temp);rHome();rCo();cm('mco');const{data,error}=await db.from('maivi_courses').insert({nom:n,quantite:document.getElementById('cqte').value||null,categorie:document.getElementById('ccat').value,fait:false}).select().single();if(error){cos=cos.filter(x=>x.id!==temp.id);rHome();rCo();toast('❌ '+error.message);return;}cos=cos.filter(x=>x.id!==temp.id);if(data)cos.unshift(data);rHome();rCo();toast('✅ Ajouté !');}
+function rListesTabs(){
+  const el=document.getElementById('listes-tabs');if(!el)return;
+  let h=listes.map(l=>`<div style="padding:7px 16px;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .15s;${curListeId===l.id?'background:var(--dk);color:white':'background:rgba(255,255,255,.8);color:var(--mid);border:1px solid rgba(255,255,255,.9)'}" onclick="switchListe('${l.id}')">${l.nom}</div>`).join('');
+  h+=`<div style="padding:7px 14px;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;background:rgba(255,255,255,.5);color:var(--soft);border:1px dashed rgba(47,65,75,.2)" onclick="om('mnewliste');document.getElementById('newliste-nom').value=''">+ Liste</div>`;
+  el.innerHTML=h;
+  const sel=document.getElementById('cliste-sel');
+  if(sel)sel.innerHTML=listes.map(l=>`<option value="${l.id}"${l.id===curListeId?' selected':''}>${l.nom}</option>`).join('');
+}
+
+function switchListe(id){curListeId=id;rListesTabs();rCo();}
+
+async function saveNewListe(){
+  const nom=document.getElementById('newliste-nom').value.trim();
+  if(!nom){toast('Nom requis');return;}
+  const{data,error}=await db.from('maivi_listes').insert({nom}).select().single();
+  if(error){toast('Erreur');return;}
+  listes.push(data);curListeId=data.id;
+  cm('mnewliste');rListesTabs();rCo();toast('Liste créée');
+}
+
+function updateBiblioDatalist(){
+  const dl=document.getElementById('biblio-datalist');
+  if(dl)dl.innerHTML=biblio.map(b=>`<option value="${b.nom}">`).join('');
+}
+
+function rCo(){
+  const listeCos=cos.filter(c=>c.liste_id===curListeId);
+  const pending=listeCos.filter(c=>!c.fait);
+  const done=listeCos.filter(c=>c.fait);
+  const total=pending.reduce((sum,c)=>{const px=c.prix||0;const qt=parseInt((c.quantite||'x1').replace(/[^0-9]/g,''))||1;return sum+px*qt;},0);
+  const totalBar=document.getElementById('courses-total-bar');
+  const totalVal=document.getElementById('courses-total-val');
+  const estimEl=document.getElementById('courses-estimtotal');
+  if(total>0&&totalBar){totalBar.style.display='flex';if(totalVal)totalVal.textContent=total.toFixed(2)+' €';if(estimEl)estimEl.textContent=`~${total.toFixed(2)} € · ${pending.length} article${pending.length>1?'s':''}`;}
+  else{if(totalBar)totalBar.style.display='none';if(estimEl)estimEl.textContent=pending.length?`${pending.length} article${pending.length>1?'s':'`}`:' Liste vide`};}
+  if(!listeCos.length){document.getElementById('clist').innerHTML=`<div class="empty" style="padding:40px 0">Liste vide.<br><span onclick="openCModal()" style="color:var(--teal);cursor:pointer;font-weight:800">+ Ajouter un article</span></div>`;return;}
+  const rayons={};
+  pending.forEach(c=>{const r=c.categorie||'Épicerie';if(!rayons[r])rayons[r]=[];rayons[r].push(c);});
+  let h='';
+  Object.keys(rayons).sort().forEach(rayon=>{
+    h+=`<div style="margin-bottom:4px;font-size:10px;font-weight:900;color:var(--soft);letter-spacing:.8px;text-transform:uppercase">${rayon}</div>`;
+    h+=`<div style="background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.7));border:1px solid rgba(255,255,255,.8);border-radius:20px;margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow-soft)">`;
+    rayons[rayon].forEach((c,i)=>{
+      const prix=c.prix?(c.prix*(parseInt((c.quantite||'x1').replace(/[^0-9]/g,''))||1)).toFixed(2)+' €':'';
+      const isLast=i===rayons[rayon].length-1;
+      h+=`<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:${isLast?'none':'.5px solid rgba(47,65,75,.07)'};cursor:pointer" onclick="togCo('${c.id}')"><div style="width:24px;height:24px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${c.fait?'var(--teal)':'rgba(255,255,255,.9)'};border:${c.fait?'none':'1.5px solid rgba(47,65,75,.15)'}"></div><div style="flex:1"><div style="font-size:14px;font-weight:800;color:var(--dk)">${c.nom}</div><div style="font-size:11px;font-weight:700;color:var(--mid);margin-top:1px">${c.quantite||'x1'}${prix?' · '+prix:''}</div></div><div style="font-size:18px;color:var(--soft);cursor:pointer;padding:4px;font-weight:300;line-height:1" onclick="event.stopPropagation();delCo('${c.id}')">×</div></div>`;
+    });
+    h+=`</div>`;
+  });
+  if(done.length){
+    h+=`<div style="margin-bottom:8px;font-size:10px;font-weight:900;color:var(--soft);letter-spacing:.8px">DANS LE PANIER (${done.length})</div>`;
+    h+=`<div style="background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.7);border-radius:20px;overflow:hidden;margin-bottom:10px">`;
+    done.forEach((c,i)=>{const isLast=i===done.length-1;h+=`<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:${isLast?'none':'.5px solid rgba(47,65,75,.06)'};cursor:pointer;opacity:.55" onclick="togCo('${c.id}')"><div style="width:24px;height:24px;border-radius:8px;flex-shrink:0;background:var(--teal)"></div><div style="flex:1;font-size:13px;font-weight:700;color:var(--mid);text-decoration:line-through">${c.nom} ${c.quantite||'x1'}</div><div style="font-size:18px;color:var(--soft);padding:4px;cursor:pointer;font-weight:300" onclick="event.stopPropagation();delCo('${c.id}')">×</div></div>`;});
+    h+=`</div><button onclick="delChecked()" style="width:100%;padding:11px;border-radius:16px;background:rgba(255,255,255,.6);color:var(--soft);font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;border:1px solid rgba(47,65,75,.1);cursor:pointer;margin-bottom:12px">Vider le panier</button>`;
+  }
+  document.getElementById('clist').innerHTML=h;
+}
+
+async function togCo(id){
+  const c=cos.find(x=>x.id===id);if(!c)return;
+  const newVal=!c.fait;c.fait=newVal;rCo();rHome();
+  await db.from('maivi_courses').update({fait:newVal}).eq('id',id);
+  if(newVal){addToBiblio(c);setTimeout(async()=>{cos=cos.filter(x=>x.id!==id);await db.from('maivi_courses').delete().eq('id',id);rCo();rHome();},2000);}
+}
+
+async function addToBiblio(c){
+  const existing=biblio.find(b=>b.nom.toLowerCase()===c.nom.toLowerCase());
+  if(existing){await db.from('maivi_biblio').update({nb_achats:(existing.nb_achats||0)+1,prix:c.prix||existing.prix,rayon:c.categorie||existing.rayon}).eq('id',existing.id);existing.nb_achats=(existing.nb_achats||0)+1;}
+  else{const{data}=await db.from('maivi_biblio').insert({nom:c.nom,rayon:c.categorie||'Épicerie',prix:c.prix||null,nb_achats:1}).select().single();if(data)biblio.unshift(data);}
+  updateBiblioDatalist();
+}
+
+async function delCo(id){cos=cos.filter(x=>x.id!==id);rCo();rHome();await db.from('maivi_courses').delete().eq('id',id);}
+
+async function qadd(){
+  const input=document.getElementById('cqi');const n=input.value.trim();if(!n)return;
+  if(!curListeId){toast('Sélectionnez une liste');return;}
+  const bibItem=biblio.find(b=>b.nom.toLowerCase()===n.toLowerCase());
+  const prix=bibItem?.prix||null;const rayon=bibItem?.rayon||'Épicerie';
+  const temp={id:'tmp-'+Date.now(),nom:n,quantite:'x1',categorie:rayon,prix,fait:false,liste_id:curListeId};
+  cos.unshift(temp);rCo();rHome();input.value='';
+  const{data,error}=await db.from('maivi_courses').insert({nom:n,quantite:'x1',categorie:rayon,prix,fait:false,liste_id:curListeId}).select().single();
+  if(error){cos=cos.filter(x=>x.id!==temp.id);rCo();toast('Erreur');return;}
+  cos=cos.filter(x=>x.id!==temp.id);if(data)cos.unshift(data);rCo();rHome();
+}
+
+async function checkAll(){cos.filter(c=>c.liste_id===curListeId&&!c.fait).forEach(c=>c.fait=true);rCo();rHome();await Promise.all(cos.filter(c=>c.liste_id===curListeId).map(c=>db.from('maivi_courses').update({fait:true}).eq('id',c.id)));}
+
+async function delChecked(){const ch=cos.filter(c=>c.liste_id===curListeId&&c.fait);if(!ch.length)return;cos=cos.filter(c=>!(c.liste_id===curListeId&&c.fait));rCo();rHome();await Promise.all(ch.map(c=>db.from('maivi_courses').delete().eq('id',c.id)));}
+
+function openCModal(){document.getElementById('cnom').value='';document.getElementById('cqte').value='x1';document.getElementById('cprix').value='';const sel=document.getElementById('cliste-sel');if(sel){sel.innerHTML=listes.map(l=>`<option value="${l.id}"${l.id===curListeId?' selected':''}>${l.nom}</option>`).join('');}om('mco');}
+
+async function saveCo(){const n=document.getElementById('cnom').value.trim();if(!n){toast('Nom requis');return;}const listeId=document.getElementById('cliste-sel')?.value||curListeId;const prix=parseFloat(document.getElementById('cprix').value)||null;const temp={id:'tmp-'+Date.now(),nom:n,quantite:document.getElementById('cqte').value||'x1',categorie:document.getElementById('ccat').value,prix,fait:false,liste_id:listeId};cos.unshift(temp);rCo();rHome();cm('mco');const{data,error}=await db.from('maivi_courses').insert({nom:n,quantite:temp.quantite,categorie:temp.categorie,prix,fait:false,liste_id:listeId}).select().single();if(error){cos=cos.filter(x=>x.id!==temp.id);rCo();toast('Erreur');return;}cos=cos.filter(x=>x.id!==temp.id);if(data)cos.unshift(data);rCo();rHome();}
+
+function openBibliotheque(){rBiblio();om('mbiblio');}
+function rBiblio(){const search=(document.getElementById('biblio-search')?.value||'').toLowerCase();const list=biblio.filter(b=>b.nom.toLowerCase().includes(search));if(!list.length){document.getElementById('biblio-list').innerHTML=`<div class="empty" style="padding:20px 0">Bibliothèque vide.<br>Scannez des articles pour commencer.</div>`;return;}let h='<div style="background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.7));border:1px solid rgba(255,255,255,.8);border-radius:20px;overflow:hidden">';list.forEach((b,i)=>{const isLast=i===list.length-1;h+=`<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:${isLast?'none':'.5px solid rgba(47,65,75,.07)'};cursor:pointer" onclick="addFromBiblio('${b.id}')"><div style="flex:1"><div style="font-size:13px;font-weight:800;color:var(--dk)">${b.nom}</div><div style="font-size:11px;font-weight:700;color:var(--mid);margin-top:1px">${b.rayon||''}${b.prix?' · '+b.prix.toFixed(2)+' €':''}</div></div><div style="font-size:11px;font-weight:700;color:var(--soft)">${b.nb_achats}x</div><div style="width:28px;height:28px;border-radius:50%;background:var(--teal-s);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--teal);font-weight:900">+</div></div>`;});h+='</div>';document.getElementById('biblio-list').innerHTML=h;}
+async function addFromBiblio(id){const b=biblio.find(x=>x.id===id);if(!b||!curListeId)return;const temp={id:'tmp-'+Date.now(),nom:b.nom,quantite:'x1',categorie:b.rayon||'Épicerie',prix:b.prix||null,fait:false,liste_id:curListeId};cos.unshift(temp);rCo();rHome();const{data,error}=await db.from('maivi_courses').insert({nom:b.nom,quantite:'x1',categorie:b.rayon||'Épicerie',prix:b.prix||null,fait:false,liste_id:curListeId}).select().single();cos=cos.filter(x=>x.id!==temp.id);if(data)cos.unshift(data);rCo();rHome();toast(b.nom+' ajouté');cm('mbiblio');}
+
+function openScanCourse(){document.getElementById('scan-co-result').style.display='none';document.getElementById('scan-co-status').textContent='Autorise la caméra pour scanner';om('mscan-co');setTimeout(()=>startScanCo(),300);}
+function closeScanCo(){if(scanCoReader){try{scanCoReader.stop();}catch(e){}}scanCoReader=null;cm('mscan-co');}
+async function startScanCo(){if(!window.Html5Qrcode){toast('Scanner non disponible');return;}scanCoReader=new Html5Qrcode('scan-co-reader');try{await scanCoReader.start({facingMode:'environment'},{fps:10,qrbox:220},async(code)=>{await scanCoReader.stop();document.getElementById('scan-co-status').textContent='Recherche...';try{const r=await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);const d=await r.json();if(d.status===1&&d.product){const nom=d.product.product_name_fr||d.product.product_name||code;const marque=d.product.brands||'';document.getElementById('scan-co-nom').textContent=nom;document.getElementById('scan-co-marque').textContent=marque;document.getElementById('scan-co-result').style.display='block';document.getElementById('scan-co-result').dataset.code=code;document.getElementById('scan-co-result').dataset.nom=nom;document.getElementById('scan-co-result').dataset.rayon='Épicerie';document.getElementById('scan-co-qte').value='x1';const bibItem=biblio.find(b=>b.code_barre===code||b.nom.toLowerCase()===nom.toLowerCase());if(bibItem?.prix)document.getElementById('scan-co-prix').value=bibItem.prix.toFixed(2);document.getElementById('scan-co-status').textContent='Produit trouvé';}else{document.getElementById('scan-co-status').textContent='Produit non reconnu. Code: '+code;}}catch(e){document.getElementById('scan-co-status').textContent='Erreur réseau';}},()=>{});}catch(e){document.getElementById('scan-co-status').textContent='Caméra non disponible';}}
+async function addScannedItem(){const res=document.getElementById('scan-co-result');const nom=res.dataset.nom;const code=res.dataset.code;const rayon=res.dataset.rayon||'Épicerie';const prix=parseFloat(document.getElementById('scan-co-prix').value)||null;const qte=document.getElementById('scan-co-qte').value||'x1';if(!nom||!curListeId){toast('Erreur');return;}const{data,error}=await db.from('maivi_courses').insert({nom,quantite:qte,categorie:rayon,prix,fait:false,liste_id:curListeId}).select().single();if(error){toast('Erreur');return;}if(data)cos.unshift(data);const existing=biblio.find(b=>b.code_barre===code||b.nom.toLowerCase()===nom.toLowerCase());if(existing){await db.from('maivi_biblio').update({prix:prix||existing.prix,code_barre:code}).eq('id',existing.id);}else{const{data:bd}=await db.from('maivi_biblio').insert({nom,rayon,prix,code_barre:code,nb_achats:0}).select().single();if(bd)biblio.unshift(bd);}updateBiblioDatalist();closeScanCo();rCo();rHome();toast(nom+' ajouté');}
 
 // ── SANTE ────────────────────────────────────────
 function sff(f){sfilt=f;document.getElementById('sf1').className='fp '+(f==='today'?'on':'off');document.getElementById('sf2').className='fp '+(f==='avenir'?'on':'off');rSa();}
@@ -1891,6 +2065,7 @@ setTimeout(()=>{
     Notification.requestPermission().then(p=>{if(p==='granted')toast('Notifications activées');});
   }
   loadContacts();
+  initCourses();
 },600);
 </script>
 <!-- Modal réglages garde A/B -->
