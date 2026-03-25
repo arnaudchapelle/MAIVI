@@ -1,26 +1,7 @@
-const CACHE_NAME = "maivi-v3";
-
-// Installation
-self.addEventListener("install", (event) => {
-  self.skipWaiting();
-});
-
-// Activation
-self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
-});
-
-// Fetch (réseau d'abord, fallback cache)
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        const responseClone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseClone);
-        });
-        return response;
-      })
-      .catch(() => caches.match(event.request))
-  );
-});
+const CACHE = 'maivi-v1';
+const ASSETS = ['/', '/index.html', '/manifest.json'];
+self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))); self.skipWaiting(); });
+self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))); self.clients.claim(); });
+self.addEventListener('fetch', e => { e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); });
+self.addEventListener('push', e => { const d = e.data?.json()||{}; e.waitUntil(self.registration.showNotification(d.title||'Maivi', { body: d.body||'', icon: '/icon-192.png', badge: '/icon-192.png' })); });
+self.addEventListener('notificationclick', e => { e.notification.close(); e.waitUntil(clients.openWindow('/')); });

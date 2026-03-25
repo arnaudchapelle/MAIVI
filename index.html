@@ -95,19 +95,25 @@ body{
 .profile-chip{width:48px;height:48px;border-radius:24px;background:rgba(255,255,255,.76);border:1px solid rgba(255,255,255,.82);box-shadow:var(--shadow-soft);display:flex;align-items:center;justify-content:center;font-size:21px;cursor:pointer;position:relative}
 .profile-badge{position:absolute;top:-2px;right:-2px;width:22px;height:22px;border-radius:50%;background:var(--coral);color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
 
+/* ── WEEK STRIP ── */
 .wstrip{border-radius:26px;padding:14px 16px;margin:0 20px 14px}
-.wnav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:10px;font-size:15px;font-weight:900;color:var(--dk)}
-.wnavb{background:rgba(126,169,159,.12);border:none;font-size:20px;cursor:pointer;color:var(--teal);padding:4px 10px;border-radius:999px}
+.wnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.wnav-title{font-size:22px;font-weight:900;color:var(--dk);letter-spacing:-.3px}
+.wnav-month{font-size:13px;font-weight:700;color:var(--mid);margin-top:1px}
+.wnavb{background:rgba(126,169,159,.12);border:none;font-size:18px;cursor:pointer;color:var(--teal);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .wdays{display:flex;justify-content:space-between}
-.wd{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;flex:1}
+.wd{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;flex:1;padding:4px 2px;border-radius:16px;transition:.15s}
+.wd:active{background:rgba(126,169,159,.08)}
 .wdn{font-size:10px;font-weight:800;color:var(--soft);letter-spacing:.5px}
-.wdd,.mnum{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:var(--dk)}
-.wdd.tod,.mnum.tod{background:linear-gradient(180deg,#F1D5C4,#EAB796);color:#fff}
-.wdd.sel,.mnum.sel{background:var(--teal-s);color:var(--teal)}
+.wdd{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:var(--dk);transition:.15s}
+.wdd.tod{background:linear-gradient(180deg,#F1D5C4,#EAB796);color:#fff;box-shadow:0 4px 10px rgba(234,183,150,.4)}
+.wdd.sel{background:var(--teal);color:#fff;box-shadow:0 4px 10px rgba(126,169,159,.35)}
 .wdots{display:flex;gap:3px;min-height:6px;justify-content:center}
 .wdot{width:5px;height:5px;border-radius:50%}
-.ev{border-radius:18px;padding:11px 13px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.74);border:1px solid rgba(255,255,255,.7);box-shadow:var(--shadow-soft)}
-.ev:active{opacity:.8}
+
+/* ── EVENTS ── */
+.ev{border-radius:18px;padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.74);border:1px solid rgba(255,255,255,.7);box-shadow:var(--shadow-soft);transition:transform .12s}
+.ev:active{transform:scale(.98)}
 .edot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .ebody{flex:1}
 .en{font-size:13px;font-weight:900;color:var(--dk)}
@@ -116,8 +122,31 @@ body{
 .pro-pill{background:#E4EEF8;color:#547189}
 .perso-pill{background:var(--coral-s);color:#9B654C}
 .vac-band{background:var(--orange-s);border-radius:999px;padding:6px 12px;font-size:11px;font-weight:800;color:#9A6C34;margin-bottom:10px;display:inline-block}
-.mcell{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:2px}
-.mnum.vac{background:var(--orange-s);color:#9A6C34}
+
+/* ── MONTH CALENDAR (Apple-grade) ── */
+.cal-hero{margin:0 16px 0;border-radius:28px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.76));border:1px solid rgba(255,255,255,.8);box-shadow:0 18px 42px rgba(89,80,74,.10)}
+.cal-header{padding:16px 18px 8px;display:flex;align-items:center;justify-content:space-between}
+.cal-month-title{font-size:24px;font-weight:900;color:var(--dk);letter-spacing:-.4px}
+.cal-year{font-size:24px;font-weight:300;color:var(--mid);letter-spacing:-.4px}
+.cal-nav{display:flex;gap:6px}
+.cal-navb{width:34px;height:34px;border-radius:50%;background:rgba(126,169,159,.12);border:none;font-size:17px;cursor:pointer;color:var(--teal);display:flex;align-items:center;justify-content:center}
+.cal-days-header{display:grid;grid-template-columns:repeat(7,1fr);padding:0 12px 6px}
+.cal-dh{text-align:center;font-size:11px;font-weight:700;color:var(--soft);letter-spacing:.3px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:0 10px 14px}
+.mcell{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:3px;border-radius:12px;transition:.12s}
+.mcell:active{background:rgba(126,169,159,.08)}
+.mnum{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--dk);transition:.15s}
+.mnum.tod{background:linear-gradient(180deg,#F1D5C4,#EAB796);color:#fff;font-weight:900;box-shadow:0 4px 10px rgba(234,183,150,.4)}
+.mnum.sel{background:var(--teal);color:#fff;font-weight:900;box-shadow:0 4px 10px rgba(126,169,159,.35)}
+.mnum.vac{color:var(--orange)}
+.mnum.other{color:var(--soft)}
+.mdots{display:flex;gap:2px;justify-content:center;min-height:6px}
+.mdot{width:5px;height:5px;border-radius:50%}
+
+/* Day panel below month cal */
+.day-panel{margin:14px 16px 0;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.7));border:1px solid rgba(255,255,255,.8);box-shadow:var(--shadow-soft);padding:14px 16px;min-height:80px}
+.day-panel-title{font-size:15px;font-weight:900;color:var(--dk);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.day-add-btn{font-size:12px;font-weight:800;color:var(--teal);cursor:pointer;background:var(--teal-s);padding:5px 12px;border-radius:999px;border:none;font-family:'Nunito',sans-serif}
 
 .cadd{margin:0 20px 12px;display:flex;gap:8px}
 .ci,.fi{background:rgba(255,255,255,.76);border-radius:16px;padding:11px 14px;font-size:13px;font-family:'Nunito',sans-serif;border:1px solid rgba(255,255,255,.82);color:var(--dk);box-shadow:var(--shadow-soft)}
@@ -235,31 +264,68 @@ body{
 <div class="page" id="pg-agenda">
   <div class="bg"><div class="blob b1"></div><div class="blob b2"></div></div>
   <div class="rel">
-    <div class="ptop"><input class="sb" placeholder="🔍  Rechercher..."><button class="ab" onclick="openEvModal()">+</button></div>
-    <div style="margin:0 20px 10px;display:flex;gap:8px">
-      <button class="fp on" id="vw-sem" onclick="setView('semaine')">Semaine</button>
-      <button class="fp off" id="vw-mois" onclick="setView('mois')">Mois</button>
+    <!-- Header -->
+    <div style="padding:16px 20px 10px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:28px;font-weight:900;color:var(--dk);letter-spacing:-.5px" id="ag-big-title">Mars</div>
+        <div style="font-size:13px;font-weight:700;color:var(--mid)" id="ag-big-year">2026</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="fp on" id="vw-sem" onclick="setView('semaine')" style="padding:7px 14px">Semaine</button>
+        <button class="fp off" id="vw-mois" onclick="setView('mois')" style="padding:7px 14px">Mois</button>
+        <button class="ab" onclick="openEvModal()" style="width:38px;height:38px;font-size:20px">+</button>
+      </div>
     </div>
-    <div style="margin:0 20px 10px;display:flex;gap:6px;overflow-x:auto;padding-bottom:2px" id="agenda-filters"></div>
+
+    <!-- Filtres membres -->
+    <div style="margin:0 20px 12px;display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch" id="agenda-filters"></div>
+
+    <!-- ── SEMAINE VIEW ── -->
     <div id="view-semaine">
       <div class="wstrip">
-        <div class="wnav"><button class="wnavb" onclick="pw()">‹</button><span id="wlabel">...</span><button class="wnavb" onclick="nw()">›</button></div>
+        <div class="wnav">
+          <div>
+            <div class="wnav-title" id="wlabel">...</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="wnavb" onclick="pw()">‹</button>
+            <button class="wnavb" onclick="nw()">›</button>
+          </div>
+        </div>
         <div class="wdays" id="wdays"></div>
       </div>
       <div id="atl" style="padding:0 20px"></div>
     </div>
+
+    <!-- ── MOIS VIEW ── -->
     <div id="view-mois" style="display:none">
-      <div class="wstrip">
-        <div class="wnav"><button class="wnavb" onclick="pm()">‹</button><span id="mlabel">...</span><button class="wnavb" onclick="nm()">›</button></div>
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:8px;text-align:center">
-          <div style="font-size:10px;font-weight:700;color:var(--soft);padding:3px">L</div><div style="font-size:10px;font-weight:700;color:var(--soft);padding:3px">M</div><div style="font-size:10px;font-weight:700;color:var(--soft);padding:3px">M</div><div style="font-size:10px;font-weight:700;color:var(--soft);padding:3px">J</div><div style="font-size:10px;font-weight:700;color:var(--soft);padding:3px">V</div><div style="font-size:10px;font-weight:700;color:var(--soft);padding:3px">S</div><div style="font-size:10px;font-weight:700;color:var(--soft);padding:3px">D</div>
+      <div class="cal-hero">
+        <div class="cal-header">
+          <div>
+            <span class="cal-month-title" id="mlabel-m">Mars</span>
+            <span class="cal-year" id="mlabel-y"> 2026</span>
+          </div>
+          <div class="cal-nav">
+            <button class="cal-navb" onclick="pm()">‹</button>
+            <button class="cal-navb" onclick="nm()">›</button>
+          </div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px" id="mcal"></div>
-        <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;font-size:10px;font-weight:700;color:var(--mid)">
-          <span>🟢 Chez papa</span><span>🟣 Partagé</span><span>🟠 Vacances</span>
+        <div class="cal-days-header">
+          <div class="cal-dh">L</div><div class="cal-dh">M</div><div class="cal-dh">M</div>
+          <div class="cal-dh">J</div><div class="cal-dh">V</div>
+          <div class="cal-dh" style="color:var(--coral)">S</div>
+          <div class="cal-dh" style="color:var(--coral)">D</div>
         </div>
+        <div class="cal-grid" id="mcal"></div>
       </div>
-      <div id="mday-evs" style="padding:0 20px;margin-top:8px"></div>
+      <!-- Jour sélectionné -->
+      <div class="day-panel" id="mday-evs"></div>
+      <!-- Légende -->
+      <div style="margin:10px 16px;display:flex;gap:12px;flex-wrap:wrap;font-size:10px;font-weight:800;color:var(--mid)">
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#2D9E8E;display:inline-block"></span>Chez papa</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#9B7FD4;display:inline-block"></span>Partagé</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--orange);display:inline-block"></span>Vacances</span>
+      </div>
     </div>
   </div>
 </div>
@@ -652,14 +718,16 @@ function rAg(){rAgFilters();agV==='mois'?rMois():rSem();}
 function pw(){ws.setDate(ws.getDate()-7);rSem();}function nw(){ws.setDate(ws.getDate()+7);rSem();}
 function pm(){mCur.setMonth(mCur.getMonth()-1);rMois();}function nm(){mCur.setMonth(mCur.getMonth()+1);rMois();}
 function rSem(){
-  document.getElementById('wlabel').textContent=`${MO[ws.getMonth()]} ${ws.getFullYear()}`;
+  const el=document.getElementById('wlabel');if(el)el.textContent=`${MO[ws.getMonth()]} ${ws.getFullYear()}`;
+  const bt=document.getElementById('ag-big-title');if(bt)bt.textContent=MO[ws.getMonth()];
+  const by=document.getElementById('ag-big-year');if(by)by.textContent=ws.getFullYear();
   const fe=fEvs();let wh='';
   for(let i=0;i<7;i++){
     const d=new Date(ws);d.setDate(ws.getDate()+i);
     const isT=sd(d,tod),isS=sd(d,selD);
     const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return d>=s&&d<=f;});
     const dots=de.slice(0,3).map(e=>`<div class="wdot" style="background:${ec(e)}"></div>`).join('');
-    wh+=`<div class="wd" onclick="selDay(${i})"><div class="wdn">${DN[i]}</div><div class="wdd ${isT?'tod':isS&&!isT?'sel':''}">${d.getDate()}</div><div class="wdots">${dots}</div></div>`;
+    wh+=`<div class="wd" onclick="selDay(${i})"><div class="wdn">${DN[i]}</div><div class="wdd ${isT?'tod':isS?'sel':''}">${d.getDate()}</div><div class="wdots">${dots}</div></div>`;
   }
   document.getElementById('wdays').innerHTML=wh;rDayEvs();
 }
@@ -672,23 +740,28 @@ function rDayEvs(){
   const fe=fEvs();
   const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return selD>=s&&selD<=f;}).sort((a,b)=>(a.heure_debut||'00:00').localeCompare(b.heure_debut||'00:00'));
   const vac=isVac(selD);
-  let h=`<div style="font-family:'Baloo 2',cursive;font-size:15px;font-weight:700;color:var(--dk);margin-bottom:8px">${fmtD(selD)}</div>`;
-  if(vac)h+=`<div class="vac-band">${vac.n} — Zone B Normandie</div>`;
-  if(!de.length)h+=`<div class="empty">📭 Aucun événement.<br><span onclick="openEvModal(null,'${tds(selD)}')" style="color:var(--teal);cursor:pointer;font-weight:700">+ Ajouter un événement</span></div>`;
-  else{de.forEach(e=>{const c=ec(e);const pill=e.type==='pro'?'<span class="pro-pill">💼 PRO</span>':e.type==='normal'||!e.type?'<span class="perso-pill">🏠 PERSO</span>':'';const m=gm(e.membre_id);h+=`<div class="ev" style="background:${c}22;border-left:3px solid ${c}" onclick="showEv('${e.id}')"><div class="edot" style="background:${c}"></div><div class="ebody"><div class="en">${e.titre}${pill}</div><div class="em">${m?m.emoji+' '+m.nom+' · ':''} ${e.heure_debut||''}${e.heure_fin?' → '+e.heure_fin:''}</div></div><div style="font-size:16px">${e.emoji||'📅'}</div></div>`;});
-  h+=`<div style="margin-top:10px"><button onclick="openEvModal(null,'${tds(selD)}')" style="width:100%;padding:11px;border-radius:14px;background:var(--teal-s);color:var(--teal);font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;border:none;cursor:pointer">+ Ajouter un événement ce jour</button></div>`;}
+  let h=`<div style="font-size:15px;font-weight:900;color:var(--dk);margin-bottom:10px">${fmtD(selD)}</div>`;
+  if(vac)h+=`<div class="vac-band">${vac.n} — Zone B</div>`;
+  if(!de.length)h+=`<div class="empty" style="padding:14px 0">📭 Aucun événement.<br><span onclick="openEvModal(null,'${tds(selD)}')" style="color:var(--teal);cursor:pointer;font-weight:800">+ Ajouter</span></div>`;
+  else{de.forEach(e=>{const c=ec(e);const pill=e.type==='pro'?'<span class="pro-pill">💼 PRO</span>':e.type==='normal'||!e.type?'<span class="perso-pill">🏠</span>':'';const m=gm(e.membre_id);h+=`<div class="ev" style="border-left:3px solid ${c}" onclick="showEv('${e.id}')"><div class="edot" style="background:${c}"></div><div class="ebody"><div class="en">${e.titre}${pill}</div><div class="em">${m?m.emoji+' '+m.nom+' · ':''} ${e.heure_debut||''}${e.heure_fin?' → '+e.heure_fin:''}</div></div><div style="font-size:16px">${e.emoji||'📅'}</div></div>`;});
+  h+=`<button onclick="openEvModal(null,'${tds(selD)}')" style="width:100%;margin-top:6px;padding:10px;border-radius:14px;background:rgba(126,169,159,.12);color:var(--teal);font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;border:none;cursor:pointer">+ Ajouter un événement</button>`;}
   document.getElementById('atl').innerHTML=h;
 }
 function rMois(){
   const y=mCur.getFullYear(),m=mCur.getMonth();
-  document.getElementById('mlabel').textContent=`${MO[m]} ${y}`;
+  const mm=document.getElementById('mlabel-m');if(mm)mm.textContent=MO[m];
+  const my=document.getElementById('mlabel-y');if(my)my.textContent=' '+y;
+  const bt=document.getElementById('ag-big-title');if(bt)bt.textContent=MO[m];
+  const by=document.getElementById('ag-big-year');if(by)by.textContent=y;
   const fe=fEvs();const first=new Date(y,m,1);const dow=(first.getDay()+6)%7;const dim=new Date(y,m+1,0).getDate();
   let h='';for(let i=0;i<dow;i++)h+=`<div class="mcell"></div>`;
   for(let d=1;d<=dim;d++){
     const dt=new Date(y,m,d);const isT=sd(dt,tod),isS=sd(dt,selD);const vac=isVac(dt);
+    const dow2=(dt.getDay()+6)%7;const isWE=dow2>=5;
     const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return dt>=s&&dt<=f;});
-    const dots=de.slice(0,3).map(e=>`<div style="width:5px;height:5px;border-radius:50%;background:${ec(e)};display:inline-block;margin:0 1px"></div>`).join('');
-    h+=`<div class="mcell" onclick="selMD(${d})"><div class="mnum ${isT?'tod':isS?'sel':vac?'vac':''}">${d}</div><div style="display:flex;justify-content:center;min-height:5px">${dots}</div></div>`;
+    const dots=de.slice(0,3).map(e=>`<div class="mdot" style="background:${ec(e)}"></div>`).join('');
+    const nc=isT?'tod':isS?'sel':vac?'vac':isWE?'other':'';
+    h+=`<div class="mcell" onclick="selMD(${d})"><div class="mnum ${nc}">${d}</div><div class="mdots">${dots}</div></div>`;
   }
   document.getElementById('mcal').innerHTML=h;rMoisDay();
 }
@@ -698,10 +771,11 @@ function selMD(d){
 }
 function rMoisDay(){
   const fe=fEvs();const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return selD>=s&&selD<=f;});
-  const vac=isVac(selD);let h=`<div style="font-family:'Baloo 2',cursive;font-size:15px;font-weight:700;color:var(--dk);margin-bottom:8px">${fmtD(selD)}</div>`;
-  if(vac)h+=`<div class="vac-band">${vac.n}</div>`;
-  if(!de.length)h+=`<div class="empty">📭 Aucun événement.<br><span onclick="openEvModal(null,'${tds(selD)}')" style="color:var(--teal);cursor:pointer;font-weight:700">+ Ajouter</span></div>`;
-  else de.forEach(e=>{const c=ec(e);h+=`<div class="ev" style="background:${c}22;border-left:3px solid ${c}" onclick="showEv('${e.id}')"><div class="edot" style="background:${c}"></div><div class="ebody"><div class="en">${e.titre}</div><div class="em">${e.heure_debut||''}</div></div><div style="font-size:16px">${e.emoji||'📅'}</div></div>`;});
+  const vac=isVac(selD);
+  let h=`<div class="day-panel-title"><span>${fmtD(selD)}</span><button class="day-add-btn" onclick="openEvModal(null,'${tds(selD)}')">+ Ajouter</button></div>`;
+  if(vac)h+=`<div class="vac-band" style="margin-bottom:8px">${vac.n}</div>`;
+  if(!de.length)h+=`<div class="empty" style="padding:10px 0">📭 Rien ce jour</div>`;
+  else de.forEach(e=>{const c=ec(e);h+=`<div class="ev" style="border-left:3px solid ${c}" onclick="showEv('${e.id}')"><div class="edot" style="background:${c}"></div><div class="ebody"><div class="en">${e.titre}</div><div class="em">${e.heure_debut||''}</div></div><div style="font-size:16px">${e.emoji||'📅'}</div></div>`;});
   document.getElementById('mday-evs').innerHTML=h;
 }
 
