@@ -55,6 +55,7 @@ body{
 .ev-date-val{font-size:15px;font-weight:800;color:var(--dk)}
 .ev-date-time{font-size:12px;font-weight:700;color:var(--mid);margin-top:2px}
 .ev-date-input{width:100%;padding:0;border:none;outline:none;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:var(--dk);background:transparent}
+.ev-time-input{width:100%;padding:0;border:none;outline:none;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:var(--dk);background:transparent}
 .ev-section{margin-bottom:14px}
 .ev-section-label{font-size:10px;font-weight:800;color:var(--soft);letter-spacing:.6px;margin-bottom:6px}
 .ev-member-chips{display:flex;gap:6px;flex-wrap:wrap}
@@ -546,17 +547,21 @@ body{
       <!-- Titre -->
       <input class="ev-title-input" id="ett" placeholder="Titre de l'événement">
 
-      <!-- Dates -->
+      <!-- Dates & Heures -->
       <div class="ev-date-row">
         <div class="ev-date-block">
           <div class="ev-date-label">DÉBUT</div>
           <input type="date" class="ev-date-input" id="edd" onchange="updateDateDisplay()">
-          <input type="time" style="width:100%;border:none;outline:none;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--mid);background:transparent;margin-top:2px;padding:0" id="ehd">
+          <div style="height:.5px;background:rgba(47,65,75,.1);margin:6px 0"></div>
+          <div class="ev-date-label">HEURE</div>
+          <input type="time" class="ev-time-input" id="ehd">
         </div>
         <div class="ev-date-block">
           <div class="ev-date-label">FIN</div>
           <input type="date" class="ev-date-input" id="edf" onchange="updateDateDisplay()">
-          <input type="time" style="width:100%;border:none;outline:none;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--mid);background:transparent;margin-top:2px;padding:0" id="ehf">
+          <div style="height:.5px;background:rgba(47,65,75,.1);margin:6px 0"></div>
+          <div class="ev-date-label">HEURE</div>
+          <input type="time" class="ev-time-input" id="ehf">
         </div>
       </div>
 
