@@ -96,20 +96,20 @@ body{
 .profile-badge{position:absolute;top:-2px;right:-2px;width:22px;height:22px;border-radius:50%;background:var(--coral);color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
 
 /* ── WEEK STRIP ── */
-.wstrip{border-radius:26px;padding:14px 16px;margin:0 20px 14px}
+.wstrip{border-radius:26px;padding:14px 16px;margin:0 20px 14px;touch-action:pan-y}
 .wnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .wnav-title{font-size:22px;font-weight:900;color:var(--dk);letter-spacing:-.3px}
-.wnav-month{font-size:13px;font-weight:700;color:var(--mid);margin-top:1px}
 .wnavb{background:rgba(126,169,159,.12);border:none;font-size:18px;cursor:pointer;color:var(--teal);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .wdays{display:flex;justify-content:space-between}
-.wd{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;flex:1;padding:4px 2px;border-radius:16px;transition:.15s}
+.wd{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;flex:1;padding:4px 2px;border-radius:16px;transition:.15s;position:relative}
 .wd:active{background:rgba(126,169,159,.08)}
 .wdn{font-size:10px;font-weight:800;color:var(--soft);letter-spacing:.5px}
-.wdd{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:var(--dk);transition:.15s}
+.wdd{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:var(--dk);transition:.15s;position:relative;z-index:1}
 .wdd.tod{background:linear-gradient(180deg,#F1D5C4,#EAB796);color:#fff;box-shadow:0 4px 10px rgba(234,183,150,.4)}
 .wdd.sel{background:var(--teal);color:#fff;box-shadow:0 4px 10px rgba(126,169,159,.35)}
-.wdots{display:flex;gap:3px;min-height:6px;justify-content:center}
-.wdot{width:5px;height:5px;border-radius:50%}
+/* Barre de couleur sous le jour — remplace les points */
+.wbars{display:flex;gap:2px;height:4px;width:100%;padding:0 4px;margin-top:2px}
+.wbar{flex:1;border-radius:2px;min-width:4px}
 
 /* ── EVENTS ── */
 .ev{border-radius:18px;padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.74);border:1px solid rgba(255,255,255,.7);box-shadow:var(--shadow-soft);transition:transform .12s}
@@ -124,12 +124,14 @@ body{
 .vac-band{background:var(--orange-s);border-radius:999px;padding:6px 12px;font-size:11px;font-weight:800;color:#9A6C34;margin-bottom:10px;display:inline-block}
 
 /* ── MONTH CALENDAR (Apple-grade) ── */
+.cal-wrap{touch-action:pan-y;overflow:hidden}
 .cal-hero{margin:0 16px 0;border-radius:28px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.76));border:1px solid rgba(255,255,255,.8);box-shadow:0 18px 42px rgba(89,80,74,.10)}
 .cal-header{padding:16px 18px 8px;display:flex;align-items:center;justify-content:space-between}
-.cal-month-title{font-size:24px;font-weight:900;color:var(--dk);letter-spacing:-.4px}
-.cal-year{font-size:24px;font-weight:300;color:var(--mid);letter-spacing:-.4px}
+.cal-month-title{font-size:26px;font-weight:900;color:var(--dk);letter-spacing:-.5px}
+.cal-year{font-size:26px;font-weight:300;color:var(--mid);letter-spacing:-.5px}
 .cal-nav{display:flex;gap:6px}
-.cal-navb{width:34px;height:34px;border-radius:50%;background:rgba(126,169,159,.12);border:none;font-size:17px;cursor:pointer;color:var(--teal);display:flex;align-items:center;justify-content:center}
+.cal-navb{width:34px;height:34px;border-radius:50%;background:rgba(126,169,159,.12);border:none;font-size:17px;cursor:pointer;color:var(--teal);display:flex;align-items:center;justify-content:center;transition:.15s}
+.cal-navb:active{background:rgba(126,169,159,.25)}
 .cal-days-header{display:grid;grid-template-columns:repeat(7,1fr);padding:0 12px 6px}
 .cal-dh{text-align:center;font-size:11px;font-weight:700;color:var(--soft);letter-spacing:.3px}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:0 10px 14px}
@@ -140,8 +142,9 @@ body{
 .mnum.sel{background:var(--teal);color:#fff;font-weight:900;box-shadow:0 4px 10px rgba(126,169,159,.35)}
 .mnum.vac{color:var(--orange)}
 .mnum.other{color:var(--soft)}
-.mdots{display:flex;gap:2px;justify-content:center;min-height:6px}
-.mdot{width:5px;height:5px;border-radius:50%}
+/* Barres de couleur sous le numéro du mois */
+.mbars{display:flex;gap:2px;height:4px;width:32px;justify-content:center}
+.mbar{flex:1;border-radius:2px;max-width:10px}
 
 /* Day panel below month cal */
 .day-panel{margin:14px 16px 0;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.7));border:1px solid rgba(255,255,255,.8);box-shadow:var(--shadow-soft);padding:14px 16px;min-height:80px}
@@ -726,8 +729,9 @@ function rSem(){
     const d=new Date(ws);d.setDate(ws.getDate()+i);
     const isT=sd(d,tod),isS=sd(d,selD);
     const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return d>=s&&d<=f;});
-    const dots=de.slice(0,3).map(e=>`<div class="wdot" style="background:${ec(e)}"></div>`).join('');
-    wh+=`<div class="wd" onclick="selDay(${i})"><div class="wdn">${DN[i]}</div><div class="wdd ${isT?'tod':isS?'sel':''}">${d.getDate()}</div><div class="wdots">${dots}</div></div>`;
+    // Barres de couleur
+    const bars=de.slice(0,3).map(e=>`<div class="wbar" style="background:${ec(e)}"></div>`).join('');
+    wh+=`<div class="wd" onclick="selDay(${i})"><div class="wdn">${DN[i]}</div><div class="wdd ${isT?'tod':isS?'sel':''}">${d.getDate()}</div><div class="wbars">${bars}</div></div>`;
   }
   document.getElementById('wdays').innerHTML=wh;rDayEvs();
 }
@@ -759,9 +763,10 @@ function rMois(){
     const dt=new Date(y,m,d);const isT=sd(dt,tod),isS=sd(dt,selD);const vac=isVac(dt);
     const dow2=(dt.getDay()+6)%7;const isWE=dow2>=5;
     const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return dt>=s&&dt<=f;});
-    const dots=de.slice(0,3).map(e=>`<div class="mdot" style="background:${ec(e)}"></div>`).join('');
+    // Barres de couleur sous le numéro
+    const bars=de.slice(0,3).map(e=>`<div class="mbar" style="background:${ec(e)}"></div>`).join('');
     const nc=isT?'tod':isS?'sel':vac?'vac':isWE?'other':'';
-    h+=`<div class="mcell" onclick="selMD(${d})"><div class="mnum ${nc}">${d}</div><div class="mdots">${dots}</div></div>`;
+    h+=`<div class="mcell" onclick="selMD(${d})"><div class="mnum ${nc}">${d}</div><div class="mbars">${bars}</div></div>`;
   }
   document.getElementById('mcal').innerHTML=h;rMoisDay();
 }
@@ -777,6 +782,17 @@ function rMoisDay(){
   if(!de.length)h+=`<div class="empty" style="padding:10px 0">📭 Rien ce jour</div>`;
   else de.forEach(e=>{const c=ec(e);h+=`<div class="ev" style="border-left:3px solid ${c}" onclick="showEv('${e.id}')"><div class="edot" style="background:${c}"></div><div class="ebody"><div class="en">${e.titre}</div><div class="em">${e.heure_debut||''}</div></div><div style="font-size:16px">${e.emoji||'📅'}</div></div>`;});
   document.getElementById('mday-evs').innerHTML=h;
+}
+
+// ── SWIPE ────────────────────────────────────────
+function addSwipe(el,onL,onR){
+  let sx=0,sy=0;
+  el.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+  el.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-sx;
+    const dy=Math.abs(e.changedTouches[0].clientY-sy);
+    if(Math.abs(dx)>55&&dy<50){dx<0?onL():onR();}
+  },{passive:true});
 }
 
 // ── EVENT MODAL ──────────────────────────────────
@@ -997,7 +1013,21 @@ function schedNotifs(){
 }
 
 init();
-setTimeout(()=>{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission().then(p=>{if(p==='granted'){schedNotifs();toast('🔔 Notifications activées !');}});},1000);
+
+setTimeout(()=>{
+  // Swipe sur agenda — mois et semaine
+  const ag=document.getElementById('pg-agenda');
+  if(ag){
+    addSwipe(ag,
+      ()=>{if(agV==='semaine')nw();else nm();},
+      ()=>{if(agV==='semaine')pw();else pm();}
+    );
+  }
+  // Notifs
+  if('Notification' in window&&Notification.permission==='default'){
+    Notification.requestPermission().then(p=>{if(p==='granted')toast('🔔 Notifications activées !');});
+  }
+},600);
 </script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
 </body>
