@@ -711,33 +711,57 @@ body{
   <div class="modal">
     <div class="mh"></div>
     <div class="mt">Scanner un article</div>
-    <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:16px;line-height:1.5">
-      Photographiez le code-barres de l'article. L'app identifie le produit automatiquement.
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <div style="flex:1;background:rgba(126,169,159,.1);border-radius:14px;padding:10px;text-align:center">
+        <div style="font-size:10px;font-weight:900;color:var(--teal);letter-spacing:.5px">1. SCANNEZ</div>
+        <div style="font-size:10px;font-weight:600;color:var(--mid);margin-top:2px">le code-barres</div>
+      </div>
+      <div style="flex:1;background:rgba(126,169,159,.1);border-radius:14px;padding:10px;text-align:center">
+        <div style="font-size:10px;font-weight:900;color:var(--teal);letter-spacing:.5px">2. PRIX</div>
+        <div style="font-size:10px;font-weight:600;color:var(--mid);margin-top:2px">saisi une fois</div>
+      </div>
+      <div style="flex:1;background:rgba(126,169,159,.1);border-radius:14px;padding:10px;text-align:center">
+        <div style="font-size:10px;font-weight:900;color:var(--teal);letter-spacing:.5px">3. MÉMORISÉ</div>
+        <div style="font-size:10px;font-weight:600;color:var(--mid);margin-top:2px">pour toujours</div>
+      </div>
     </div>
 
-    <!-- Bouton capture caméra native iOS -->
-    <label style="display:block;width:100%;padding:16px;border-radius:18px;background:linear-gradient(180deg,#9CC0B8,#7EA99F);color:white;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;text-align:center;cursor:pointer;box-shadow:0 8px 20px rgba(126,169,159,.3);margin-bottom:10px">
-      Ouvrir la caméra
+    <!-- Viewfinder BarcodeDetector -->
+    <div id="scan-co-viewfinder" style="display:none;position:relative;width:100%;border-radius:20px;overflow:hidden;background:#000;margin-bottom:12px;height:200px">
+      <video id="scan-co-video" style="width:100%;height:100%;object-fit:cover;display:block" autoplay muted playsinline></video>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+        <div style="width:200px;height:70px;border:2px solid var(--teal);border-radius:10px;box-shadow:0 0 0 2000px rgba(0,0,0,.5)"></div>
+      </div>
+      <div id="scan-co-hint" style="position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:11px;font-weight:800;color:rgba(255,255,255,.9)">Cadrez le code-barres dans le rectangle</div>
+    </div>
+
+    <button id="scan-co-startbtn" onclick="startScanCo()" style="width:100%;padding:16px;border-radius:18px;background:linear-gradient(180deg,#9CC0B8,#7EA99F);color:white;font-size:15px;font-weight:900;font-family:Nunito,sans-serif;border:none;cursor:pointer;box-shadow:0 8px 20px rgba(126,169,159,.3);margin-bottom:8px">
+      Démarrer le scan
+    </button>
+
+    <!-- Fallback photo -->
+    <label id="scan-co-fallback" style="display:none;text-align:center;width:100%;padding:11px;border-radius:14px;background:rgba(255,255,255,.7);color:var(--mid);font-size:13px;font-weight:800;font-family:Nunito,sans-serif;cursor:pointer;border:1px solid rgba(255,255,255,.9);margin-bottom:8px">
+      Photographier le code-barres
       <input type="file" accept="image/*" capture="environment" id="scan-co-input" style="display:none" onchange="handleScanPhoto(this)">
     </label>
 
-    <label style="display:block;width:100%;padding:12px;border-radius:16px;background:rgba(255,255,255,.7);color:var(--mid);font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;text-align:center;cursor:pointer;border:1px solid rgba(255,255,255,.9)">
-      Choisir depuis la galerie
-      <input type="file" accept="image/*" id="scan-co-gallery" style="display:none" onchange="handleScanPhoto(this)">
-    </label>
-
-    <div id="scan-co-status" style="font-size:12px;font-weight:700;color:var(--mid);text-align:center;margin:12px 0;min-height:18px"></div>
+    <div id="scan-co-status" style="font-size:12px;font-weight:700;color:var(--mid);text-align:center;margin:8px 0;min-height:16px"></div>
 
     <div id="scan-co-result" style="display:none">
-      <div style="background:var(--teal-s);border-radius:16px;padding:14px;margin-bottom:12px">
-        <input class="fi" id="scan-co-nom" placeholder="Nom du produit" style="margin-bottom:0;background:transparent;border:none;font-weight:900;font-size:15px;color:var(--dk)">
-        <div style="font-size:12px;font-weight:700;color:var(--mid);margin-top:4px" id="scan-co-marque"></div>
+      <div style="background:rgba(47,65,75,.04);border-radius:16px;padding:14px;margin-bottom:12px">
+        <div style="font-size:10px;font-weight:900;color:var(--soft);letter-spacing:.6px;margin-bottom:6px">PRODUIT — modifiez si besoin</div>
+        <input class="fi" id="scan-co-nom" placeholder="Nom du produit" style="margin-bottom:4px;font-weight:900;font-size:15px;color:var(--dk)">
+        <div style="font-size:11px;font-weight:700;color:var(--mid)" id="scan-co-marque"></div>
       </div>
-      <div class="fr">
-        <div style="flex:1"><label class="fl">PRIX (€)</label><input class="fi" id="scan-co-prix" type="number" step="0.01" placeholder="0.00"></div>
-        <div style="flex:1"><label class="fl">QUANTITÉ</label><input class="fi" id="scan-co-qte" placeholder="x1" value="x1"></div>
+      <div style="background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.2);border-radius:16px;padding:14px;margin-bottom:12px">
+        <div style="font-size:10px;font-weight:900;color:#A07840;letter-spacing:.6px;margin-bottom:8px">PRIX VU EN RAYON — mémorisé pour la prochaine fois</div>
+        <div class="fr" style="margin-bottom:0">
+          <div style="flex:1"><input class="fi" id="scan-co-prix" type="number" step="0.01" placeholder="Prix €" style="margin-bottom:0"></div>
+          <div style="flex:1"><input class="fi" id="scan-co-qte" placeholder="x1" value="x1" style="margin-bottom:0"></div>
+        </div>
       </div>
       <button class="sav" onclick="addScannedItem()">Ajouter à la liste</button>
+      <button style="width:100%;margin-top:8px;padding:10px;border-radius:14px;background:transparent;color:var(--mid);font-size:12px;font-weight:800;font-family:Nunito,sans-serif;border:none;cursor:pointer" onclick="resetScanCo()">Scanner un autre article</button>
     </div>
 
     <button class="can" onclick="closeScanCo()">Fermer</button>
@@ -1797,77 +1821,105 @@ async function addFromBiblio(id){const b=biblio.find(x=>x.id===id);if(!b||!curLi
 function openScanCourse(){
   document.getElementById('scan-co-result').style.display='none';
   document.getElementById('scan-co-status').textContent='';
-  // Reset file inputs
-  document.getElementById('scan-co-input').value='';
-  document.getElementById('scan-co-gallery').value='';
+  const vf=document.getElementById('scan-co-viewfinder');
+  const sb=document.getElementById('scan-co-startbtn');
+  const fb=document.getElementById('scan-co-fallback');
+  if(vf)vf.style.display='none';
+  if(sb)sb.style.display='block';
+  if(fb)fb.style.display='none';
+  if(!('BarcodeDetector' in window)){
+    if(sb)sb.style.display='none';
+    if(fb)fb.style.display='block';
+    document.getElementById('scan-co-status').textContent='Mode photo (iOS < 17)';
+  }
   om('mscan-co');
 }
-
 function closeScanCo(){
-  scanCoReader=null;
+  const video=document.getElementById('scan-co-video');
+  if(video&&video.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());video.srcObject=null;}
+  if(scanCoReader){clearInterval(scanCoReader);scanCoReader=null;}
   cm('mscan-co');
 }
-
-async function handleScanPhoto(input){
-  if(!input.files||!input.files[0])return;
-  const file=input.files[0];
+function resetScanCo(){
+  document.getElementById('scan-co-result').style.display='none';
+  document.getElementById('scan-co-status').textContent='';
+  startScanCo();
+}
+async function startScanCo(){
   const status=document.getElementById('scan-co-status');
-  status.textContent='Analyse en cours...';
-
-  // Essayer Quagga pour décoder le code-barres depuis l'image
-  const url=URL.createObjectURL(file);
+  const sb=document.getElementById('scan-co-startbtn');
+  const vf=document.getElementById('scan-co-viewfinder');
+  const fb=document.getElementById('scan-co-fallback');
+  if(!('BarcodeDetector' in window)){if(fb)fb.style.display='block';if(sb)sb.style.display='none';return;}
   try{
-    const code=await decodeBarcode(url);
-    URL.revokeObjectURL(url);
-    if(code){
-      status.textContent='Code détecté : '+code;
-      await lookupBarcode(code);
-    } else {
-      status.textContent='Code-barres non détecté — essayez une autre photo';
-    }
+    if(sb)sb.style.display='none';
+    if(vf)vf.style.display='block';
+    status.textContent='Ouverture caméra...';
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{exact:'environment'}}}).catch(()=>navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}));
+    const video=document.getElementById('scan-co-video');
+    video.srcObject=stream;await video.play();
+    const detector=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128','code_39']});
+    status.textContent='Cadrez le code-barres';
+    let scanning=true;
+    scanCoReader=setInterval(async()=>{
+      if(!scanning||video.readyState<2)return;
+      try{
+        const bc=await detector.detect(video);
+        if(bc.length>0){
+          scanning=false;clearInterval(scanCoReader);
+          const code=bc[0].rawValue;
+          stream.getTracks().forEach(t=>t.stop());
+          if(vf)vf.style.display='none';
+          status.textContent='Code détecté — recherche...';
+          await lookupBarcode(code);
+        }
+      }catch(e){}
+    },300);
   }catch(e){
-    URL.revokeObjectURL(url);
-    status.textContent='Impossible de lire l\'image';
+    if(vf)vf.style.display='none';
+    if(fb)fb.style.display='block';
+    if(sb)sb.style.display='none';
+    status.textContent='Caméra indisponible — utilisez la photo';
   }
 }
-
-function decodeBarcode(imageUrl){
-  return new Promise((resolve)=>{
-    if(typeof Quagga==='undefined'){resolve(null);return;}
-    Quagga.decodeSingle({
-      decoder:{readers:['ean_reader','ean_8_reader','upc_reader','upc_e_reader','code_128_reader']},
-      locate:true,
-      src:imageUrl
-    },(result)=>{
-      if(result&&result.codeResult){
-        resolve(result.codeResult.code);
-      } else {
-        resolve(null);
-      }
+async function handleScanPhoto(input){
+  if(!input.files||!input.files[0])return;
+  const status=document.getElementById('scan-co-status');
+  status.textContent='Analyse...';
+  const file=input.files[0];
+  if('BarcodeDetector' in window){
+    try{
+      const img=await createImageBitmap(file);
+      const detector=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128']});
+      const bc=await detector.detect(img);
+      if(bc.length>0){await lookupBarcode(bc[0].rawValue);return;}
+    }catch(e){}
+  }
+  if(typeof Quagga!=='undefined'){
+    const url=URL.createObjectURL(file);
+    Quagga.decodeSingle({decoder:{readers:['ean_reader','ean_8_reader','upc_reader','code_128_reader']},locate:true,src:url},async(r)=>{
+      URL.revokeObjectURL(url);
+      if(r&&r.codeResult)await lookupBarcode(r.codeResult.code);
+      else status.textContent='Non détecté — réessayez';
     });
-  });
+  } else status.textContent='Non détecté';
 }
-
 async function lookupBarcode(code){
   const status=document.getElementById('scan-co-status');
   try{
-    status.textContent='Recherche du produit...';
     const r=await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
     const d=await r.json();
     const nom=d.status===1&&d.product?(d.product.product_name_fr||d.product.product_name||code):code;
     const marque=d.status===1&&d.product?(d.product.brands||''):'';
-    const nomInput=document.getElementById('scan-co-nom');
-    nomInput.value=nom;
+    document.getElementById('scan-co-nom').value=nom;
     document.getElementById('scan-co-marque').textContent=marque;
     document.getElementById('scan-co-result').style.display='block';
     document.getElementById('scan-co-result').dataset.code=code;
     document.getElementById('scan-co-qte').value='x1';
     const bibItem=biblio.find(b=>b.code_barre===code||b.nom.toLowerCase()===nom.toLowerCase());
     document.getElementById('scan-co-prix').value=bibItem?.prix?bibItem.prix.toFixed(2):'';
-    status.textContent=d.status===1?'Produit identifié — vérifiez et confirmez':'Code non référencé — modifiez le nom si besoin';
-  }catch(e){
-    status.textContent='Erreur réseau';
-  }
+    status.textContent=d.status===1?'Produit identifié':'Code inconnu — modifiez le nom';
+  }catch(e){status.textContent='Erreur réseau';}
 }
 async function addScannedItem(){
   const res=document.getElementById('scan-co-result');
