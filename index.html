@@ -31,8 +31,12 @@ body{
   --shadow:0 12px 36px rgba(113,103,95,.08);--shadow-soft:0 8px 24px rgba(113,103,95,.06);
 }
 
-.page{display:none;position:fixed;top:0;left:0;right:0;bottom:92px;background:transparent;z-index:10;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.page{display:none;position:fixed;top:0;left:0;right:0;bottom:92px;background:transparent;z-index:10;overflow-y:auto;-webkit-overflow-scrolling:touch;will-change:transform,opacity}
 .page.on{display:block}
+.page.slide-in{animation:slideIn .32s cubic-bezier(.25,.46,.45,.94) both}
+.page.slide-back{animation:slideBack .32s cubic-bezier(.25,.46,.45,.94) both}
+@keyframes slideIn{from{transform:translateX(100%);opacity:.5}to{transform:translateX(0);opacity:1}}
+@keyframes slideBack{from{transform:translateX(-30%);opacity:.5}to{transform:translateX(0);opacity:1}}
 
 #tab-bar{position:fixed;left:12px;right:12px;bottom:12px;height:76px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.6);display:flex;justify-content:space-around;align-items:center;padding:10px 10px 12px;z-index:200;backdrop-filter:blur(22px);border-radius:30px;box-shadow:0 18px 38px rgba(89,80,74,.12)}
 .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:6px 10px;min-width:48px;border-radius:18px;transition:.18s ease}
@@ -325,8 +329,8 @@ body{
       <div class="day-panel" id="mday-evs"></div>
       <!-- Légende -->
       <div style="margin:10px 16px;display:flex;gap:12px;flex-wrap:wrap;font-size:10px;font-weight:800;color:var(--mid)">
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#2D9E8E;display:inline-block"></span>Chez papa</span>
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#9B7FD4;display:inline-block"></span>Partagé</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:4px;background:rgba(126,169,159,.2);display:inline-block"></span>Sem. A — Maman</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:4px;background:rgba(183,154,214,.2);display:inline-block"></span>Sem. B — Papa</span>
         <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--orange);display:inline-block"></span>Vacances</span>
       </div>
     </div>
@@ -646,13 +650,32 @@ function ec(e){
 }
 
 // ── NAVIGATION ──────────────────────────────────
+const PAGE_ORDER=['home','agenda','courses','sante','membres','fidelite'];
+let curPage='home';
+
 function go(p){
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  const prev=curPage;
+  const pi=PAGE_ORDER.indexOf(p);
+  const ci=PAGE_ORDER.indexOf(prev);
+  const goingForward=pi>ci||prev==='home';
+
+  document.querySelectorAll('.page').forEach(x=>{
+    x.classList.remove('on','slide-in','slide-back');
+  });
   document.querySelectorAll('#tab-bar .tab').forEach(x=>x.classList.remove('on'));
+
   const pg=document.getElementById('pg-'+p);
   const tb=document.getElementById('tab-'+p);
-  if(pg)pg.classList.add('on');
+  if(pg){
+    pg.classList.add('on');
+    if(prev!==p){
+      pg.classList.add(goingForward?'slide-in':'slide-back');
+      setTimeout(()=>pg.classList.remove('slide-in','slide-back'),350);
+    }
+  }
   if(tb)tb.classList.add('on');
+  curPage=p;
+
   if(p==='agenda')rAg();
   if(p==='courses')rCo();
   if(p==='sante')rSa();
@@ -660,6 +683,21 @@ function go(p){
   if(p==='fidelite')rFid();
   if(p==='home')rHome();
 }
+
+// ── GARDE A/B ─────────────────────────────────
+// Semaine de référence A : semaine du 5 jan 2026 (lundi)
+const GARDE_REF=new Date(2026,0,5);
+function getWeekNum(d){
+  const diff=getMon(d)-GARDE_REF;
+  const weeks=Math.floor(diff/(7*86400000));
+  return weeks%2===0?'A':'B';
+}
+// Couleur de garde : A=teal (chez maman), B=purple (chez papa)
+function gardeColor(d){
+  const w=getWeekNum(d);
+  return w==='A'?'rgba(126,169,159,.15)':'rgba(183,154,214,.15)';
+}
+function gardeLetter(d){return getWeekNum(d);}
 
 
 // ── INIT ────────────────────────────────────────
@@ -724,14 +762,19 @@ function rSem(){
   const el=document.getElementById('wlabel');if(el)el.textContent=`${MO[ws.getMonth()]} ${ws.getFullYear()}`;
   const bt=document.getElementById('ag-big-title');if(bt)bt.textContent=MO[ws.getMonth()];
   const by=document.getElementById('ag-big-year');if(by)by.textContent=ws.getFullYear();
-  const fe=fEvs();let wh='';
+  const fe=fEvs();
+  const semA=getWeekNum(ws)==='A';
+  // Badge semaine A/B dans le header
+  const el2=document.getElementById('wlabel');
+  if(el2)el2.innerHTML=`${MO[ws.getMonth()]} ${ws.getFullYear()} <span style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:${semA?'rgba(126,169,159,.2)':'rgba(183,154,214,.2)'};color:${semA?'var(--teal)':'var(--purple)'}">Sem. ${semA?'A':'B'}</span>`;
+  let wh='';
   for(let i=0;i<7;i++){
     const d=new Date(ws);d.setDate(ws.getDate()+i);
     const isT=sd(d,tod),isS=sd(d,selD);
     const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return d>=s&&d<=f;});
-    // Barres de couleur
     const bars=de.slice(0,3).map(e=>`<div class="wbar" style="background:${ec(e)}"></div>`).join('');
-    wh+=`<div class="wd" onclick="selDay(${i})"><div class="wdn">${DN[i]}</div><div class="wdd ${isT?'tod':isS?'sel':''}">${d.getDate()}</div><div class="wbars">${bars}</div></div>`;
+    const bg=gardeColor(d);
+    wh+=`<div class="wd" onclick="selDay(${i})" style="background:${isS?'':bg}"><div class="wdn">${DN[i]}</div><div class="wdd ${isT?'tod':isS?'sel':''}">${d.getDate()}</div><div class="wbars">${bars}</div></div>`;
   }
   document.getElementById('wdays').innerHTML=wh;rDayEvs();
 }
@@ -763,10 +806,11 @@ function rMois(){
     const dt=new Date(y,m,d);const isT=sd(dt,tod),isS=sd(dt,selD);const vac=isVac(dt);
     const dow2=(dt.getDay()+6)%7;const isWE=dow2>=5;
     const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return dt>=s&&dt<=f;});
-    // Barres de couleur sous le numéro
     const bars=de.slice(0,3).map(e=>`<div class="mbar" style="background:${ec(e)}"></div>`).join('');
     const nc=isT?'tod':isS?'sel':vac?'vac':isWE?'other':'';
-    h+=`<div class="mcell" onclick="selMD(${d})"><div class="mnum ${nc}">${d}</div><div class="mbars">${bars}</div></div>`;
+    // Fond garde A/B sur les cellules normales
+    const cellBg=(!isT&&!isS)?gardeColor(dt):'transparent';
+    h+=`<div class="mcell" onclick="selMD(${d})" style="background:${cellBg};border-radius:10px"><div class="mnum ${nc}">${d}</div><div class="mbars">${bars}</div></div>`;
   }
   document.getElementById('mcal').innerHTML=h;rMoisDay();
 }
