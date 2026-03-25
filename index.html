@@ -316,8 +316,8 @@ body{
 
       <!-- Segmented control iOS style -->
       <div style="margin-top:12px;background:rgba(47,65,75,.07);border-radius:12px;padding:3px;display:flex;gap:2px">
-        <button id="vw-sem" onclick="setView('semaine')" style="flex:1;padding:7px 0;border-radius:10px;border:none;font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .18s;background:white;color:var(--dk);box-shadow:0 2px 6px rgba(0,0,0,.08)">Semaine</button>
-        <button id="vw-mois" onclick="setView('mois')" style="flex:1;padding:7px 0;border-radius:10px;border:none;font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .18s;background:transparent;color:var(--mid);box-shadow:none">Mois</button>
+        <button id="vw-sem" onclick="setView('semaine')" style="flex:1;padding:7px 0;border-radius:10px;border:none;font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .18s;background:transparent;color:var(--mid);box-shadow:none">Semaine</button>
+        <button id="vw-mois" onclick="setView('mois')" style="flex:1;padding:7px 0;border-radius:10px;border:none;font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .18s;background:white;color:var(--dk);box-shadow:0 2px 6px rgba(0,0,0,.08)">Mois</button>
         <button id="vw-plan" onclick="setView('planning')" style="flex:1;padding:7px 0;border-radius:10px;border:none;font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .18s;background:transparent;color:var(--mid);box-shadow:none">Planning</button>
         <button id="vw-annee" onclick="setView('annee')" style="flex:1;padding:7px 0;border-radius:10px;border:none;font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .18s;background:transparent;color:var(--mid);box-shadow:none">Année</button>
       </div>
@@ -327,7 +327,7 @@ body{
     <div style="margin:0 20px 12px;display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch" id="agenda-filters"></div>
 
     <!-- ── SEMAINE VIEW ── -->
-    <div id="view-semaine">
+    <div id="view-semaine" style="display:none">
       <div class="wstrip">
         <div class="wnav">
           <div>
@@ -344,7 +344,7 @@ body{
     </div>
 
     <!-- ── MOIS VIEW ── -->
-    <div id="view-mois" style="display:none">
+    <div id="view-mois">
       <div class="cal-hero">
         <div class="cal-header">
           <div>
@@ -864,7 +864,7 @@ function isVac(d){return VACS.find(v=>d>=v.s&&d<v.e)||null;}
 let tod=new Date();tod.setHours(0,0,0,0);
 let selD=new Date(tod),ws=getMon(tod),mCur=new Date(tod);
 let evs=[],cos=[],meds=[],mems=[],fids=[];
-let selC='#4CAF50',selCp='#9B7FD4',selFidCoul='#2D9E8E',delEvId=null,curFidId=null,scanReader=null,sfilt='today',agV='semaine';
+let selC='#4CAF50',selCp='#9B7FD4',selFidCoul='#2D9E8E',delEvId=null,curFidId=null,scanReader=null,sfilt='today',agV='mois';
 let agFilters=new Set(),memPhoto=null;
 
 function getMon(d){const dt=new Date(d);const dy=dt.getDay();dt.setDate(dt.getDate()+(dy===0?-6:1-dy));dt.setHours(0,0,0,0);return dt;}
