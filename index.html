@@ -15,6 +15,7 @@
 <script src="https://unpkg.com/html5-qrcode" defer></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow:hidden;height:100%;position:fixed;width:100%;-webkit-overflow-scrolling:touch}
 body{
   font-family:'Nunito',sans-serif;
   background:
@@ -31,12 +32,41 @@ body{
   --shadow:0 12px 36px rgba(113,103,95,.08);--shadow-soft:0 8px 24px rgba(113,103,95,.06);
 }
 
-.page{display:none;position:fixed;top:0;left:0;right:0;bottom:92px;background:transparent;z-index:10;overflow-y:auto;-webkit-overflow-scrolling:touch;will-change:transform,opacity}
+.page{display:none;position:fixed;top:0;left:0;right:0;bottom:92px;background:transparent;z-index:10;overflow-y:scroll;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:none}
 .page.on{display:block}
-.page.slide-in{animation:slideIn .32s cubic-bezier(.25,.46,.45,.94) both}
-.page.slide-back{animation:slideBack .32s cubic-bezier(.25,.46,.45,.94) both}
-@keyframes slideIn{from{transform:translateX(100%);opacity:.5}to{transform:translateX(0);opacity:1}}
-@keyframes slideBack{from{transform:translateX(-30%);opacity:.5}to{transform:translateX(0);opacity:1}}
+.page.slide-in{animation:slideIn .28s cubic-bezier(.25,.46,.45,.94) both}
+.page.slide-back{animation:slideBack .28s cubic-bezier(.25,.46,.45,.94) both}
+@keyframes slideIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideBack{from{transform:translateX(-20px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ── EVENT FORM ── */
+.ev-modal{background:white;border-radius:28px 28px 0 0;width:100%;max-width:390px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column}
+.ev-header{padding:12px 20px 16px;transition:background .25s}
+.ev-handle{width:38px;height:5px;background:rgba(255,255,255,.5);border-radius:999px;margin:0 auto 14px}
+.ev-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:0}
+.ev-type-btn{padding:10px 8px;border-radius:14px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;letter-spacing:.3px;transition:all .15s;background:rgba(255,255,255,.25);color:rgba(255,255,255,.7)}
+.ev-type-btn.active{background:rgba(255,255,255,.95);color:var(--dk);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.ev-body{flex:1;overflow-y:auto;padding:20px 20px 0;-webkit-overflow-scrolling:touch}
+.ev-title-input{width:100%;font-size:22px;font-weight:900;color:var(--dk);background:transparent;border:none;outline:none;font-family:'Nunito',sans-serif;padding:0;margin-bottom:20px;letter-spacing:-.3px}
+.ev-title-input::placeholder{color:var(--soft)}
+.ev-date-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.ev-date-block{background:rgba(47,65,75,.04);border-radius:16px;padding:12px 14px;cursor:pointer}
+.ev-date-label{font-size:10px;font-weight:800;color:var(--soft);letter-spacing:.6px;margin-bottom:4px}
+.ev-date-val{font-size:15px;font-weight:800;color:var(--dk)}
+.ev-date-time{font-size:12px;font-weight:700;color:var(--mid);margin-top:2px}
+.ev-date-input{width:100%;padding:0;border:none;outline:none;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:var(--dk);background:transparent}
+.ev-section{margin-bottom:14px}
+.ev-section-label{font-size:10px;font-weight:800;color:var(--soft);letter-spacing:.6px;margin-bottom:6px}
+.ev-member-chips{display:flex;gap:6px;flex-wrap:wrap}
+.ev-chip{padding:7px 14px;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer;border:1.5px solid var(--line);background:white;color:var(--mid);font-family:'Nunito',sans-serif;transition:all .15s}
+.ev-chip.sel{border-color:var(--teal);color:var(--teal);background:var(--teal-s)}
+.ev-recur-select{width:100%;padding:10px 12px;border-radius:14px;border:1.5px solid var(--line);font-size:13px;font-family:'Nunito',sans-serif;font-weight:700;color:var(--dk);background:white;outline:none}
+.ev-recur-select:focus{border-color:var(--teal)}
+.ev-notes-input{width:100%;padding:10px 12px;border-radius:14px;border:1.5px solid var(--line);font-size:13px;font-family:'Nunito',sans-serif;font-weight:600;color:var(--dk);background:white;outline:none;resize:none;min-height:60px}
+.ev-notes-input:focus{border-color:var(--teal)}
+.ev-footer{padding:14px 20px 34px;border-top:.5px solid var(--line);background:white}
+.ev-save-btn{width:100%;padding:14px;border-radius:18px;border:none;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;cursor:pointer;color:white;transition:all .2s;letter-spacing:.2px}
+.ev-cancel-link{display:block;text-align:center;margin-top:10px;font-size:13px;font-weight:700;color:var(--soft);cursor:pointer;padding:4px}
 
 #tab-bar{position:fixed;left:12px;right:12px;bottom:12px;height:76px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.6);display:flex;justify-content:space-around;align-items:center;padding:10px 10px 12px;z-index:200;backdrop-filter:blur(22px);border-radius:30px;box-shadow:0 18px 38px rgba(89,80,74,.12)}
 .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:6px 10px;min-width:48px;border-radius:18px;transition:.18s ease}
@@ -430,59 +460,79 @@ body{
   <div class="tab" id="tab-membres" onclick="go('membres')"><div class="ti">👨‍👩‍👧</div><div class="tlab">FAMILLE</div></div>
 </div>
 
-<!-- ═══ MODALS ═══ -->
+<!-- ═══ MODAL ÉVÉNEMENT (nouveau design) ═══ -->
 <div class="modal-bg" id="mev" style="display:none" onclick="if(event.target===this)cm('mev')">
-  <div class="modal">
-    <div class="mh"></div><div class="mt" id="met">Nouvel événement ✨</div>
-    <label class="fl">TITRE</label><input class="fi" id="ett" placeholder="Titre de l'événement">
-    <div class="fr">
-      <div style="flex:1"><label class="fl">DATE DÉBUT</label><input class="fi" type="date" id="edd"></div>
-      <div style="flex:1"><label class="fl">HEURE</label><input class="fi" type="time" id="ehd"></div>
-    </div>
-    <div class="fr">
-      <div style="flex:1"><label class="fl">DATE FIN</label><input class="fi" type="date" id="edf"></div>
-      <div style="flex:1"><label class="fl">HEURE FIN</label><input class="fi" type="time" id="ehf"></div>
-    </div>
-    <label class="fl">MEMBRE</label>
-    <select class="fi" id="emembre"></select>
-    <label class="fl">TYPE</label>
-    <select class="fi" id="etype" onchange="onTypeChange()">
-      <option value="normal">Événement personnel</option>
-      <option value="mariage">Mariage — Photo</option>
-      <option value="portrait">Portrait — Photo</option>
-      <option value="pro">Professionnel autre</option>
-      <option value="garde_papa">Garde chez papa</option>
-      <option value="garde_partage">Garde partagée</option>
-      <option value="vacances">Vacances</option>
-    </select>
-    <div id="color-section">
-      <label class="fl">COULEUR</label>
-      <div class="crow" id="ecols">
-        <div class="co sel" data-c="#4CAF50" style="background:#4CAF50" onclick="selc(this)"></div>
-        <div class="co" data-c="#2D9E8E" style="background:#2D9E8E" onclick="selc(this)"></div>
-        <div class="co" data-c="#9B7FD4" style="background:#9B7FD4" onclick="selc(this)"></div>
-        <div class="co" data-c="#F5A623" style="background:#F5A623" onclick="selc(this)"></div>
-        <div class="co" data-c="#E8735A" style="background:#E8735A" onclick="selc(this)"></div>
-        <div class="co" data-c="#378ADD" style="background:#378ADD" onclick="selc(this)"></div>
+  <div class="ev-modal" id="ev-modal-inner">
+    <!-- Header coloré dynamique -->
+    <div class="ev-header" id="ev-header">
+      <div class="ev-handle"></div>
+      <div class="ev-type-grid" id="ev-type-grid">
+        <button class="ev-type-btn active" data-type="normal" onclick="selEvType(this)">Personnel</button>
+        <button class="ev-type-btn" data-type="mariage" onclick="selEvType(this)">Mariage</button>
+        <button class="ev-type-btn" data-type="portrait" onclick="selEvType(this)">Portrait</button>
+        <button class="ev-type-btn" data-type="garde_papa" onclick="selEvType(this)">Garde papa</button>
+        <button class="ev-type-btn" data-type="garde_partage" onclick="selEvType(this)">Partagé</button>
+        <button class="ev-type-btn" data-type="vacances" onclick="selEvType(this)">Vacances</button>
       </div>
     </div>
-    <label class="fl">RÉCURRENCE</label>
-    <select class="fi" id="erecur" onchange="onRecurChange()">
-      <option value="none">Pas de récurrence</option>
-      <option value="weekly">Toutes les semaines</option>
-      <option value="biweekly_a">Semaines A (garde maman)</option>
-      <option value="biweekly_b">Semaines B (garde papa)</option>
-      <option value="monthly">Chaque mois</option>
-    </select>
-    <div id="recur-end-wrap" style="display:none">
-      <label class="fl">RÉPÉTER JUSQU'AU</label>
-      <input class="fi" type="date" id="erecur-end">
+
+    <!-- Corps scrollable -->
+    <div class="ev-body">
+      <!-- Titre -->
+      <input class="ev-title-input" id="ett" placeholder="Titre de l'événement">
+
+      <!-- Dates -->
+      <div class="ev-date-row">
+        <div class="ev-date-block">
+          <div class="ev-date-label">DÉBUT</div>
+          <input type="date" class="ev-date-input" id="edd" onchange="updateDateDisplay()">
+          <input type="time" style="width:100%;border:none;outline:none;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--mid);background:transparent;margin-top:2px;padding:0" id="ehd">
+        </div>
+        <div class="ev-date-block">
+          <div class="ev-date-label">FIN</div>
+          <input type="date" class="ev-date-input" id="edf" onchange="updateDateDisplay()">
+          <input type="time" style="width:100%;border:none;outline:none;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--mid);background:transparent;margin-top:2px;padding:0" id="ehf">
+        </div>
+      </div>
+
+      <!-- Membre -->
+      <div class="ev-section" id="ev-membre-section">
+        <div class="ev-section-label">MEMBRE</div>
+        <div class="ev-member-chips" id="ev-member-chips"></div>
+      </div>
+
+      <!-- Récurrence -->
+      <div class="ev-section">
+        <div class="ev-section-label">RÉCURRENCE</div>
+        <select class="ev-recur-select" id="erecur" onchange="onRecurChange()">
+          <option value="none">Pas de récurrence</option>
+          <option value="weekly">Toutes les semaines</option>
+          <option value="biweekly_a">Semaines A — garde maman</option>
+          <option value="biweekly_b">Semaines B — garde papa</option>
+          <option value="monthly">Chaque mois</option>
+        </select>
+        <div id="recur-end-wrap" style="display:none;margin-top:8px">
+          <div class="ev-section-label">JUSQU'AU</div>
+          <input type="date" class="ev-recur-select" id="erecur-end" style="margin-top:4px">
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="ev-section">
+        <div class="ev-section-label">NOTES</div>
+        <textarea class="ev-notes-input" id="enot" placeholder="Lieu, client, informations..."></textarea>
+      </div>
+
+      <input type="hidden" id="eid">
+      <input type="hidden" id="etype" value="normal">
+      <div style="height:10px"></div>
     </div>
-    <label class="fl">EMOJI</label><input class="fi" id="eemj" placeholder="📅 🎂 ⚽ 🏥">
-    <label class="fl">NOTES</label><input class="fi" id="enot" placeholder="Description, lieu...">
-    <input type="hidden" id="eid">
-    <button class="sav" onclick="saveEv()">Enregistrer</button>
-    <button class="can" onclick="cm('mev')">Annuler</button>
+
+    <!-- Footer fixe -->
+    <div class="ev-footer">
+      <button class="ev-save-btn" id="ev-save-btn" onclick="saveEv()">Enregistrer</button>
+      <span class="ev-cancel-link" onclick="cm('mev')">Annuler</span>
+    </div>
   </div>
 </div>
 
@@ -1085,13 +1135,43 @@ function addSwipe(el,onL,onR){
 
 // ── EVENT MODAL ──────────────────────────────────
 function onTypeChange(){const t=document.getElementById('etype').value;document.getElementById('color-section').style.display=(t==='normal'||t==='pro')?'block':'none';}
+// ── TYPE COLORS for header ──────────────────────
+const TYPE_HEADERS={
+  'normal':   {bg:'linear-gradient(135deg,#7EA99F,#A9CBC3)', label:'Événement personnel'},
+  'mariage':  {bg:'linear-gradient(135deg,#C9A96E,#DFC08A)', label:'Mariage'},
+  'portrait': {bg:'linear-gradient(135deg,#6B8FA3,#8AAFC4)', label:'Portrait'},
+  'pro':      {bg:'linear-gradient(135deg,#547189,#6B8FA3)', label:'Professionnel'},
+  'garde_papa':{bg:'linear-gradient(135deg,#7EA99F,#5C8F85)', label:'Garde chez papa'},
+  'garde_partage':{bg:'linear-gradient(135deg,#B79AD6,#9B80C0)', label:'Garde partagée'},
+  'vacances': {bg:'linear-gradient(135deg,#EDB777,#D4965A)', label:'Vacances'},
+};
+
+function selEvType(btn){
+  const type=btn.dataset.type;
+  document.getElementById('etype').value=type;
+  // Update header color
+  const hdr=document.getElementById('ev-header');
+  const th=TYPE_HEADERS[type]||TYPE_HEADERS['normal'];
+  hdr.style.background=th.bg;
+  // Update button states
+  document.querySelectorAll('.ev-type-btn').forEach(b=>b.classList.toggle('active',b===btn));
+  // Update save button color
+  const saveBtn=document.getElementById('ev-save-btn');
+  if(saveBtn)saveBtn.style.background=th.bg;
+}
+
+function updateDateDisplay(){
+  // Nothing needed — native inputs handle display
+}
+
 function openEvModal(id,prefillDate){
-  selC='#4CAF50';document.querySelectorAll('#ecols .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selC));
-  document.getElementById('color-section').style.display='block';
-  document.getElementById('emembre').innerHTML='<option value="">— Tous —</option>'+mems.map(m=>`<option value="${m.id}">${m.emoji||''} ${m.nom}</option>`).join('');
-  const recEl=document.getElementById('erecur');
-  const recEndWrap=document.getElementById('recur-end-wrap');
+  // Reset form
   const nd=prefillDate||tds();
+  // Member chips
+  const chips=document.getElementById('ev-member-chips');
+  chips.innerHTML='<div class="ev-chip sel" data-mid="" onclick="selMemChip(this)">Tous</div>'+
+    mems.map(m=>`<div class="ev-chip" data-mid="${m.id}" onclick="selMemChip(this)">${m.nom}</div>`).join('');
+
   if(id){
     const e=evs.find(x=>x.id===id);
     if(e){
@@ -1100,40 +1180,53 @@ function openEvModal(id,prefillDate){
       document.getElementById('ehd').value=e.heure_debut||'';
       document.getElementById('edf').value=e.date_fin||e.date_debut;
       document.getElementById('ehf').value=e.heure_fin||'';
-      document.getElementById('eemj').value=e.emoji||'';
       document.getElementById('enot').value=e.notes||'';
       document.getElementById('etype').value=e.type||'normal';
-      document.getElementById('emembre').value=e.membre_id||'';
-      if(recEl)recEl.value=e.recurrence||'none';
-      if(recEndWrap)recEndWrap.style.display=(e.recurrence&&e.recurrence!=='none')?'block':'none';
+      document.getElementById('erecur').value=e.recurrence||'none';
+      document.getElementById('recur-end-wrap').style.display=(e.recurrence&&e.recurrence!=='none')?'block':'none';
       if(document.getElementById('erecur-end'))document.getElementById('erecur-end').value=e.recurrence_end||'';
-      selC=e.couleur||'#4CAF50';
-      document.querySelectorAll('#ecols .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selC));
-      document.getElementById('color-section').style.display=(e.type==='normal'||e.type==='pro'||!e.type)?'block':'none';
-      document.getElementById('met').textContent='Modifier ✏️';
+      // Select member chip
+      if(e.membre_id){
+        document.querySelectorAll('.ev-chip').forEach(c=>c.classList.toggle('sel',c.dataset.mid===e.membre_id));
+      }
+      // Set type button + header
+      const typeBtn=document.querySelector(`.ev-type-btn[data-type="${e.type||'normal'}"]`);
+      if(typeBtn)selEvType(typeBtn);
     }
-  }else{
-    ['ett','eemj','enot'].forEach(x=>document.getElementById(x).value='');
+  } else {
+    document.getElementById('ett').value='';
     document.getElementById('edd').value=nd;
     document.getElementById('ehd').value='';
     document.getElementById('edf').value=nd;
     document.getElementById('ehf').value='';
+    document.getElementById('enot').value='';
     document.getElementById('etype').value='normal';
-    document.getElementById('emembre').value='';
-    if(recEl)recEl.value='none';
-    if(recEndWrap)recEndWrap.style.display='none';
-    document.getElementById('met').textContent='Nouvel événement';
+    document.getElementById('erecur').value='none';
+    document.getElementById('recur-end-wrap').style.display='none';
+    // Reset to normal type
+    const normalBtn=document.querySelector('.ev-type-btn[data-type="normal"]');
+    if(normalBtn)selEvType(normalBtn);
   }
-  document.getElementById('eid').value=id||'';cm('mevd');om('mev');
+  document.getElementById('eid').value=id||'';
+  cm('mevd');om('mev');
 }
+
+function selMemChip(chip){
+  document.querySelectorAll('.ev-chip').forEach(c=>c.classList.remove('sel'));
+  chip.classList.add('sel');
+}
+
+function selc(el){selC=el.dataset.c;document.querySelectorAll('#ecols .co').forEach(o=>o.classList.toggle('sel',o===el));}
 function selc(el){selC=el.dataset.c;document.querySelectorAll('#ecols .co').forEach(o=>o.classList.toggle('sel',o===el));}
 async function saveEv(){
-  const t=document.getElementById('ett').value.trim();if(!t){toast('❌ Titre requis');return;}
+  const t=document.getElementById('ett').value.trim();if(!t){toast('Titre requis');return;}
   const type=document.getElementById('etype').value;
-  const memId=document.getElementById('emembre').value||null;
+  // Read membre from chips
+  const selChip=document.querySelector('.ev-chip.sel');
+  const memId=(selChip&&selChip.dataset.mid)?selChip.dataset.mid:null;
   const m=gm(memId);
   const typeC={'garde_papa':'#2D9E8E','garde_partage':'#9B7FD4','vacances':'#F5A623','mariage':'#C9A96E','portrait':'#6B8FA3'};
-  let couleur=typeC[type]||(type==='pro'?(m?m.couleur_pro||'#378ADD':'#378ADD'):(m?m.couleur||selC:selC));
+  let couleur=typeC[type]||(type==='pro'?(m?m.couleur_pro||'#378ADD':'#378ADD'):(m?m.couleur||'#7EA99F':'#7EA99F'));
   const recur=document.getElementById('erecur')?.value||'none';
   const recurEnd=document.getElementById('erecur-end')?.value||null;
   const p={
@@ -1143,7 +1236,7 @@ async function saveEv(){
     date_fin:document.getElementById('edf').value||document.getElementById('edd').value,
     heure_fin:document.getElementById('ehf').value||null,
     couleur,
-    emoji:document.getElementById('eemj').value||null,
+    emoji:null,
     notes:document.getElementById('enot').value||null,
     type,
     membre_id:memId,
@@ -1152,8 +1245,8 @@ async function saveEv(){
   };
   const id=document.getElementById('eid').value;
   const{error}=id?await db.from('maivi_evenements').update(p).eq('id',id):await db.from('maivi_evenements').insert(p);
-  if(error){toast('❌ '+error.message);return;}
-  cm('mev');toast(id?'✅ Modifié !':'✅ Ajouté !');
+  if(error){toast('Erreur : '+error.message);return;}
+  cm('mev');toast(id?'Modifié':'Ajouté');
 }
 
 function showEv(id){
