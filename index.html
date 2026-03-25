@@ -278,10 +278,11 @@ body{
         <div style="font-size:13px;font-weight:700;color:var(--mid)" id="ag-big-year">2026</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <button class="fp on" id="vw-sem" onclick="setView('semaine')" style="padding:7px 14px">Semaine</button>
-        <button class="fp off" id="vw-mois" onclick="setView('mois')" style="padding:7px 14px">Mois</button>
+        <button class="fp on" id="vw-sem" onclick="setView('semaine')" style="padding:7px 12px">Semaine</button>
+        <button class="fp off" id="vw-mois" onclick="setView('mois')" style="padding:7px 12px">Mois</button>
+        <button class="fp off" id="vw-plan" onclick="setView('planning')" style="padding:7px 12px">Planning</button>
         <button class="ab" onclick="openEvModal()" style="width:38px;height:38px;font-size:20px">+</button>
-        <button onclick="openGardeModal()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.8);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Réglages garde A/B">⚙️</button>
+        <button onclick="openGardeModal()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.8);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">⚙️</button>
       </div>
     </div>
 
@@ -335,10 +336,12 @@ body{
         <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--orange);display:inline-block"></span>Vacances</span>
       </div>
     </div>
+    <!-- ── PLANNING VIEW ── -->
+    <div id="view-planning" style="display:none">
+      <div id="planning-list" style="padding:0 20px"></div>
+    </div>
   </div>
 </div>
-
-<!-- ═══ COURSES ═══ -->
 <div class="page" id="pg-courses">
   <div class="bg"><div class="blob b1"></div><div class="blob b2"></div></div>
   <div class="rel">
@@ -463,6 +466,18 @@ body{
         <div class="co" data-c="#378ADD" style="background:#378ADD" onclick="selc(this)"></div>
       </div>
     </div>
+    <label class="fl">RÉCURRENCE</label>
+    <select class="fi" id="erecur" onchange="onRecurChange()">
+      <option value="none">Pas de récurrence</option>
+      <option value="weekly">Toutes les semaines</option>
+      <option value="biweekly_a">Semaines A (garde maman)</option>
+      <option value="biweekly_b">Semaines B (garde papa)</option>
+      <option value="monthly">Chaque mois</option>
+    </select>
+    <div id="recur-end-wrap" style="display:none">
+      <label class="fl">RÉPÉTER JUSQU'AU</label>
+      <input class="fi" type="date" id="erecur-end">
+    </div>
     <label class="fl">EMOJI</label><input class="fi" id="eemj" placeholder="📅 🎂 ⚽ 🏥">
     <label class="fl">NOTES</label><input class="fi" id="enot" placeholder="Description, lieu...">
     <input type="hidden" id="eid">
@@ -483,6 +498,7 @@ body{
     <div style="font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">⏰ <span id="ddf" style="color:var(--dk);font-weight:700"></span></div>
     <div id="ddmr" style="display:none;font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">👤 <span id="ddm" style="color:var(--dk);font-weight:700"></span></div>
     <div id="ddnr" style="display:none;font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">📝 <span id="ddno" style="color:var(--dk);font-weight:700"></span></div>
+    <div id="ddrec" style="display:none;font-size:12px;font-weight:800;color:var(--teal);background:var(--teal-s);padding:4px 12px;border-radius:999px;display:inline-block;margin-bottom:10px"></div>
     <div class="ear">
       <button class="eab eedit" onclick="editEv()">✏️ Modifier</button>
       <button class="eab edel" onclick="confDelEv()">🗑 Supprimer</button>
@@ -786,6 +802,104 @@ function gardeColor(d){
 }
 function gardeLetter(d){return getWeekNum(d);}
 
+function onRecurChange(){
+  const v=document.getElementById('erecur')?.value;
+  if(!v)return;
+  document.getElementById('recur-end-wrap').style.display=v==='none'?'none':'block';
+}
+
+// ── RÉCURRENCE ────────────────────────────────
+function expandEvs(arr,fromD,toD){
+  const res=[];
+  arr.forEach(e=>{
+    if(!e.recurrence||e.recurrence==='none'){res.push(e);return;}
+    const s=new Date(e.date_debut+'T00:00:00');
+    const end=e.recurrence_end?new Date(e.recurrence_end+'T00:00:00'):new Date(toD.getFullYear()+1,0,1);
+    const dur=e.date_fin?(new Date(e.date_fin+'T00:00:00')-s)/86400000:0;
+    let cur=new Date(s);let safety=0;
+    while(cur<=end&&cur<=toD&&safety++<500){
+      const skip=(e.recurrence==='biweekly_a'&&getWeekNum(cur)!=='A')||(e.recurrence==='biweekly_b'&&getWeekNum(cur)!=='B');
+      if(!skip&&cur>=fromD){
+        const df=tds(cur);
+        const endD=new Date(cur.getTime()+dur*86400000);
+        const dfin=tds(endD);
+        res.push({...e,id:e.id+'_'+df,_oid:e.id,date_debut:df,date_fin:dfin,_rec:true});
+      }
+      if(e.recurrence==='monthly')cur.setMonth(cur.getMonth()+1);
+      else cur.setDate(cur.getDate()+7);
+    }
+  });
+  return res;
+}
+function fEvs(){
+  const from=new Date(tod);from.setMonth(from.getMonth()-3);
+  const to=new Date(tod);to.setFullYear(to.getFullYear()+2);
+  const base=agFilters.size===0?evs:evs.filter(e=>agFilters.has(e.membre_id));
+  return expandEvs(base,from,to);
+}
+
+// ── PLANNING VIEW ─────────────────────────────
+function rPlanning(){
+  const fe=fEvs();
+  const upcoming=fe.filter(e=>new Date(e.date_debut+'T00:00:00')>=tod)
+    .sort((a,b)=>a.date_debut.localeCompare(b.date_debut)).slice(0,60);
+  if(!upcoming.length){
+    document.getElementById('planning-list').innerHTML=`<div class="empty" style="padding:40px 0">📭 Aucun événement à venir.<br><span onclick="openEvModal()" style="color:var(--teal);cursor:pointer;font-weight:800">+ Ajouter</span></div>`;
+    return;
+  }
+  let h='',lastDate='';
+  upcoming.forEach(e=>{
+    const d=new Date(e.date_debut+'T00:00:00');
+    const c=ec(e);const t=getType(e);
+    const isToday=sd(d,tod),isTom=sd(d,new Date(tod.getTime()+86400000));
+    if(e.date_debut!==lastDate){
+      const lbl=isToday?'Aujourd\'hui':isTom?'Demain':fmtD(d);
+      h+=`<div style="display:flex;align-items:center;gap:10px;margin:${lastDate?'16px':'4px'} 0 8px">
+        <div style="font-size:13px;font-weight:900;color:${isToday?'var(--coral)':isTom?'var(--teal)':'var(--dk)'}">${lbl}</div>
+        <div style="flex:1;height:1px;background:var(--line)"></div>
+      </div>`;
+      lastDate=e.date_debut;
+    }
+    // Conflit
+    const conflict=detectConflict(e.date_debut,fe);
+    h+=`<div style="background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.7));border:1px solid rgba(255,255,255,.8);border-radius:18px;padding:11px 14px;margin-bottom:6px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:var(--shadow-soft)" onclick="showEv('${e._oid||e.id}')">
+      <div style="width:4px;align-self:stretch;border-radius:2px;background:${c};flex-shrink:0"></div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:900;color:var(--dk)">${e.titre}</div>
+        <div style="font-size:10px;font-weight:700;color:var(--mid);margin-top:2px">${e.heure_debut||'Toute la journée'}${e.heure_fin?' → '+e.heure_fin:''}</div>
+      </div>
+      ${conflict?'<div style="font-size:11px;font-weight:800;color:#E07D7D" title="Conflit horaire">⚠️</div>':''}
+      ${e._rec?'<div style="font-size:10px;font-weight:700;color:var(--soft);background:rgba(0,0,0,.04);padding:2px 7px;border-radius:999px">↻</div>':''}
+      <div style="font-size:10px;font-weight:800;padding:3px 9px;border-radius:999px;background:${t.bg};color:${c}">${t.label}</div>
+    </div>`;
+  });
+  document.getElementById('planning-list').innerHTML=h;
+}
+
+// ── MÉTÉO ─────────────────────────────────────
+let meteoCache={};
+async function fetchMeteo(dateStr){
+  if(meteoCache[dateStr])return meteoCache[dateStr];
+  try{
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=49.1137&longitude=-1.0893&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Europe%2FParis&start_date=${dateStr}&end_date=${dateStr}`;
+    const r=await fetch(url);const d=await r.json();
+    if(!d.daily)return null;
+    const wc=d.daily.weathercode[0];
+    const icon=wc<=1?'☀️':wc<=3?'⛅':wc<=45?'🌫️':wc<=67?'🌧️':wc<=77?'❄️':'⛈️';
+    const res={icon,tmax:Math.round(d.daily.temperature_2m_max[0]),tmin:Math.round(d.daily.temperature_2m_min[0]),prec:d.daily.precipitation_probability_max[0]};
+    meteoCache[dateStr]=res;return res;
+  }catch(e){return null;}
+}
+
+// ── CONFLITS ─────────────────────────────────
+function detectConflict(dateStr,fe){
+  const dayEvs=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;const d=new Date(dateStr+'T00:00:00');return d>=s&&d<=f;});
+  const timed=dayEvs.filter(e=>e.heure_debut&&e.heure_fin);
+  for(let i=0;i<timed.length;i++)for(let j=i+1;j<timed.length;j++)
+    if(timed[i].heure_debut<timed[j].heure_fin&&timed[j].heure_debut<timed[i].heure_fin)return true;
+  return false;
+}
+
 
 // ── INIT ────────────────────────────────────────
 async function init(){
@@ -842,8 +956,17 @@ function rAgFilters(){
 }
 function togFilt(id){agFilters.has(id)?agFilters.delete(id):agFilters.add(id);rAgFilters();rAg();}
 function fEvs(){return agFilters.size===0?evs:evs.filter(e=>agFilters.has(e.membre_id));}
-function setView(v){agV=v;document.getElementById('vw-sem').className='fp '+(v==='semaine'?'on':'off');document.getElementById('vw-mois').className='fp '+(v==='mois'?'on':'off');document.getElementById('view-semaine').style.display=v==='semaine'?'block':'none';document.getElementById('view-mois').style.display=v==='mois'?'block':'none';v==='mois'?rMois():rSem();}
-function rAg(){rAgFilters();agV==='mois'?rMois():rSem();}
+function setView(v){
+  agV=v;
+  document.getElementById('vw-sem').className='fp '+(v==='semaine'?'on':'off');
+  document.getElementById('vw-mois').className='fp '+(v==='mois'?'on':'off');
+  document.getElementById('vw-plan').className='fp '+(v==='planning'?'on':'off');
+  document.getElementById('view-semaine').style.display=v==='semaine'?'block':'none';
+  document.getElementById('view-mois').style.display=v==='mois'?'block':'none';
+  document.getElementById('view-planning').style.display=v==='planning'?'block':'none';
+  if(v==='mois')rMois();else if(v==='planning')rPlanning();else rSem();
+}
+function rAg(){rAgFilters();if(agV==='mois')rMois();else if(agV==='planning')rPlanning();else rSem();}
 function pw(){ws.setDate(ws.getDate()-7);rSem();}function nw(){ws.setDate(ws.getDate()+7);rSem();}
 function pm(){mCur.setMonth(mCur.getMonth()-1);rMois();}function nm(){mCur.setMonth(mCur.getMonth()+1);rMois();}
 function rSem(){
@@ -871,15 +994,26 @@ function selDay(i){
   if(sd(nd,selD)){openEvModal(null,tds(nd));}
   else{selD=nd;rSem();}
 }
-function rDayEvs(){
+async function rDayEvs(){
   const fe=fEvs();
+  const dateStr=tds(selD);
   const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return selD>=s&&selD<=f;}).sort((a,b)=>(a.heure_debut||'00:00').localeCompare(b.heure_debut||'00:00'));
   const vac=isVac(selD);
-  let h=`<div style="font-size:15px;font-weight:900;color:var(--dk);margin-bottom:10px">${fmtD(selD)}</div>`;
+  const conflict=detectConflict(dateStr,fe);
+  // Météo (uniquement pour les 14 prochains jours)
+  const diffDays=(selD-tod)/86400000;
+  const meteo=(diffDays>=-1&&diffDays<=13)?await fetchMeteo(dateStr):null;
+  let h=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div style="font-size:15px;font-weight:900;color:var(--dk)">${fmtD(selD)}</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      ${conflict?'<div style="font-size:11px;font-weight:800;color:#E07D7D;background:rgba(224,125,125,.1);padding:3px 9px;border-radius:999px">⚠️ Conflit</div>':''}
+      ${meteo?`<div style="font-size:12px;font-weight:800;color:var(--mid)">${meteo.icon} ${meteo.tmax}°/${meteo.tmin}°${meteo.prec>40?' 💧':''}</div>`:''}
+    </div>
+  </div>`;
   if(vac)h+=`<div class="vac-band">${vac.n} — Zone B</div>`;
-  if(!de.length)h+=`<div class="empty" style="padding:14px 0">📭 Aucun événement.<br><span onclick="openEvModal(null,'${tds(selD)}')" style="color:var(--teal);cursor:pointer;font-weight:800">+ Ajouter</span></div>`;
-  else{de.forEach(e=>{const c=ec(e);const pill=e.type==='pro'?'<span class="pro-pill">💼 PRO</span>':e.type==='normal'||!e.type?'<span class="perso-pill">🏠</span>':'';const m=gm(e.membre_id);h+=`<div class="ev" style="border-left:3px solid ${c}" onclick="showEv('${e.id}')"><div class="edot" style="background:${c}"></div><div class="ebody"><div class="en">${e.titre}${pill}</div><div class="em">${m?m.emoji+' '+m.nom+' · ':''} ${e.heure_debut||''}${e.heure_fin?' → '+e.heure_fin:''}</div></div><div style="font-size:16px">${e.emoji||'📅'}</div></div>`;});
-  h+=`<button onclick="openEvModal(null,'${tds(selD)}')" style="width:100%;margin-top:6px;padding:10px;border-radius:14px;background:rgba(126,169,159,.12);color:var(--teal);font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;border:none;cursor:pointer">+ Ajouter un événement</button>`;}
+  if(!de.length)h+=`<div class="empty" style="padding:14px 0">📭 Aucun événement.<br><span onclick="openEvModal(null,'${dateStr}')" style="color:var(--teal);cursor:pointer;font-weight:800">+ Ajouter</span></div>`;
+  else{de.forEach(e=>{const c=ec(e);const t=getType(e);const m=gm(e.membre_id);const rec=e._rec?'<span style="font-size:9px;color:var(--soft);margin-left:4px">↻</span>':'';h+=`<div class="ev" style="border-left:3px solid ${c}" onclick="showEv('${e._oid||e.id}')"><div class="edot" style="background:${c}"></div><div class="ebody"><div class="en">${e.titre}${rec}</div><div class="em">${m?m.emoji+' '+m.nom+' · ':''} ${e.heure_debut||''}${e.heure_fin?' → '+e.heure_fin:''}</div></div><div style="font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;background:${t.bg};color:${c}">${t.label}</div></div>`;});
+  h+=`<button onclick="openEvModal(null,'${dateStr}')" style="width:100%;margin-top:6px;padding:10px;border-radius:14px;background:rgba(126,169,159,.12);color:var(--teal);font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;border:none;cursor:pointer">+ Ajouter un événement</button>`;}
   document.getElementById('atl').innerHTML=h;
 }
 function rMois(){
@@ -895,10 +1029,10 @@ function rMois(){
     const dow2=(dt.getDay()+6)%7;const isWE=dow2>=5;
     const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return dt>=s&&dt<=f;});
     const bars=de.slice(0,3).map(e=>`<div class="mbar" style="background:${ec(e)}"></div>`).join('');
+    const conflict=detectConflict(tds(dt),fe);
     const nc=isT?'tod':isS?'sel':vac?'vac':isWE?'other':'';
-    // Fond garde A/B sur les cellules normales
     const cellBg=(!isT&&!isS)?gardeColor(dt):'transparent';
-    h+=`<div class="mcell" onclick="selMD(${d})" style="background:${cellBg};border-radius:10px"><div class="mnum ${nc}">${d}</div><div class="mbars">${bars}</div></div>`;
+    h+=`<div class="mcell" onclick="selMD(${d})" style="background:${cellBg};border-radius:10px"><div class="mnum ${nc}">${d}${conflict?'<sup style="color:#E07D7D;font-size:7px">!</sup>':''}</div><div class="mbars">${bars}</div></div>`;
   }
   document.getElementById('mcal').innerHTML=h;rMoisDay();
 }
@@ -906,13 +1040,25 @@ function selMD(d){
   const nd=new Date(mCur.getFullYear(),mCur.getMonth(),d);
   if(sd(nd,selD)){openEvModal(null,tds(nd));}else{selD=nd;rMois();}
 }
-function rMoisDay(){
-  const fe=fEvs();const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return selD>=s&&selD<=f;});
+async function rMoisDay(){
+  const fe=fEvs();
+  const dateStr=tds(selD);
+  const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return selD>=s&&selD<=f;});
   const vac=isVac(selD);
-  let h=`<div class="day-panel-title"><span>${fmtD(selD)}</span><button class="day-add-btn" onclick="openEvModal(null,'${tds(selD)}')">+ Ajouter</button></div>`;
+  const conflict=detectConflict(dateStr,fe);
+  const diffDays=(selD-tod)/86400000;
+  const meteo=(diffDays>=-1&&diffDays<=13)?await fetchMeteo(dateStr):null;
+  let h=`<div class="day-panel-title">
+    <div>
+      <span>${fmtD(selD)}</span>
+      ${meteo?`<span style="font-size:12px;font-weight:700;color:var(--mid);margin-left:8px">${meteo.icon} ${meteo.tmax}°${meteo.prec>40?' 💧':''}</span>`:''}
+      ${conflict?'<span style="font-size:10px;font-weight:800;color:#E07D7D;margin-left:6px">⚠️ Conflit</span>':''}
+    </div>
+    <button class="day-add-btn" onclick="openEvModal(null,'${dateStr}')">+ Ajouter</button>
+  </div>`;
   if(vac)h+=`<div class="vac-band" style="margin-bottom:8px">${vac.n}</div>`;
   if(!de.length)h+=`<div class="empty" style="padding:10px 0">📭 Rien ce jour</div>`;
-  else de.forEach(e=>{const c=ec(e);h+=`<div class="ev" style="border-left:3px solid ${c}" onclick="showEv('${e.id}')"><div class="edot" style="background:${c}"></div><div class="ebody"><div class="en">${e.titre}</div><div class="em">${e.heure_debut||''}</div></div><div style="font-size:16px">${e.emoji||'📅'}</div></div>`;});
+  else de.forEach(e=>{const c=ec(e);const t=getType(e);const rec=e._rec?'<span style="font-size:9px;color:var(--soft);margin-left:4px">↻</span>':'';h+=`<div class="ev" style="border-left:3px solid ${c}" onclick="showEv('${e._oid||e.id}')"><div class="edot" style="background:${c}"></div><div class="ebody"><div class="en">${e.titre}${rec}</div><div class="em">${e.heure_debut||''}</div></div><div style="font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;background:${t.bg};color:${c}">${t.label}</div></div>`;});
   document.getElementById('mday-evs').innerHTML=h;
 }
 
@@ -943,33 +1089,94 @@ function openEvModal(id,prefillDate){
   selC='#4CAF50';document.querySelectorAll('#ecols .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selC));
   document.getElementById('color-section').style.display='block';
   document.getElementById('emembre').innerHTML='<option value="">— Tous —</option>'+mems.map(m=>`<option value="${m.id}">${m.emoji||''} ${m.nom}</option>`).join('');
+  const recEl=document.getElementById('erecur');
+  const recEndWrap=document.getElementById('recur-end-wrap');
   const nd=prefillDate||tds();
   if(id){
     const e=evs.find(x=>x.id===id);
-    if(e){document.getElementById('ett').value=e.titre;document.getElementById('edd').value=e.date_debut;document.getElementById('ehd').value=e.heure_debut||'';document.getElementById('edf').value=e.date_fin||e.date_debut;document.getElementById('ehf').value=e.heure_fin||'';document.getElementById('eemj').value=e.emoji||'';document.getElementById('enot').value=e.notes||'';document.getElementById('etype').value=e.type||'normal';document.getElementById('emembre').value=e.membre_id||'';selC=e.couleur||'#4CAF50';document.querySelectorAll('#ecols .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selC));document.getElementById('color-section').style.display=(e.type==='normal'||e.type==='pro'||!e.type)?'block':'none';document.getElementById('met').textContent='Modifier ✏️';}
+    if(e){
+      document.getElementById('ett').value=e.titre;
+      document.getElementById('edd').value=e.date_debut;
+      document.getElementById('ehd').value=e.heure_debut||'';
+      document.getElementById('edf').value=e.date_fin||e.date_debut;
+      document.getElementById('ehf').value=e.heure_fin||'';
+      document.getElementById('eemj').value=e.emoji||'';
+      document.getElementById('enot').value=e.notes||'';
+      document.getElementById('etype').value=e.type||'normal';
+      document.getElementById('emembre').value=e.membre_id||'';
+      if(recEl)recEl.value=e.recurrence||'none';
+      if(recEndWrap)recEndWrap.style.display=(e.recurrence&&e.recurrence!=='none')?'block':'none';
+      if(document.getElementById('erecur-end'))document.getElementById('erecur-end').value=e.recurrence_end||'';
+      selC=e.couleur||'#4CAF50';
+      document.querySelectorAll('#ecols .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selC));
+      document.getElementById('color-section').style.display=(e.type==='normal'||e.type==='pro'||!e.type)?'block':'none';
+      document.getElementById('met').textContent='Modifier ✏️';
+    }
   }else{
     ['ett','eemj','enot'].forEach(x=>document.getElementById(x).value='');
-    document.getElementById('edd').value=nd;document.getElementById('ehd').value='';document.getElementById('edf').value=nd;document.getElementById('ehf').value='';document.getElementById('etype').value='normal';document.getElementById('emembre').value='';document.getElementById('met').textContent='Nouvel événement ✨';
+    document.getElementById('edd').value=nd;
+    document.getElementById('ehd').value='';
+    document.getElementById('edf').value=nd;
+    document.getElementById('ehf').value='';
+    document.getElementById('etype').value='normal';
+    document.getElementById('emembre').value='';
+    if(recEl)recEl.value='none';
+    if(recEndWrap)recEndWrap.style.display='none';
+    document.getElementById('met').textContent='Nouvel événement';
   }
   document.getElementById('eid').value=id||'';cm('mevd');om('mev');
 }
 function selc(el){selC=el.dataset.c;document.querySelectorAll('#ecols .co').forEach(o=>o.classList.toggle('sel',o===el));}
 async function saveEv(){
   const t=document.getElementById('ett').value.trim();if(!t){toast('❌ Titre requis');return;}
-  const type=document.getElementById('etype').value;const memId=document.getElementById('emembre').value||null;const m=gm(memId);
-  const typeC={'garde_papa':'#2D9E8E','garde_partage':'#9B7FD4','vacances':'#F5A623'};
+  const type=document.getElementById('etype').value;
+  const memId=document.getElementById('emembre').value||null;
+  const m=gm(memId);
+  const typeC={'garde_papa':'#2D9E8E','garde_partage':'#9B7FD4','vacances':'#F5A623','mariage':'#C9A96E','portrait':'#6B8FA3'};
   let couleur=typeC[type]||(type==='pro'?(m?m.couleur_pro||'#378ADD':'#378ADD'):(m?m.couleur||selC:selC));
-  const p={titre:t,date_debut:document.getElementById('edd').value,heure_debut:document.getElementById('ehd').value||null,date_fin:document.getElementById('edf').value||document.getElementById('edd').value,heure_fin:document.getElementById('ehf').value||null,couleur,emoji:document.getElementById('eemj').value||null,notes:document.getElementById('enot').value||null,type,membre_id:memId};
+  const recur=document.getElementById('erecur')?.value||'none';
+  const recurEnd=document.getElementById('erecur-end')?.value||null;
+  const p={
+    titre:t,
+    date_debut:document.getElementById('edd').value,
+    heure_debut:document.getElementById('ehd').value||null,
+    date_fin:document.getElementById('edf').value||document.getElementById('edd').value,
+    heure_fin:document.getElementById('ehf').value||null,
+    couleur,
+    emoji:document.getElementById('eemj').value||null,
+    notes:document.getElementById('enot').value||null,
+    type,
+    membre_id:memId,
+    recurrence:recur,
+    recurrence_end:recur!=='none'?recurEnd:null
+  };
   const id=document.getElementById('eid').value;
   const{error}=id?await db.from('maivi_evenements').update(p).eq('id',id):await db.from('maivi_evenements').insert(p);
-  if(error){toast('❌ '+error.message);return;}cm('mev');toast(id?'✅ Modifié !':'✅ Ajouté !');
+  if(error){toast('❌ '+error.message);return;}
+  cm('mev');toast(id?'✅ Modifié !':'✅ Ajouté !');
 }
+
 function showEv(id){
-  const e=evs.find(x=>x.id===id);if(!e)return;delEvId=id;
-  const c=ec(e);document.getElementById('ddd').style.background=c;document.getElementById('ddn').textContent=e.titre;document.getElementById('dde').textContent=e.emoji||'📅';
-  document.getElementById('dds').textContent=fmtDT(e.date_debut,e.heure_debut);document.getElementById('ddf').textContent=fmtDT(e.date_fin||e.date_debut,e.heure_fin);
-  const m=gm(e.membre_id);const mr=document.getElementById('ddmr');if(m){mr.style.display='block';document.getElementById('ddm').textContent=m.emoji+' '+m.nom;}else mr.style.display='none';
-  const nr=document.getElementById('ddnr');if(e.notes){nr.style.display='block';document.getElementById('ddno').textContent=e.notes;}else nr.style.display='none';
+  // Handle recurring event — find original
+  const realId=id.includes('_202')?id.split('_').slice(0,-1).join('_'):id;
+  const e=evs.find(x=>x.id===realId||x.id===id);if(!e)return;
+  delEvId=e.id;
+  const c=ec(e);
+  document.getElementById('ddd').style.background=c;
+  document.getElementById('ddn').textContent=e.titre;
+  document.getElementById('dde').textContent=e.emoji||'📅';
+  document.getElementById('dds').textContent=fmtDT(e.date_debut,e.heure_debut);
+  document.getElementById('ddf').textContent=fmtDT(e.date_fin||e.date_debut,e.heure_fin);
+  const mm=gm(e.membre_id);const mr=document.getElementById('ddmr');
+  if(mm){mr.style.display='block';document.getElementById('ddm').textContent=mm.emoji+' '+mm.nom;}else mr.style.display='none';
+  const nr=document.getElementById('ddnr');
+  if(e.notes){nr.style.display='block';document.getElementById('ddno').textContent=e.notes;}else nr.style.display='none';
+  // Show recurrence info
+  const rInfo=document.getElementById('ddrec');
+  if(rInfo){
+    if(e.recurrence&&e.recurrence!=='none'){rInfo.style.display='block';rInfo.textContent='↻ Récurrent';}
+    else rInfo.style.display='none';
+  }
   om('mevd');
 }
 function editEv(){openEvModal(delEvId);}
