@@ -840,7 +840,7 @@ body{
 </div>
 
 <!-- ═══ ONBOARDING ═══ -->
-<div id="onboarding" style="display:none;position:fixed;inset:0;z-index:900;background:#FAF5F1">
+<div id="onboarding" style="display:none;position:fixed;inset:0;z-index:900;background:#FAF5F1;touch-action:auto">
   <div style="height:100%;display:flex;flex-direction:column">
     <div id="ob-slides" style="flex:1;overflow:hidden;position:relative">
       <div class="ob-slide on" id="ob-1">
@@ -1206,6 +1206,11 @@ function detectConflict(dateStr,fe){
 
 // ── INIT ────────────────────────────────────────
 async function init(){
+  // Sécurité — masquer l'onboarding si déjà vu
+  if(localStorage.getItem('maivi_onboarded')){
+    const ob=document.getElementById('onboarding');
+    if(ob)ob.style.display='none';
+  }
   rHome(); // immediate
   try{
     const[r0,r1,r2,r3,r4]=await Promise.allSettled([
@@ -1710,7 +1715,7 @@ function rCo(){
   const totalVal=document.getElementById('courses-total-val');
   const estimEl=document.getElementById('courses-estimtotal');
   if(total>0&&totalBar){totalBar.style.display='flex';if(totalVal)totalVal.textContent=total.toFixed(2)+' €';if(estimEl)estimEl.textContent=`~${total.toFixed(2)} € · ${pending.length} article${pending.length>1?'s':''}`;}
-  else{if(totalBar)totalBar.style.display='none';if(estimEl)estimEl.textContent=pending.length?`${pending.length} article${pending.length>1?'s':'`}`:' Liste vide`};}
+  else{if(totalBar)totalBar.style.display='none';if(estimEl)estimEl.textContent=pending.length?`${pending.length} article${pending.length>1?'s':''}`:'Liste vide';}
   if(!listeCos.length){document.getElementById('clist').innerHTML=`<div class="empty" style="padding:40px 0">Liste vide.<br><span onclick="openCModal()" style="color:var(--teal);cursor:pointer;font-weight:800">+ Ajouter un article</span></div>`;return;}
   const rayons={};
   pending.forEach(c=>{const r=c.categorie||'Épicerie';if(!rayons[r])rayons[r]=[];rayons[r].push(c);});
@@ -1954,7 +1959,15 @@ function obUpdateUI(){
   if(btn)btn.textContent=obSlide===4?'Commencer':'Suivant';
 }
 // Lancer l'onboarding au premier démarrage
-if(!localStorage.getItem('maivi_onboarded'))setTimeout(showOnboarding,400);
+// Force skip si déjà vu ou si bug
+if(!localStorage.getItem('maivi_onboarded')){
+  setTimeout(showOnboarding,400);
+} else {
+  const ob=document.getElementById('onboarding');
+  if(ob)ob.style.display='none';
+}
+// Escape hatch — double tap anywhere on onboarding skips it
+document.getElementById('onboarding')?.addEventListener('dblclick',obSkip);
 
 // ── CONTACTS ──────────────────────────────────
 let contacts=[];
