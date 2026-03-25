@@ -449,6 +449,24 @@ body{
   </div>
 </div>
 
+<!-- ═══ VUE ANNUELLE ═══ -->
+<div class="page" id="pg-annee">
+  <div class="bg"><div class="blob b1"></div><div class="blob b2"></div></div>
+  <div class="rel">
+    <div style="padding:16px 20px 10px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:28px;font-weight:900;color:var(--dk);letter-spacing:-.5px" id="annee-title">2026</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="prevYear()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.8);font-size:17px;cursor:pointer;color:var(--mid)">‹</button>
+        <button onclick="nextYear()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.8);font-size:17px;cursor:pointer;color:var(--mid)">›</button>
+      </div>
+    </div>
+    <!-- Légende -->
+    <div style="margin:0 20px 12px;display:flex;gap:12px;flex-wrap:wrap;font-size:10px;font-weight:800;color:var(--mid)" id="annee-legend"></div>
+    <!-- Grille 12 mois -->
+    <div id="annee-grid" style="padding:0 16px"></div>
+  </div>
+</div>
+
 <!-- ═══ PRO ARNAUD ═══ -->
 <div class="page" id="pg-pro">
   <div class="bg"><div class="blob b1"></div><div class="blob b2"></div></div>
@@ -460,10 +478,10 @@ body{
 <!-- ═══ TAB BAR GLOBALE ═══ -->
 <div id="tab-bar">
   <div class="tab" id="tab-agenda" onclick="go('agenda')"><div class="ti">📅</div><div class="tlab">AGENDA</div></div>
-  <div class="tab" id="tab-courses" onclick="go('courses')"><div class="ti">✅</div><div class="tlab">COURSES</div></div>
+  <div class="tab" id="tab-annee" onclick="go('annee')"><div class="ti">🗓</div><div class="tlab">ANNÉE</div></div>
   <div class="tab on" id="tab-home" onclick="go('home')"><div class="thome">🏠</div><div class="tlab" style="color:var(--teal)">ACCUEIL</div></div>
   <div class="tab" id="tab-pro" onclick="go('pro')"><div class="ti">📸</div><div class="tlab">PRO</div></div>
-  <div class="tab" id="tab-membres" onclick="go('membres')"><div class="ti">👨‍👩‍👧</div><div class="tlab">FAMILLE</div></div>
+  <div class="tab" id="tab-courses" onclick="go('courses')"><div class="ti">✅</div><div class="tlab">COURSES</div></div>
 </div>
 
 <!-- ═══ MODAL ÉVÉNEMENT (nouveau design) ═══ -->
@@ -523,10 +541,22 @@ body{
         </div>
       </div>
 
+      <!-- Lieu -->
+      <div class="ev-section">
+        <div class="ev-section-label">LIEU</div>
+        <input class="ev-notes-input" id="elieu" placeholder="Adresse, salle, ville..." style="min-height:auto;padding:10px 12px" oninput="updateLieuPreview()">
+        <div id="lieu-preview" style="display:none;margin-top:6px">
+          <a id="lieu-maps-link" href="#" target="_blank" style="font-size:12px;font-weight:800;color:var(--teal);text-decoration:none;display:flex;align-items:center;gap:4px">
+            <span style="width:18px;height:18px;background:var(--teal);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:10px">↗</span>
+            Ouvrir dans Maps
+          </a>
+        </div>
+      </div>
+
       <!-- Notes -->
       <div class="ev-section">
         <div class="ev-section-label">NOTES</div>
-        <textarea class="ev-notes-input" id="enot" placeholder="Lieu, client, informations..."></textarea>
+        <textarea class="ev-notes-input" id="enot" placeholder="Client, informations..."></textarea>
       </div>
 
       <input type="hidden" id="eid">
@@ -550,10 +580,16 @@ body{
       <div id="ddn" style="font-family:'Baloo 2',cursive;font-size:17px;font-weight:800;color:var(--dk);flex:1"></div>
       <div id="dde" style="font-size:24px"></div>
     </div>
-    <div style="font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">📅 <span id="dds" style="color:var(--dk);font-weight:700"></span></div>
-    <div style="font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">⏰ <span id="ddf" style="color:var(--dk);font-weight:700"></span></div>
-    <div id="ddmr" style="display:none;font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">👤 <span id="ddm" style="color:var(--dk);font-weight:700"></span></div>
-    <div id="ddnr" style="display:none;font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">📝 <span id="ddno" style="color:var(--dk);font-weight:700"></span></div>
+    <div style="font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">Du <span id="dds" style="color:var(--dk);font-weight:700"></span></div>
+    <div style="font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">Au <span id="ddf" style="color:var(--dk);font-weight:700"></span></div>
+    <div id="ddlr" style="display:none;margin-bottom:8px">
+      <a id="ddl-link" href="#" target="_blank" style="font-size:13px;font-weight:800;color:var(--teal);text-decoration:none;display:flex;align-items:center;gap:6px">
+        <span style="width:22px;height:22px;background:var(--teal);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:11px;flex-shrink:0">↗</span>
+        <span id="ddl"></span>
+      </a>
+    </div>
+    <div id="ddmr" style="display:none;font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">— <span id="ddm" style="color:var(--dk);font-weight:700"></span></div>
+    <div id="ddnr" style="display:none;font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px;line-height:1.5"><span id="ddno" style="color:var(--dk);font-weight:600"></span></div>
     <div id="ddrec" style="display:none;font-size:12px;font-weight:800;color:var(--teal);background:var(--teal-s);padding:4px 12px;border-radius:999px;display:inline-block;margin-bottom:10px"></div>
     <div class="ear">
       <button class="eab eedit" onclick="editEv()">✏️ Modifier</button>
@@ -762,6 +798,7 @@ function go(p){
   if(p==='fidelite')rFid();
   if(p==='home')rHome();
   if(p==='pro')rPro();
+  if(p==='annee')rAnnee();
 }
 
 // ── TYPES PHOTO ───────────────────────────────
@@ -1161,19 +1198,104 @@ const TYPE_HEADERS={
 function selEvType(btn){
   const type=btn.dataset.type;
   document.getElementById('etype').value=type;
-  // Update header color
   const hdr=document.getElementById('ev-header');
   const th=TYPE_HEADERS[type]||TYPE_HEADERS['normal'];
   hdr.style.background=th.bg;
-  // Update button states
   document.querySelectorAll('.ev-type-btn').forEach(b=>b.classList.toggle('active',b===btn));
-  // Update save button color
   const saveBtn=document.getElementById('ev-save-btn');
   if(saveBtn)saveBtn.style.background=th.bg;
+  // Durée automatique selon type
+  const start=document.getElementById('edd').value;
+  if(start){
+    const d=new Date(start+'T00:00:00');
+    if(type==='mariage'){
+      // Mariage = 2 jours
+      d.setDate(d.getDate()+1);
+      document.getElementById('edf').value=tds(d);
+    } else if(type==='portrait'){
+      // Portrait = même jour, heure fin +2h
+      document.getElementById('edf').value=start;
+      const hd=document.getElementById('ehd').value;
+      if(hd){const[h,m]=hd.split(':').map(Number);const hf=pad(Math.min(h+2,23))+':'+pad(m);document.getElementById('ehf').value=hf;}
+    } else {
+      document.getElementById('edf').value=start;
+    }
+  }
+}
+
+function updateLieuPreview(){
+  const val=document.getElementById('elieu').value.trim();
+  const preview=document.getElementById('lieu-preview');
+  const link=document.getElementById('lieu-maps-link');
+  if(val.length>2){
+    preview.style.display='block';
+    link.href=`https://maps.apple.com/?q=${encodeURIComponent(val)}`;
+  } else {
+    preview.style.display='none';
+  }
 }
 
 function updateDateDisplay(){
-  // Nothing needed — native inputs handle display
+  // Auto-sync fin = début si fin < début
+  const s=document.getElementById('edd').value;
+  const f=document.getElementById('edf').value;
+  if(s&&f&&f<s)document.getElementById('edf').value=s;
+}
+
+// ── VUE ANNUELLE ──────────────────────────────
+let anneeYear=new Date().getFullYear();
+
+function prevYear(){anneeYear--;rAnnee();}
+function nextYear(){anneeYear++;rAnnee();}
+
+function rAnnee(){
+  document.getElementById('annee-title').textContent=anneeYear;
+  const fe=fEvs();
+  const MO_SHORT=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  const DN_SHORT=['L','M','M','J','V','S','D'];
+
+  // Build legend from active types
+  const types=new Set(fe.filter(e=>new Date(e.date_debut).getFullYear()===anneeYear).map(e=>e.type));
+  let leg='';
+  types.forEach(t=>{const th=PHOTO_TYPES[t];if(th)leg+=`<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:${th.color};display:inline-block"></span>${th.label}</span>`;});
+  document.getElementById('annee-legend').innerHTML=leg;
+
+  let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  for(let m=0;m<12;m++){
+    const first=new Date(anneeYear,m,1);
+    const dow=(first.getDay()+6)%7;
+    const dim=new Date(anneeYear,m+1,0).getDate();
+    html+=`<div style="background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.7));border:1px solid rgba(255,255,255,.8);border-radius:20px;padding:10px 12px;box-shadow:var(--shadow-soft);cursor:pointer" onclick="goToMonth(${m})">
+      <div style="font-size:12px;font-weight:900;color:var(--dk);margin-bottom:6px;letter-spacing:.3px">${MO_SHORT[m]}</div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px">`;
+    // Day headers
+    DN_SHORT.forEach(d=>html+=`<div style="font-size:7px;font-weight:700;color:var(--soft);text-align:center;padding:1px 0">${d}</div>`);
+    // Empty cells
+    for(let i=0;i<dow;i++)html+=`<div></div>`;
+    // Days
+    for(let d=1;d<=dim;d++){
+      const dt=new Date(anneeYear,m,d);
+      const isT=sd(dt,tod);
+      const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return dt>=s&&dt<=f;});
+      const vac=isVac(dt);
+      // Pick dominant color
+      let bg='transparent',color='var(--dk)';
+      if(isT){bg='var(--coral)';color='white';}
+      else if(de.length){bg=ec(de[0]);color='white';}
+      else if(vac){bg='rgba(237,183,119,.3)';}
+      html+=`<div style="width:100%;aspect-ratio:1;border-radius:3px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:${isT?900:de.length?800:400};color:${isT||de.length?'white':'var(--mid)'}">${d}</div>`;
+    }
+    html+=`</div></div>`;
+  }
+  html+='</div>';
+  document.getElementById('annee-grid').innerHTML=html;
+}
+
+function goToMonth(m){
+  // Switch to agenda mois view on this month
+  mCur=new Date(anneeYear,m,1);
+  go('agenda');
+  setView('mois');
 }
 
 function openEvModal(id,prefillDate){
@@ -1193,6 +1315,8 @@ function openEvModal(id,prefillDate){
       document.getElementById('edf').value=e.date_fin||e.date_debut;
       document.getElementById('ehf').value=e.heure_fin||'';
       document.getElementById('enot').value=e.notes||'';
+      document.getElementById('elieu').value=e.lieu||'';
+      updateLieuPreview();
       document.getElementById('etype').value=e.type||'normal';
       document.getElementById('erecur').value=e.recurrence||'none';
       document.getElementById('recur-end-wrap').style.display=(e.recurrence&&e.recurrence!=='none')?'block':'none';
@@ -1212,6 +1336,8 @@ function openEvModal(id,prefillDate){
     document.getElementById('edf').value=nd;
     document.getElementById('ehf').value='';
     document.getElementById('enot').value='';
+    document.getElementById('elieu').value='';
+    document.getElementById('lieu-preview').style.display='none';
     document.getElementById('etype').value='normal';
     document.getElementById('erecur').value='none';
     document.getElementById('recur-end-wrap').style.display='none';
@@ -1250,6 +1376,7 @@ async function saveEv(){
     couleur,
     emoji:null,
     notes:document.getElementById('enot').value||null,
+    lieu:document.getElementById('elieu').value||null,
     type,
     membre_id:memId,
     recurrence:recur,
@@ -1262,26 +1389,31 @@ async function saveEv(){
 }
 
 function showEv(id){
-  // Handle recurring event — find original
   const realId=id.includes('_202')?id.split('_').slice(0,-1).join('_'):id;
   const e=evs.find(x=>x.id===realId||x.id===id);if(!e)return;
   delEvId=e.id;
-  const c=ec(e);
+  const c=ec(e);const t=getType(e);
   document.getElementById('ddd').style.background=c;
   document.getElementById('ddn').textContent=e.titre;
-  document.getElementById('dde').textContent=e.emoji||'📅';
+  document.getElementById('dde').textContent='';
   document.getElementById('dds').textContent=fmtDT(e.date_debut,e.heure_debut);
   document.getElementById('ddf').textContent=fmtDT(e.date_fin||e.date_debut,e.heure_fin);
+  // Lieu + Maps
+  const lr=document.getElementById('ddlr');
+  if(e.lieu&&e.lieu.trim()){
+    lr.style.display='block';
+    document.getElementById('ddl').textContent=e.lieu;
+    document.getElementById('ddl-link').href=`https://maps.apple.com/?q=${encodeURIComponent(e.lieu)}`;
+  } else lr.style.display='none';
+  // Membre
   const mm=gm(e.membre_id);const mr=document.getElementById('ddmr');
-  if(mm){mr.style.display='block';document.getElementById('ddm').textContent=mm.emoji+' '+mm.nom;}else mr.style.display='none';
+  if(mm){mr.style.display='block';document.getElementById('ddm').textContent=mm.nom;}else mr.style.display='none';
+  // Notes
   const nr=document.getElementById('ddnr');
   if(e.notes){nr.style.display='block';document.getElementById('ddno').textContent=e.notes;}else nr.style.display='none';
-  // Show recurrence info
+  // Récurrence
   const rInfo=document.getElementById('ddrec');
-  if(rInfo){
-    if(e.recurrence&&e.recurrence!=='none'){rInfo.style.display='block';rInfo.textContent='↻ Récurrent';}
-    else rInfo.style.display='none';
-  }
+  if(rInfo){if(e.recurrence&&e.recurrence!=='none'){rInfo.style.display='block';rInfo.textContent='Récurrent';}else rInfo.style.display='none';}
   om('mevd');
 }
 function editEv(){openEvModal(delEvId);}
