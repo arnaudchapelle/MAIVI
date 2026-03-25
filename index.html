@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Maivi</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Maivi">
+<meta name="theme-color" content="#2D9E8E">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/html5-qrcode" defer></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Nunito',sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(170,220,232,.38), transparent 34%),
+    radial-gradient(circle at top right, rgba(248,205,179,.30), transparent 30%),
+    linear-gradient(180deg,#FAF5F1 0%,#F6F0EB 100%);
+  color:var(--dk);
+  -webkit-tap-highlight-color:transparent;
+}
+:root{
+  --cream:#F7F3ED;--cream-2:#FBF7F4;--coral:#E98A69;--coral-s:#FCE8DF;--teal:#7EA99F;--teal-l:#A9CBC3;--teal-s:#E3F0EC;
+  --yellow:#F2C978;--yellow-s:#FDF3D7;--purple:#B79AD6;--purple-s:#EEE7F8;--green:#91BE8B;--orange:#EDB777;--orange-s:#FCEED9;
+  --dk:#2F414B;--mid:#6D7A83;--soft:#A7B1B7;--line:rgba(110,122,131,.12);--whiteA:rgba(255,255,255,.78);
+  --shadow:0 12px 36px rgba(113,103,95,.08);--shadow-soft:0 8px 24px rgba(113,103,95,.06);
+}
+
+.page{display:none;position:fixed;top:0;left:0;right:0;bottom:92px;background:transparent;z-index:10;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.page.on{display:block}
+
+#tab-bar{position:fixed;left:12px;right:12px;bottom:12px;height:76px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.6);display:flex;justify-content:space-around;align-items:center;padding:10px 10px 12px;z-index:200;backdrop-filter:blur(22px);border-radius:30px;box-shadow:0 18px 38px rgba(89,80,74,.12)}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:6px 10px;min-width:48px;border-radius:18px;transition:.18s ease}
+.tab.on{background:rgba(126,169,159,.14)}
+.ti{font-size:19px;line-height:1;filter:saturate(.9)}
+.tlab{font-size:9px;font-weight:800;color:var(--soft);letter-spacing:.45px}
+.tab.on .tlab{color:var(--teal)}
+.thome{width:54px;height:54px;border-radius:20px;background:linear-gradient(180deg,#9CC0B8,#7EA99F);display:flex;align-items:center;justify-content:center;font-size:23px;color:#fff;box-shadow:0 10px 22px rgba(126,169,159,.35)}
+
+.bg{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:hidden;z-index:0}
+.blob{position:absolute;opacity:.22;border-radius:50%;filter:blur(6px)}
+.b1{width:220px;height:190px;background:#B8D7D0;top:-40px;right:-50px;border-radius:60% 40% 50% 60%}
+.b2{width:180px;height:150px;background:#F7DBBD;top:70px;left:-70px;border-radius:50% 60% 40% 50%}
+.b3{width:160px;height:140px;background:#F4C6B2;bottom:230px;right:-40px;border-radius:55% 45% 60% 40%}
+.b4{width:200px;height:160px;background:#C8E1DC;bottom:30px;left:-70px;border-radius:45% 55% 50% 60%}
+.rel{position:relative;z-index:1;padding:18px 0 24px}
+
+.hdr{padding:10px 20px 0;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Baloo 2',cursive;font-size:27px;font-weight:800;color:var(--dk);letter-spacing:.3px}
+.card,.bub,.wstrip,.ccard,.mcard,.mcard-fam,.scan-box,.fid-card,.big-card,.modal{
+  background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.7));
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:var(--shadow);
+}
+.card{border-radius:28px;padding:16px 18px;margin:0 20px 14px}
+.sh{display:flex;align-items:center;justify-content:space-between;margin:0 20px 10px}
+.st{font-size:17px;font-weight:900;color:var(--dk)}
+.sl{font-size:13px;color:var(--mid);font-weight:800;cursor:pointer}
+.bub{margin:0 20px 14px;border-radius:22px;padding:13px 15px;display:flex;align-items:center;gap:10px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 20px 14px}
+.mc{border-radius:24px;padding:16px;cursor:pointer;transition:transform .15s;background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.58));border:1px solid rgba(255,255,255,.72);box-shadow:var(--shadow-soft)}
+.mc:active,.mcard-fam:active{transform:scale(.97)}
+.ptop{padding:22px 20px 10px;display:flex;align-items:center;gap:10px}
+.sb{flex:1;background:rgba(255,255,255,.8);border-radius:20px;padding:12px 16px;font-size:14px;font-family:'Nunito',sans-serif;border:1px solid rgba(255,255,255,.85);color:var(--dk);box-shadow:var(--shadow-soft)}
+.sb::placeholder{color:#97A3AA}
+.ab{width:46px;height:46px;border-radius:16px;background:linear-gradient(180deg,#F0D5C6,#EAB796);border:1px solid rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;cursor:pointer;flex-shrink:0;box-shadow:0 10px 22px rgba(233,138,105,.22)}
+.fp{padding:8px 14px;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer;border:1px solid rgba(255,255,255,.7);font-family:'Nunito',sans-serif}
+.fp.on{background:linear-gradient(180deg,#9CC0B8,#7EA99F);color:white}
+.fp.off{background:rgba(255,255,255,.72);color:var(--mid);border-color:rgba(255,255,255,.8)}
+.empty{text-align:center;padding:22px 18px;color:var(--soft);font-size:13px;font-weight:700}
+.spin{width:26px;height:26px;border:3px solid #DDE5E8;border-top-color:var(--teal);border-radius:50%;animation:sp .7s linear infinite;margin:0 auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+@keyframes bou{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+
+.hero-banner{margin:6px 20px 16px;padding:16px 18px 14px;min-height:124px;border-radius:30px;position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.58));border:1px solid rgba(255,255,255,.8);box-shadow:var(--shadow)}
+.hero-banner:before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,rgba(174,219,229,.32) 0%,rgba(244,213,182,.24) 55%,rgba(255,255,255,.18) 100%)}
+.hero-banner:after{content:'';position:absolute;left:-10%;right:-10%;bottom:-26px;height:70px;background:linear-gradient(90deg,rgba(126,169,159,.16),rgba(242,201,120,.16));filter:blur(8px);border-radius:50%}
+.hero-inner{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hero-copy{max-width:58%}
+.hero-kicker{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:var(--teal);margin-bottom:6px}
+.hero-title{font-size:18px;font-weight:900;color:var(--dk);line-height:1.15}
+.hero-sub{font-size:12px;color:var(--mid);font-weight:700;margin-top:4px;line-height:1.35}
+.hero-mascot{width:112px;height:112px;object-fit:contain;animation:bou 3s ease-in-out infinite;filter:drop-shadow(0 8px 10px rgba(233,138,105,.16))}
+.page-head{margin:0 20px 14px;padding:18px;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.84),rgba(255,255,255,.62));border:1px solid rgba(255,255,255,.8);box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;justify-content:space-between}
+.page-head-copy{flex:1;min-width:0}
+.page-eyebrow{font-size:12px;font-weight:800;color:var(--teal);letter-spacing:.3px;margin-bottom:4px}
+.page-head-title{font-size:20px;font-weight:900;color:var(--dk);line-height:1.15}
+.page-head-sub{font-size:12px;font-weight:700;color:var(--mid);margin-top:4px;line-height:1.35}
+.page-head-illu{width:58px;height:58px;border-radius:20px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(234,183,150,.35),rgba(169,203,195,.35));font-size:30px;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.profile-chip{width:48px;height:48px;border-radius:24px;background:rgba(255,255,255,.76);border:1px solid rgba(255,255,255,.82);box-shadow:var(--shadow-soft);display:flex;align-items:center;justify-content:center;font-size:21px;cursor:pointer;position:relative}
+.profile-badge{position:absolute;top:-2px;right:-2px;width:22px;height:22px;border-radius:50%;background:var(--coral);color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+
+.wstrip{border-radius:26px;padding:14px 16px;margin:0 20px 14px}
+.wnav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:10px;font-size:15px;font-weight:900;color:var(--dk)}
+.wnavb{background:rgba(126,169,159,.12);border:none;font-size:20px;cursor:pointer;color:var(--teal);padding:4px 10px;border-radius:999px}
+.wdays{display:flex;justify-content:space-between}
+.wd{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;flex:1}
+.wdn{font-size:10px;font-weight:800;color:var(--soft);letter-spacing:.5px}
+.wdd,.mnum{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:var(--dk)}
+.wdd.tod,.mnum.tod{background:linear-gradient(180deg,#F1D5C4,#EAB796);color:#fff}
+.wdd.sel,.mnum.sel{background:var(--teal-s);color:var(--teal)}
+.wdots{display:flex;gap:3px;min-height:6px;justify-content:center}
+.wdot{width:5px;height:5px;border-radius:50%}
+.ev{border-radius:18px;padding:11px 13px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.74);border:1px solid rgba(255,255,255,.7);box-shadow:var(--shadow-soft)}
+.ev:active{opacity:.8}
+.edot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.ebody{flex:1}
+.en{font-size:13px;font-weight:900;color:var(--dk)}
+.em{font-size:10px;color:var(--mid);font-weight:700}
+.pro-pill,.perso-pill{font-size:9px;font-weight:800;border-radius:999px;padding:2px 7px;margin-left:6px}
+.pro-pill{background:#E4EEF8;color:#547189}
+.perso-pill{background:var(--coral-s);color:#9B654C}
+.vac-band{background:var(--orange-s);border-radius:999px;padding:6px 12px;font-size:11px;font-weight:800;color:#9A6C34;margin-bottom:10px;display:inline-block}
+.mcell{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:2px}
+.mnum.vac{background:var(--orange-s);color:#9A6C34}
+
+.cadd{margin:0 20px 12px;display:flex;gap:8px}
+.ci,.fi{background:rgba(255,255,255,.76);border-radius:16px;padding:11px 14px;font-size:13px;font-family:'Nunito',sans-serif;border:1px solid rgba(255,255,255,.82);color:var(--dk);box-shadow:var(--shadow-soft)}
+.ci:focus,.fi:focus{outline:none;border-color:rgba(126,169,159,.8)}
+.cs,.sav{background:linear-gradient(180deg,#9CC0B8,#7EA99F);color:white;border:none;border-radius:16px;padding:11px 15px;font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;box-shadow:0 10px 18px rgba(126,169,159,.24)}
+.ccard{border-radius:22px;padding:6px 14px;box-shadow:var(--shadow-soft)}
+.cit{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:.5px solid var(--line);cursor:pointer}
+.cit:last-child{border-bottom:none}
+.cck{width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cck.on{background:linear-gradient(180deg,#9CC0B8,#7EA99F)}
+.cck.off{background:white;border:2px solid #D7E2E6}
+.cfooter{display:flex;gap:10px;margin:14px 20px 0;flex-wrap:wrap}
+.fb,.can,.eab,.cyes,.cno{border-radius:16px;font-family:'Nunito',sans-serif;font-weight:800;cursor:pointer}
+.fb{background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.8);padding:10px 14px;font-size:12px;color:var(--mid);display:flex;align-items:center;gap:5px;box-shadow:var(--shadow-soft)}
+.fb.red{color:#E07D7D;border-color:rgba(255,255,255,.8)}
+
+.mcard{margin:0 20px 12px;border-radius:24px;padding:14px 15px;box-shadow:var(--shadow-soft)}
+.mhdr{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
+.mdet{background:rgba(247,243,237,.8);border-radius:14px;padding:9px 11px;display:flex;align-items:center;gap:8px}
+
+.membres-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:0 20px 16px}
+.mcard-fam{border-radius:24px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;position:relative}
+.mavatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;border:3px solid rgba(255,255,255,.9);box-shadow:0 6px 14px rgba(0,0,0,.12);overflow:hidden;flex-shrink:0}
+.mavatar img{width:100%;height:100%;object-fit:cover}
+.add-mem{background:rgba(255,255,255,.52);border:1.5px dashed rgba(126,169,159,.45);border-radius:24px;padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;box-shadow:var(--shadow-soft)}
+
+.fid-grid{display:grid;grid-template-columns:1fr;gap:12px;margin:0 20px 16px}
+.fid-card{border-radius:24px;padding:18px;color:white;cursor:pointer}
+.fid-title{font-size:18px;font-weight:900}
+.fid-sub{font-size:12px;font-weight:700;opacity:.95;margin-top:4px}
+.fid-actions{display:flex;gap:8px;margin-top:12px}
+.fid-btn{flex:1;border:none;border-radius:14px;padding:10px 12px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer}
+.fid-light{background:rgba(255,255,255,.18);color:white}
+.fid-dark{background:rgba(0,0,0,.12);color:white}
+.scan-box{border-radius:28px;padding:16px 16px;box-shadow:var(--shadow)}
+.scan-viewport{width:100%;min-height:260px;border-radius:20px;overflow:hidden;background:#111}
+.big-card{border-radius:30px;padding:22px;color:white;box-shadow:0 18px 34px rgba(0,0,0,.15)}
+.big-barcode{margin-top:18px;background:white;border-radius:20px;padding:16px;text-align:center;color:#111}
+.big-bars{height:80px;border-radius:10px;background:repeating-linear-gradient(90deg,#111 0 2px,#fff 2px 4px,#111 4px 7px,#fff 7px 10px,#111 10px 11px,#fff 11px 14px)}
+.big-num{font-size:13px;font-weight:800;letter-spacing:2px;margin-top:10px;color:#111}
+
+.modal-bg{position:fixed;inset:0;background:rgba(65,56,52,.24);display:flex;align-items:flex-end;justify-content:center;z-index:500;backdrop-filter:blur(10px)}
+.modal{border-radius:30px 30px 0 0;padding:20px 20px 40px;width:100%;max-width:390px;max-height:90vh;overflow-y:auto}
+.mh{width:38px;height:5px;background:#D8E0E3;border-radius:999px;margin:0 auto 16px}
+.mt{font-size:18px;font-weight:900;color:var(--dk);margin-bottom:16px}
+.fl{font-size:11px;font-weight:800;color:var(--soft);letter-spacing:.5px;margin-bottom:4px;display:block}
+.fr{display:flex;gap:8px}.fr .fi{flex:1;margin-bottom:12px}
+.crow{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.co{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .1s}.co.sel{border-color:var(--dk);transform:scale(1.15)}
+.sav{width:100%;padding:13px;margin-top:4px}
+.can{width:100%;padding:11px;background:rgba(255,255,255,.6);color:var(--mid);font-size:14px;border:1px solid rgba(255,255,255,.8);margin-top:8px;box-shadow:var(--shadow-soft)}
+.ear{display:flex;gap:8px;margin-top:14px}
+.eab{flex:1;padding:11px;font-size:13px;border:none}
+.eedit{background:var(--teal-s);color:var(--teal)}
+.edel{background:#FDECEC;color:#E07D7D}
+.cyes{flex:1;padding:12px;background:#E07D7D;color:white;font-size:14px;border:none}
+.cno{flex:1;padding:12px;background:rgba(255,255,255,.62);color:var(--mid);font-size:14px;border:1px solid rgba(255,255,255,.8)}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(47,65,75,.92);color:white;padding:10px 18px;border-radius:16px;font-size:12px;font-weight:800;z-index:600;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;box-shadow:var(--shadow-soft)}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- ═══ HOME ═══ -->
+<div class="page on" id="pg-home">
+  <div class="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
+  <div class="rel">
+        <div class="hdr">
+      <div class="logo">maivi</div>
+      <div style="width:40px;height:40px;border-radius:50%;background:var(--coral-s);border:3px solid var(--coral);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer" onclick="go('membres')">👧</div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;padding:0 20px;height:110px;position:relative">
+      <img src="mascotte.png" alt="Maivi" style="width:110px;height:110px;object-fit:contain;animation:bou 3s ease-in-out infinite;position:absolute;right:20px;top:0">
+    </div>
+    <div class="card">
+      <div style="font-family:'Baloo 2',cursive;font-size:20px;font-weight:700;color:var(--dk)">Bonjour 👋</div>
+      <div style="font-size:12px;color:var(--mid);font-weight:600;margin-top:2px">Résumé de ta journée</div>
+    </div>
+    <div class="bub">
+      <div style="width:30px;height:30px;border-radius:50%;background:var(--yellow-s);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">😊</div>
+      <div style="flex:1;font-size:12px;color:var(--mid);font-weight:600;line-height:1.4" id="hbub">Bonne journée ! ☀️</div>
+    </div>
+    <div class="sh"><div class="st">Aujourd'hui</div><div class="sl" onclick="go('agenda')">Tout voir →</div></div>
+    <div class="card" id="htoday"><div class="empty">😴 Aucun événement aujourd'hui !</div></div>
+    <div class="sh"><div class="st">🛒 Courses</div><div class="sl" onclick="go('courses')">Gérer →</div></div>
+    <div class="card" id="hcourses"><div class="empty">🎉 Liste vide !</div></div>
+    <div class="sh" style="margin-top:4px"><div class="st">Mes modules</div></div>
+    <div class="mgrid">
+      <div class="mc" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9)" onclick="go('agenda')">
+        <div style="font-size:24px;margin-bottom:5px">📅</div>
+        <div style="font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--dk)">Agenda</div>
+        <div style="font-size:11px;color:var(--mid);font-weight:600;margin-top:1px" id="ma-sub">0 aujourd'hui</div>
+      </div>
+      <div class="mc" style="background:linear-gradient(135deg,#FFF8E1,#FFECB3)" onclick="go('courses')">
+        <div style="font-size:24px;margin-bottom:5px">🛒</div>
+        <div style="font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--dk)">Courses</div>
+        <div style="font-size:11px;color:var(--mid);font-weight:600;margin-top:1px" id="mc-sub">0 restants</div>
+      </div>
+      <div class="mc" style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB)" onclick="go('sante')">
+        <div style="font-size:24px;margin-bottom:5px">💊</div>
+        <div style="font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--dk)">Santé</div>
+        <div style="font-size:11px;color:var(--mid);font-weight:600;margin-top:1px" id="ms-sub">0 médicaments</div>
+      </div>
+      <div class="mc" style="background:linear-gradient(135deg,#FCE4EC,#F8BBD9)" onclick="go('membres')">
+        <div style="font-size:24px;margin-bottom:5px">👨‍👩‍👧‍👦</div>
+        <div style="font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--dk)">Famille</div>
+        <div style="font-size:11px;color:var(--mid);font-weight:600;margin-top:1px" id="mf-sub">0 membres</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AGENDA ═══ -->
+<div class="page" id="pg-agenda">
+  <div class="bg"><div class="blob b1"></div><div class="blob b2"></div></div>
+  <div class="rel">
+    <div class="ptop"><input class="sb" placeholder="🔍  Rechercher..."><button class="ab" onclick="openEvModal()">+</button></div>
+    <div style="margin:0 20px 10px;display:flex;gap:8px">
+      <button class="fp on" id="vw-sem" onclick="setView('semaine')">Semaine</button>
+      <button class="fp off" id="vw-mois" onclick="setView('mois')">Mois</button>
+    </div>
+    <div style="margin:0 20px 10px;display:flex;gap:6px;overflow-x:auto;padding-bottom:2px" id="agenda-filters"></div>
+    <div id="view-semaine">
+      <div class="wstrip">
+        <div class="wnav"><button class="wnavb" onclick="pw()">‹</button><span id="wlabel">...</span><button class="wnavb" onclick="nw()">›</button></div>
+        <div class="wdays" id="wdays"></div>
+      </div>
+      <div id="atl" style="padding:0 20px"></div>
+    </div>
+    <div id="view-mois" style="display:none">
+      <div class="wstrip">
+        <div class="wnav"><button class="wnavb" onclick="pm()">‹</button><span id="mlabel">...</span><button class="wnavb" onclick="nm()">›</button></div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:8px;text-align:center">
+          <div style="font-size:10px;font-weight:700;color:var(--soft);padding:3px">L</div><div style="font-size:10px;font-weight:700;color:var(--soft);padding:3px">M</div><div style="font-size:10px;font-weight:700;color:var(--soft);padding:3px">M</div><div style="font-size:10px;font-weight:700;color:var(--soft);padding:3px">J</div><div style="font-size:10px;font-weight:700;color:var(--soft);padding:3px">V</div><div style="font-size:10px;font-weight:700;color:var(--soft);padding:3px">S</div><div style="font-size:10px;font-weight:700;color:var(--soft);padding:3px">D</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px" id="mcal"></div>
+        <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;font-size:10px;font-weight:700;color:var(--mid)">
+          <span>🟢 Chez papa</span><span>🟣 Partagé</span><span>🟠 Vacances</span>
+        </div>
+      </div>
+      <div id="mday-evs" style="padding:0 20px;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COURSES ═══ -->
+<div class="page" id="pg-courses">
+  <div class="bg"><div class="blob b1"></div><div class="blob b2"></div></div>
+  <div class="rel">
+    <div class="ptop"><input class="sb" placeholder="🔍  Rechercher..."><button class="ab" onclick="openCModal()">+</button></div>
+    <div class="card" style="display:flex;align-items:center">
+      <div style="flex:1"><div style="font-family:'Baloo 2',cursive;font-size:17px;font-weight:800;color:var(--dk)">Salut !</div><div style="font-size:12px;color:var(--mid);font-weight:600;margin-top:2px">On prépare la liste ?</div></div>
+      <div style="font-size:44px">🧺</div>
+    </div>
+    <div class="cadd">
+      <input class="ci" id="cqi" placeholder="+ Ajouter un article..." onkeydown="if(event.key==='Enter')qadd()">
+      <button class="cs" onclick="qadd()">Ajouter</button>
+    </div>
+    <div id="clist"><div class="empty">🛒 Liste vide !</div></div>
+    <div class="cfooter">
+      <button class="fb" onclick="checkAll()">✅ Tout cocher</button>
+      <button class="fb red" onclick="delChecked()">🗑 Supprimer cochés</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SANTE ═══ -->
+<div class="page" id="pg-sante">
+  <div class="bg"><div class="blob b1"></div><div class="blob b2"></div></div>
+  <div class="rel">
+    <div class="ptop"><input class="sb" placeholder="🔍  Rechercher..."><button class="ab" onclick="openMModal()">+</button></div>
+    <div class="card" style="display:flex;align-items:center">
+      <div style="flex:1"><div style="font-family:'Baloo 2',cursive;font-size:17px;font-weight:800;color:var(--dk)">Santé famille</div><div style="font-size:12px;color:var(--mid);font-weight:600;margin-top:2px">Médicaments & bien-être</div></div>
+      <div style="font-size:44px">😊</div>
+    </div>
+    <div style="margin:0 20px 10px;display:flex;gap:8px">
+      <button class="fp on" id="sf1" onclick="sff('today')">● Today 💊</button>
+      <button class="fp off" id="sf2" onclick="sff('avenir')">À venir →</button>
+    </div>
+    <div id="slist"><div class="empty">💊 Aucun médicament.</div></div>
+  </div>
+</div>
+
+<!-- ═══ MEMBRES ═══ -->
+<div class="page" id="pg-membres">
+  <div class="bg"><div class="blob b1"></div><div class="blob b2"></div></div>
+  <div class="rel">
+    <div style="padding:52px 20px 12px">
+      <div style="font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:var(--dk)">Ma Famille 👨‍👩‍👧‍👦</div>
+      <div style="font-size:12px;color:var(--mid);font-weight:600;margin-top:2px">Gérez les membres et leurs couleurs</div>
+    </div>
+    <div class="membres-grid" id="membres-grid">
+      <div class="add-mem" onclick="openMemModal()">
+        <div style="font-size:28px;color:var(--soft)">+</div>
+        <div style="font-size:12px;font-weight:700;color:var(--soft)">Ajouter un membre</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ FIDELITE ═══ -->
+<div class="page" id="pg-fidelite">
+  <div class="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+  <div class="rel">
+    <div style="padding:52px 20px 12px">
+      <div style="font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:var(--dk)">Cartes de fidélité 🎁</div>
+      <div style="font-size:12px;color:var(--mid);font-weight:600;margin-top:2px">Cartes enregistrées, ouverture en grand pour le scan caisse</div>
+    </div>
+    <div class="scan-box">
+      <button class="sav" style="margin-top:0" onclick="openScanModal()">📷 Scanner une carte</button>
+      <button class="can" onclick="openFidModal()">➕ Ajouter à la main</button>
+    </div>
+    <div id="fidlist" class="fid-grid"><div class="empty">🎁 Aucune carte</div></div>
+  </div>
+</div>
+
+<!-- ═══ TAB BAR GLOBALE ═══ -->
+<div id="tab-bar">
+  <div class="tab" id="tab-agenda" onclick="go('agenda')"><div class="ti">📅</div><div class="tlab">AGENDA</div></div>
+  <div class="tab" id="tab-courses" onclick="go('courses')"><div class="ti">✅</div><div class="tlab">COURSES</div></div>
+  <div class="tab on" id="tab-home" onclick="go('home')"><div class="thome">🏠</div><div class="tlab" style="color:var(--teal)">ACCUEIL</div></div>
+  <div class="tab" id="tab-sante" onclick="go('sante')"><div class="ti">💊</div><div class="tlab">SANTÉ</div></div>
+  <div class="tab" id="tab-membres" onclick="go('membres')"><div class="ti">👨‍👩‍👧</div><div class="tlab">FAMILLE</div></div>
+  <div class="tab" id="tab-fidelite" onclick="go('fidelite')"><div class="ti">🎁</div><div class="tlab">FIDÉLITÉ</div></div>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+<div class="modal-bg" id="mev" style="display:none" onclick="if(event.target===this)cm('mev')">
+  <div class="modal">
+    <div class="mh"></div><div class="mt" id="met">Nouvel événement ✨</div>
+    <label class="fl">TITRE</label><input class="fi" id="ett" placeholder="Titre de l'événement">
+    <div class="fr">
+      <div style="flex:1"><label class="fl">DATE DÉBUT</label><input class="fi" type="date" id="edd"></div>
+      <div style="flex:1"><label class="fl">HEURE</label><input class="fi" type="time" id="ehd"></div>
+    </div>
+    <div class="fr">
+      <div style="flex:1"><label class="fl">DATE FIN</label><input class="fi" type="date" id="edf"></div>
+      <div style="flex:1"><label class="fl">HEURE FIN</label><input class="fi" type="time" id="ehf"></div>
+    </div>
+    <label class="fl">MEMBRE</label>
+    <select class="fi" id="emembre"></select>
+    <label class="fl">TYPE</label>
+    <select class="fi" id="etype" onchange="onTypeChange()">
+      <option value="normal">📅 Événement perso</option>
+      <option value="pro">💼 Professionnel</option>
+      <option value="garde_papa">🏠 Garde chez papa</option>
+      <option value="garde_partage">🤝 Garde partagée</option>
+      <option value="vacances">🌴 Vacances</option>
+    </select>
+    <div id="color-section">
+      <label class="fl">COULEUR</label>
+      <div class="crow" id="ecols">
+        <div class="co sel" data-c="#4CAF50" style="background:#4CAF50" onclick="selc(this)"></div>
+        <div class="co" data-c="#2D9E8E" style="background:#2D9E8E" onclick="selc(this)"></div>
+        <div class="co" data-c="#9B7FD4" style="background:#9B7FD4" onclick="selc(this)"></div>
+        <div class="co" data-c="#F5A623" style="background:#F5A623" onclick="selc(this)"></div>
+        <div class="co" data-c="#E8735A" style="background:#E8735A" onclick="selc(this)"></div>
+        <div class="co" data-c="#378ADD" style="background:#378ADD" onclick="selc(this)"></div>
+      </div>
+    </div>
+    <label class="fl">EMOJI</label><input class="fi" id="eemj" placeholder="📅 🎂 ⚽ 🏥">
+    <label class="fl">NOTES</label><input class="fi" id="enot" placeholder="Description, lieu...">
+    <input type="hidden" id="eid">
+    <button class="sav" onclick="saveEv()">Enregistrer</button>
+    <button class="can" onclick="cm('mev')">Annuler</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="mevd" style="display:none" onclick="if(event.target===this)cm('mevd')">
+  <div class="modal">
+    <div class="mh"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div id="ddd" style="width:14px;height:14px;border-radius:50%"></div>
+      <div id="ddn" style="font-family:'Baloo 2',cursive;font-size:17px;font-weight:800;color:var(--dk);flex:1"></div>
+      <div id="dde" style="font-size:24px"></div>
+    </div>
+    <div style="font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">📅 <span id="dds" style="color:var(--dk);font-weight:700"></span></div>
+    <div style="font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">⏰ <span id="ddf" style="color:var(--dk);font-weight:700"></span></div>
+    <div id="ddmr" style="display:none;font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">👤 <span id="ddm" style="color:var(--dk);font-weight:700"></span></div>
+    <div id="ddnr" style="display:none;font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">📝 <span id="ddno" style="color:var(--dk);font-weight:700"></span></div>
+    <div class="ear">
+      <button class="eab eedit" onclick="editEv()">✏️ Modifier</button>
+      <button class="eab edel" onclick="confDelEv()">🗑 Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="mconf" style="display:none" onclick="if(event.target===this)cm('mconf')">
+  <div class="modal">
+    <div class="mh"></div><div class="mt">Confirmer</div>
+    <div style="font-size:14px;color:var(--mid);font-weight:600;margin-bottom:16px;line-height:1.5" id="cmsg"></div>
+    <div style="display:flex;gap:8px"><button class="cno" onclick="cm('mconf')">Annuler</button><button class="cyes" id="cyb">Confirmer</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="mco" style="display:none" onclick="if(event.target===this)cm('mco')">
+  <div class="modal">
+    <div class="mh"></div><div class="mt">Ajouter un article 🛒</div>
+    <label class="fl">NOM</label><input class="fi" id="cnom" placeholder="Ex: Lait, Pain...">
+    <label class="fl">QUANTITÉ</label><input class="fi" id="cqte" placeholder="Ex: 2, 500g...">
+    <label class="fl">CATÉGORIE</label>
+    <select class="fi" id="ccat">
+      <option>🥕 Fruits & légumes</option><option>🥛 Produits laitiers</option>
+      <option>🍳 Petit déjeuner</option><option>🥩 Viandes & poissons</option>
+      <option>🥫 Épicerie</option><option>🧹 Entretien</option><option>💊 Pharmacie</option>
+    </select>
+    <button class="sav" onclick="saveCo()">Ajouter</button>
+    <button class="can" onclick="cm('mco')">Annuler</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="msa" style="display:none" onclick="if(event.target===this)cm('msa')">
+  <div class="modal">
+    <div class="mh"></div><div class="mt">Nouveau médicament 💊</div>
+    <label class="fl">NOM</label><input class="fi" id="snom" placeholder="Ex: Doliprane 500mg">
+    <label class="fl">PERSONNE</label><input class="fi" id="sper" placeholder="Ex: Emma, Julie...">
+    <label class="fl">DOSE</label><input class="fi" id="sdos" placeholder="Ex: 1 comprimé, 5ml...">
+    <label class="fl">HEURE</label><input class="fi" type="time" id="shr">
+    <label class="fl">FRÉQUENCE</label><input class="fi" id="sfr" placeholder="Ex: 2x/jour...">
+    <button class="sav" onclick="saveMed()">Enregistrer</button>
+    <button class="can" onclick="cm('msa')">Annuler</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="mmem" style="display:none" onclick="if(event.target===this)cm('mmem')">
+  <div class="modal">
+    <div class="mh"></div><div class="mt" id="mmem-title">Nouveau membre 👤</div>
+    <div style="display:flex;justify-content:center;margin-bottom:16px;position:relative;width:fit-content;margin-left:auto;margin-right:auto">
+      <div id="mmem-avatar-preview" onclick="document.getElementById('mmem-photo').click()" style="width:70px;height:70px;border-radius:50%;background:var(--teal-s);display:flex;align-items:center;justify-content:center;font-size:36px;border:3px solid var(--teal);cursor:pointer;overflow:hidden"></div>
+      <div onclick="document.getElementById('mmem-photo').click()" style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer">📷</div>
+      <input type="file" id="mmem-photo" accept="image/*" style="display:none" onchange="handlePhoto(this)">
+    </div>
+    <label class="fl">NOM</label><input class="fi" id="mmem-nom" placeholder="Prénom">
+    <label class="fl">EMOJI (si pas de photo)</label><input class="fi" id="mmem-emoji" placeholder="👧 👦 👩 👨" oninput="updateAvPreview()">
+    <label class="fl">RÔLE</label>
+    <select class="fi" id="mmem-role" onchange="toggleProColor()">
+      <option value="adulte">👩 Adulte / Parent</option>
+      <option value="enfant">👧 Enfant</option>
+    </select>
+    <label class="fl">COULEUR PERSO</label>
+    <div class="crow" id="mmem-cols">
+      <div class="co sel" data-c="#E8735A" style="background:#E8735A" onclick="selMemC(this,'p')"></div>
+      <div class="co" data-c="#2D9E8E" style="background:#2D9E8E" onclick="selMemC(this,'p')"></div>
+      <div class="co" data-c="#4CAF50" style="background:#4CAF50" onclick="selMemC(this,'p')"></div>
+      <div class="co" data-c="#F5A623" style="background:#F5A623" onclick="selMemC(this,'p')"></div>
+      <div class="co" data-c="#9B7FD4" style="background:#9B7FD4" onclick="selMemC(this,'p')"></div>
+      <div class="co" data-c="#F5C842" style="background:#F5C842" onclick="selMemC(this,'p')"></div>
+    </div>
+    <div id="pro-col-wrap">
+      <label class="fl">COULEUR PRO</label>
+      <div class="crow" id="mmem-cols-pro">
+        <div class="co" data-c="#378ADD" style="background:#378ADD" onclick="selMemC(this,'pr')"></div>
+        <div class="co sel" data-c="#9B7FD4" style="background:#9B7FD4" onclick="selMemC(this,'pr')"></div>
+        <div class="co" data-c="#2D9E8E" style="background:#2D9E8E" onclick="selMemC(this,'pr')"></div>
+        <div class="co" data-c="#E8735A" style="background:#E8735A" onclick="selMemC(this,'pr')"></div>
+        <div class="co" data-c="#1A5276" style="background:#1A5276" onclick="selMemC(this,'pr')"></div>
+        <div class="co" data-c="#4CAF50" style="background:#4CAF50" onclick="selMemC(this,'pr')"></div>
+      </div>
+    </div>
+    <input type="hidden" id="mmem-id">
+    <button class="sav" onclick="saveMem()">Enregistrer</button>
+    <button class="can" id="mmem-delbtn" style="display:none;background:#FEE;color:#E85A5A;border-color:#F5C5C5" onclick="delMem()">🗑 Supprimer</button>
+    <button class="can" onclick="cm('mmem')">Annuler</button>
+  </div>
+</div>
+
+
+<div class="modal-bg" id="mfid" style="display:none" onclick="if(event.target===this)cm('mfid')">
+  <div class="modal">
+    <div class="mh"></div><div class="mt" id="mfid-title">Nouvelle carte 🎁</div>
+    <label class="fl">ENSEIGNE</label><input class="fi" id="fid-enseigne" placeholder="Ex: Carrefour">
+    <label class="fl">NUMÉRO DE CARTE</label><input class="fi" id="fid-numero" placeholder="Ex: 1234 5678 9012">
+    <label class="fl">CODE À SCANNER</label><input class="fi" id="fid-code" placeholder="Ex: 3760000000000">
+    <label class="fl">COULEUR</label>
+    <div class="crow" id="fid-cols">
+      <div class="co sel" data-c="#2D9E8E" style="background:#2D9E8E" onclick="selFid(this)"></div>
+      <div class="co" data-c="#E8735A" style="background:#E8735A" onclick="selFid(this)"></div>
+      <div class="co" data-c="#9B7FD4" style="background:#9B7FD4" onclick="selFid(this)"></div>
+      <div class="co" data-c="#F5A623" style="background:#F5A623" onclick="selFid(this)"></div>
+      <div class="co" data-c="#378ADD" style="background:#378ADD" onclick="selFid(this)"></div>
+      <div class="co" data-c="#4CAF50" style="background:#4CAF50" onclick="selFid(this)"></div>
+    </div>
+    <input type="hidden" id="fid-id">
+    <button class="sav" onclick="saveFid()">Enregistrer</button>
+    <button class="can" id="fid-delbtn" style="display:none;background:#FEE;color:#E85A5A;border-color:#F5C5C5" onclick="delFid()">🗑 Supprimer</button>
+    <button class="can" onclick="cm('mfid')">Annuler</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="mfscan" style="display:none" onclick="if(event.target===this)closeScanModal()">
+  <div class="modal">
+    <div class="mh"></div><div class="mt">Scanner une carte 📷</div>
+    <label class="fl">ENSEIGNE</label><input class="fi" id="scan-enseigne" placeholder="Ex: Carrefour">
+    <label class="fl">NUMÉRO DE CARTE (optionnel)</label><input class="fi" id="scan-numero" placeholder="Ex: 1234 5678 9012">
+    <div class="scan-viewport" id="scan-reader"></div>
+    <div style="font-size:12px;color:var(--mid);font-weight:700;margin-top:10px" id="scan-status">Autorise la caméra puis vise le code-barres.</div>
+    <button class="can" onclick="closeScanModal()">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="mfidbig" style="display:none" onclick="if(event.target===this)cm('mfidbig')">
+  <div class="modal">
+    <div class="mh"></div>
+    <div id="fid-big-content"></div>
+    <div class="ear">
+      <button class="eab eedit" onclick="editCurrentFid()">✏️ Modifier</button>
+      <button class="eab edel" onclick="delCurrentFid()">🗑 Supprimer</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+const SU='https://blzmitanecalzmmqulsa.supabase.co';
+const SK='sb_publishable_VuTn-3pbAlRX_69ZH3FGEg_cdrU-ICU';
+const {createClient}=supabase;
+const db=createClient(SU,SK);
+const MO=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const DN=['LUN','MAR','MER','JEU','VEN','SAM','DIM'];
+const DF=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+const VACS=[
+  {s:new Date(2025,9,18),e:new Date(2025,10,3),n:'🎃 Toussaint 2025'},
+  {s:new Date(2025,11,20),e:new Date(2026,0,5),n:'🎄 Noël 2025'},
+  {s:new Date(2026,1,14),e:new Date(2026,2,2),n:'⛷️ Hiver 2026'},
+  {s:new Date(2026,3,11),e:new Date(2026,3,27),n:'🌸 Printemps 2026'},
+  {s:new Date(2026,6,4),e:new Date(2026,8,1),n:'☀️ Été 2026'},
+  {s:new Date(2026,9,17),e:new Date(2026,10,2),n:'🎃 Toussaint 2026'},
+  {s:new Date(2026,11,19),e:new Date(2027,0,4),n:'🎄 Noël 2026'},
+];
+function isVac(d){return VACS.find(v=>d>=v.s&&d<v.e)||null;}
+
+let tod=new Date();tod.setHours(0,0,0,0);
+let selD=new Date(tod),ws=getMon(tod),mCur=new Date(tod);
+let evs=[],cos=[],meds=[],mems=[],fids=[];
+let selC='#4CAF50',selCp='#9B7FD4',selFidCoul='#2D9E8E',delEvId=null,curFidId=null,scanReader=null,sfilt='today',agV='semaine';
+let agFilters=new Set(),memPhoto=null;
+
+function getMon(d){const dt=new Date(d);const dy=dt.getDay();dt.setDate(dt.getDate()+(dy===0?-6:1-dy));dt.setHours(0,0,0,0);return dt;}
+function sd(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+function pad(n){return String(n).padStart(2,'0');}
+function fmtD(d){const i=(d.getDay()+6)%7;return`${DF[i]} ${d.getDate()} ${MO[d.getMonth()]}`;}
+function fmtDT(ds,ts){if(!ds)return'—';const d=new Date(ds+'T00:00:00');return fmtD(d)+(ts?' à '+ts:'');}
+function tds(d){d=d||tod;return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function om(id){document.getElementById(id).style.display='flex';}
+function cm(id){document.getElementById(id).style.display='none';}
+function gm(id){return mems.find(m=>m.id===id)||null;}
+function ec(e){
+  if(e.type==='garde_papa')return'#2D9E8E';
+  if(e.type==='garde_partage')return'#9B7FD4';
+  if(e.type==='vacances')return'#F5A623';
+  if(e.type==='pro'){const m=gm(e.membre_id);return m?m.couleur_pro||'#378ADD':'#378ADD';}
+  if(e.membre_id){const m=gm(e.membre_id);return m?m.couleur||e.couleur||'#4CAF50':e.couleur||'#4CAF50';}
+  return e.couleur||'#4CAF50';
+}
+
+// ── NAVIGATION ──────────────────────────────────
+function go(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('#tab-bar .tab').forEach(x=>x.classList.remove('on'));
+  const pg=document.getElementById('pg-'+p);
+  const tb=document.getElementById('tab-'+p);
+  if(pg)pg.classList.add('on');
+  if(tb)tb.classList.add('on');
+  if(p==='agenda')rAg();
+  if(p==='courses')rCo();
+  if(p==='sante')rSa();
+  if(p==='membres')rMem();
+  if(p==='fidelite')rFid();
+  if(p==='home')rHome();
+}
+
+
+// ── INIT ────────────────────────────────────────
+async function init(){
+  rHome(); // immediate
+  try{
+    const[r0,r1,r2,r3,r4]=await Promise.allSettled([
+      db.from('maivi_evenements').select('*').order('date_debut'),
+      db.from('maivi_courses').select('*').order('categorie,nom'),
+      db.from('maivi_medicaments').select('*').order('heure'),
+      db.from('maivi_membres').select('*').order('created_at'),
+      db.from('maivi_fidelite').select('*').order('created_at',{ascending:false})
+    ]);
+    if(r0.value?.data)evs=r0.value.data;
+    if(r1.value?.data)cos=r1.value.data;
+    if(r2.value?.data)meds=r2.value.data;
+    if(r3.value?.data)mems=r3.value.data;
+    if(r4.value?.data)fids=r4.value.data;
+    rHome();rCo();rSa();rMem();rFid();
+    db.channel('mv').on('postgres_changes',{event:'*',schema:'public',table:'maivi_evenements'},async()=>{const{data}=await db.from('maivi_evenements').select('*').order('date_debut');if(data)evs=data;rHome();rAg();})
+    .on('postgres_changes',{event:'*',schema:'public',table:'maivi_courses'},async()=>{const{data}=await db.from('maivi_courses').select('*').order('categorie,nom');if(data)cos=data;rHome();rCo();})
+    .on('postgres_changes',{event:'*',schema:'public',table:'maivi_medicaments'},async()=>{const{data}=await db.from('maivi_medicaments').select('*').order('heure');if(data)meds=data;rSa();})
+.on('postgres_changes',{event:'*',schema:'public',table:'maivi_membres'},async()=>{const{data}=await db.from('maivi_membres').select('*').order('created_at');if(data)mems=data;rMem();rAgFilters();})
+    .on('postgres_changes',{event:'*',schema:'public',table:'maivi_fidelite'},async()=>{const{data}=await db.from('maivi_fidelite').select('*').order('created_at',{ascending:false});if(data)fids=data;rFid();})
+    .subscribe();
+    schedNotifs();
+  }catch(e){console.error(e);}
+}
+
+// ── HOME ────────────────────────────────────────
+function rHome(){
+  const te=evs.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return tod>=s&&tod<=f;});
+  let th=te.length?'':` <div class="empty">😴 Aucun événement aujourd'hui !</div>`;
+  te.forEach(e=>{const c=ec(e);const pill=e.type==='pro'?'<span class="pro-pill">💼 PRO</span>':e.type==='normal'||!e.type?'<span class="perso-pill">🏠 PERSO</span>':'';th+=`<div class="ev" style="background:${c}22;border-left:3px solid ${c}" onclick="showEv('${e.id}')"><div class="edot" style="background:${c}"></div><div class="ebody"><div class="en">${e.titre}${pill}</div><div class="em">${e.heure_debut||''}</div></div><div style="font-size:16px">${e.emoji||'📅'}</div></div>`;});
+  document.getElementById('htoday').innerHTML=th;
+  const p=cos.filter(c=>!c.fait).slice(0,3);
+  let ch=p.length?'':'<div class="empty">🎉 Liste vide !</div>';
+  p.forEach(c=>{ch+=`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:.5px solid rgba(0,0,0,.05)"><div style="width:20px;height:20px;border-radius:6px;background:white;border:2px solid #C8D8DC"></div><span style="font-size:13px;font-weight:600;color:var(--dk)">${c.nom}${c.quantite?' ('+c.quantite+')':''}</span></div>`;});
+  if(cos.filter(c=>!c.fait).length>3)ch+=`<div style="font-size:11px;color:var(--soft);font-weight:600;padding:6px 0;text-align:center">+${cos.filter(c=>!c.fait).length-3} autres</div>`;
+  document.getElementById('hcourses').innerHTML=ch;
+  document.getElementById('ma-sub').textContent=te.length+" aujourd'hui";
+  document.getElementById('mc-sub').textContent=cos.filter(c=>!c.fait).length+' restants';
+  document.getElementById('ms-sub').textContent=meds.length+' médicaments';
+  document.getElementById('mf-sub').textContent=mems.length+' membres';
+  const h=new Date().getHours();
+  document.getElementById('hbub').textContent=te.length?`${te.length} événement${te.length>1?'s':''} 📅`:h<12?'Bonne journée ! ☀️':h>=20?'Bonne soirée ! 🌙':'Rien de prévu 😊';
+}
+
+// ── AGENDA ──────────────────────────────────────
+function rAgFilters(){
+  let h=`<div style="cursor:pointer;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;border:2px solid ${agFilters.size===0?'var(--teal)':'#DDE5E8'};background:${agFilters.size===0?'var(--teal)':'white'};color:${agFilters.size===0?'white':'var(--mid)'};flex-shrink:0" onclick="agFilters.clear();rAgFilters();rAg()">Tous</div>`;
+  mems.forEach(m=>{const on=agFilters.has(m.id);h+=`<div style="cursor:pointer;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;border:2px solid ${on?m.couleur:'#DDE5E8'};background:${on?m.couleur:'white'};color:${on?'white':'var(--mid)'};flex-shrink:0" onclick="togFilt('${m.id}')">${m.emoji||''} ${m.nom}</div>`;});
+  const el=document.getElementById('agenda-filters');if(el)el.innerHTML=h;
+}
+function togFilt(id){agFilters.has(id)?agFilters.delete(id):agFilters.add(id);rAgFilters();rAg();}
+function fEvs(){return agFilters.size===0?evs:evs.filter(e=>agFilters.has(e.membre_id));}
+function setView(v){agV=v;document.getElementById('vw-sem').className='fp '+(v==='semaine'?'on':'off');document.getElementById('vw-mois').className='fp '+(v==='mois'?'on':'off');document.getElementById('view-semaine').style.display=v==='semaine'?'block':'none';document.getElementById('view-mois').style.display=v==='mois'?'block':'none';v==='mois'?rMois():rSem();}
+function rAg(){rAgFilters();agV==='mois'?rMois():rSem();}
+function pw(){ws.setDate(ws.getDate()-7);rSem();}function nw(){ws.setDate(ws.getDate()+7);rSem();}
+function pm(){mCur.setMonth(mCur.getMonth()-1);rMois();}function nm(){mCur.setMonth(mCur.getMonth()+1);rMois();}
+function rSem(){
+  document.getElementById('wlabel').textContent=`${MO[ws.getMonth()]} ${ws.getFullYear()}`;
+  const fe=fEvs();let wh='';
+  for(let i=0;i<7;i++){
+    const d=new Date(ws);d.setDate(ws.getDate()+i);
+    const isT=sd(d,tod),isS=sd(d,selD);
+    const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return d>=s&&d<=f;});
+    const dots=de.slice(0,3).map(e=>`<div class="wdot" style="background:${ec(e)}"></div>`).join('');
+    wh+=`<div class="wd" onclick="selDay(${i})"><div class="wdn">${DN[i]}</div><div class="wdd ${isT?'tod':isS&&!isT?'sel':''}">${d.getDate()}</div><div class="wdots">${dots}</div></div>`;
+  }
+  document.getElementById('wdays').innerHTML=wh;rDayEvs();
+}
+function selDay(i){
+  const nd=new Date(ws);nd.setDate(ws.getDate()+i);
+  if(sd(nd,selD)){openEvModal(null,tds(nd));}
+  else{selD=nd;rSem();}
+}
+function rDayEvs(){
+  const fe=fEvs();
+  const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return selD>=s&&selD<=f;}).sort((a,b)=>(a.heure_debut||'00:00').localeCompare(b.heure_debut||'00:00'));
+  const vac=isVac(selD);
+  let h=`<div style="font-family:'Baloo 2',cursive;font-size:15px;font-weight:700;color:var(--dk);margin-bottom:8px">${fmtD(selD)}</div>`;
+  if(vac)h+=`<div class="vac-band">${vac.n} — Zone B Normandie</div>`;
+  if(!de.length)h+=`<div class="empty">📭 Aucun événement.<br><span onclick="openEvModal(null,'${tds(selD)}')" style="color:var(--teal);cursor:pointer;font-weight:700">+ Ajouter un événement</span></div>`;
+  else{de.forEach(e=>{const c=ec(e);const pill=e.type==='pro'?'<span class="pro-pill">💼 PRO</span>':e.type==='normal'||!e.type?'<span class="perso-pill">🏠 PERSO</span>':'';const m=gm(e.membre_id);h+=`<div class="ev" style="background:${c}22;border-left:3px solid ${c}" onclick="showEv('${e.id}')"><div class="edot" style="background:${c}"></div><div class="ebody"><div class="en">${e.titre}${pill}</div><div class="em">${m?m.emoji+' '+m.nom+' · ':''} ${e.heure_debut||''}${e.heure_fin?' → '+e.heure_fin:''}</div></div><div style="font-size:16px">${e.emoji||'📅'}</div></div>`;});
+  h+=`<div style="margin-top:10px"><button onclick="openEvModal(null,'${tds(selD)}')" style="width:100%;padding:11px;border-radius:14px;background:var(--teal-s);color:var(--teal);font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;border:none;cursor:pointer">+ Ajouter un événement ce jour</button></div>`;}
+  document.getElementById('atl').innerHTML=h;
+}
+function rMois(){
+  const y=mCur.getFullYear(),m=mCur.getMonth();
+  document.getElementById('mlabel').textContent=`${MO[m]} ${y}`;
+  const fe=fEvs();const first=new Date(y,m,1);const dow=(first.getDay()+6)%7;const dim=new Date(y,m+1,0).getDate();
+  let h='';for(let i=0;i<dow;i++)h+=`<div class="mcell"></div>`;
+  for(let d=1;d<=dim;d++){
+    const dt=new Date(y,m,d);const isT=sd(dt,tod),isS=sd(dt,selD);const vac=isVac(dt);
+    const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return dt>=s&&dt<=f;});
+    const dots=de.slice(0,3).map(e=>`<div style="width:5px;height:5px;border-radius:50%;background:${ec(e)};display:inline-block;margin:0 1px"></div>`).join('');
+    h+=`<div class="mcell" onclick="selMD(${d})"><div class="mnum ${isT?'tod':isS?'sel':vac?'vac':''}">${d}</div><div style="display:flex;justify-content:center;min-height:5px">${dots}</div></div>`;
+  }
+  document.getElementById('mcal').innerHTML=h;rMoisDay();
+}
+function selMD(d){
+  const nd=new Date(mCur.getFullYear(),mCur.getMonth(),d);
+  if(sd(nd,selD)){openEvModal(null,tds(nd));}else{selD=nd;rMois();}
+}
+function rMoisDay(){
+  const fe=fEvs();const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return selD>=s&&selD<=f;});
+  const vac=isVac(selD);let h=`<div style="font-family:'Baloo 2',cursive;font-size:15px;font-weight:700;color:var(--dk);margin-bottom:8px">${fmtD(selD)}</div>`;
+  if(vac)h+=`<div class="vac-band">${vac.n}</div>`;
+  if(!de.length)h+=`<div class="empty">📭 Aucun événement.<br><span onclick="openEvModal(null,'${tds(selD)}')" style="color:var(--teal);cursor:pointer;font-weight:700">+ Ajouter</span></div>`;
+  else de.forEach(e=>{const c=ec(e);h+=`<div class="ev" style="background:${c}22;border-left:3px solid ${c}" onclick="showEv('${e.id}')"><div class="edot" style="background:${c}"></div><div class="ebody"><div class="en">${e.titre}</div><div class="em">${e.heure_debut||''}</div></div><div style="font-size:16px">${e.emoji||'📅'}</div></div>`;});
+  document.getElementById('mday-evs').innerHTML=h;
+}
+
+// ── EVENT MODAL ──────────────────────────────────
+function onTypeChange(){const t=document.getElementById('etype').value;document.getElementById('color-section').style.display=(t==='normal'||t==='pro')?'block':'none';}
+function openEvModal(id,prefillDate){
+  selC='#4CAF50';document.querySelectorAll('#ecols .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selC));
+  document.getElementById('color-section').style.display='block';
+  document.getElementById('emembre').innerHTML='<option value="">— Tous —</option>'+mems.map(m=>`<option value="${m.id}">${m.emoji||''} ${m.nom}</option>`).join('');
+  const nd=prefillDate||tds();
+  if(id){
+    const e=evs.find(x=>x.id===id);
+    if(e){document.getElementById('ett').value=e.titre;document.getElementById('edd').value=e.date_debut;document.getElementById('ehd').value=e.heure_debut||'';document.getElementById('edf').value=e.date_fin||e.date_debut;document.getElementById('ehf').value=e.heure_fin||'';document.getElementById('eemj').value=e.emoji||'';document.getElementById('enot').value=e.notes||'';document.getElementById('etype').value=e.type||'normal';document.getElementById('emembre').value=e.membre_id||'';selC=e.couleur||'#4CAF50';document.querySelectorAll('#ecols .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selC));document.getElementById('color-section').style.display=(e.type==='normal'||e.type==='pro'||!e.type)?'block':'none';document.getElementById('met').textContent='Modifier ✏️';}
+  }else{
+    ['ett','eemj','enot'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('edd').value=nd;document.getElementById('ehd').value='';document.getElementById('edf').value=nd;document.getElementById('ehf').value='';document.getElementById('etype').value='normal';document.getElementById('emembre').value='';document.getElementById('met').textContent='Nouvel événement ✨';
+  }
+  document.getElementById('eid').value=id||'';cm('mevd');om('mev');
+}
+function selc(el){selC=el.dataset.c;document.querySelectorAll('#ecols .co').forEach(o=>o.classList.toggle('sel',o===el));}
+async function saveEv(){
+  const t=document.getElementById('ett').value.trim();if(!t){toast('❌ Titre requis');return;}
+  const type=document.getElementById('etype').value;const memId=document.getElementById('emembre').value||null;const m=gm(memId);
+  const typeC={'garde_papa':'#2D9E8E','garde_partage':'#9B7FD4','vacances':'#F5A623'};
+  let couleur=typeC[type]||(type==='pro'?(m?m.couleur_pro||'#378ADD':'#378ADD'):(m?m.couleur||selC:selC));
+  const p={titre:t,date_debut:document.getElementById('edd').value,heure_debut:document.getElementById('ehd').value||null,date_fin:document.getElementById('edf').value||document.getElementById('edd').value,heure_fin:document.getElementById('ehf').value||null,couleur,emoji:document.getElementById('eemj').value||null,notes:document.getElementById('enot').value||null,type,membre_id:memId};
+  const id=document.getElementById('eid').value;
+  const{error}=id?await db.from('maivi_evenements').update(p).eq('id',id):await db.from('maivi_evenements').insert(p);
+  if(error){toast('❌ '+error.message);return;}cm('mev');toast(id?'✅ Modifié !':'✅ Ajouté !');
+}
+function showEv(id){
+  const e=evs.find(x=>x.id===id);if(!e)return;delEvId=id;
+  const c=ec(e);document.getElementById('ddd').style.background=c;document.getElementById('ddn').textContent=e.titre;document.getElementById('dde').textContent=e.emoji||'📅';
+  document.getElementById('dds').textContent=fmtDT(e.date_debut,e.heure_debut);document.getElementById('ddf').textContent=fmtDT(e.date_fin||e.date_debut,e.heure_fin);
+  const m=gm(e.membre_id);const mr=document.getElementById('ddmr');if(m){mr.style.display='block';document.getElementById('ddm').textContent=m.emoji+' '+m.nom;}else mr.style.display='none';
+  const nr=document.getElementById('ddnr');if(e.notes){nr.style.display='block';document.getElementById('ddno').textContent=e.notes;}else nr.style.display='none';
+  om('mevd');
+}
+function editEv(){openEvModal(delEvId);}
+function confDelEv(){
+  const e=evs.find(x=>x.id===delEvId);document.getElementById('cmsg').textContent=`Supprimer "${e?.titre}" ?`;
+  document.getElementById('cyb').onclick=async()=>{await db.from('maivi_evenements').delete().eq('id',delEvId);cm('mconf');cm('mevd');toast('🗑 Supprimé');};om('mconf');
+}
+
+// ── COURSES ──────────────────────────────────────
+function rCo(){
+  const cats=[...new Set(cos.map(c=>c.categorie))];
+  if(!cats.length){document.getElementById('clist').innerHTML=`<div class="empty">🛒 Liste vide !<br><span style="color:var(--teal);font-weight:700;cursor:pointer" onclick="openCModal()">+ Ajouter</span></div>`;return;}
+  let h='';
+  cats.forEach(cat=>{
+    const its=cos.filter(c=>c.categorie===cat);if(!its.length)return;
+    const em=cat.split(' ')[0],nm=cat.split(' ').slice(1).join(' ');
+    h+=`<div style="margin:0 20px 10px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:18px">${em}</span><span style="font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--dk)">${nm}</span></div><div class="ccard">`;
+    its.forEach(c=>{h+=`<div class="cit" onclick="togCo('${c.id}')"><div class="cck ${c.fait?'on':'off'}">${c.fait?'<span style="color:white;font-size:11px">✓</span>':''}</div><div style="flex:1;font-size:13px;font-weight:600;color:${c.fait?'var(--soft)':'var(--dk)'};${c.fait?'text-decoration:line-through':''}">${c.nom}${c.quantite?' ('+c.quantite+')':''}</div><div style="font-size:14px;color:var(--soft);padding:4px;cursor:pointer" onclick="event.stopPropagation();delCo('${c.id}')">🗑</div></div>`;});
+    h+=`</div></div>`;
+  });
+  document.getElementById('clist').innerHTML=h;
+}
+async function togCo(id){
+  const c=cos.find(x=>x.id===id);if(!c)return;
+  c.fait=!c.fait; rHome(); rCo();
+  const {error}=await db.from('maivi_courses').update({fait:c.fait}).eq('id',id);
+  if(error){c.fait=!c.fait; rHome(); rCo(); toast('❌ '+error.message);}
+}
+
+async function delCo(id){await db.from('maivi_courses').delete().eq('id',id);toast('🗑 Supprimé');}
+async function qadd(){const i=document.getElementById('cqi');const n=i.value.trim();if(!n)return;const temp={id:'tmp-'+Date.now(),nom:n,categorie:'🥫 Épicerie',fait:false};cos.unshift(temp);rHome();rCo();i.value='';const {data,error}=await db.from('maivi_courses').insert({nom:n,categorie:'🥫 Épicerie',fait:false}).select().single();if(error){cos=cos.filter(x=>x.id!==temp.id);rHome();rCo();toast('❌ '+error.message);return;}cos=cos.filter(x=>x.id!==temp.id);if(data)cos.unshift(data);rHome();rCo();toast('✅ Ajouté !');}
+async function checkAll(){cos.forEach(c=>c.fait=true);rHome();rCo();await Promise.all(cos.map(c=>db.from('maivi_courses').update({fait:true}).eq('id',c.id)));}
+async function delChecked(){const ch=cos.filter(c=>c.fait);if(!ch.length){toast('Rien de coché');return;}document.getElementById('cmsg').textContent=`Supprimer ${ch.length} article${ch.length>1?'s':''} ?`;document.getElementById('cyb').onclick=async()=>{await Promise.all(ch.map(c=>db.from('maivi_courses').delete().eq('id',c.id)));cm('mconf');};om('mconf');}
+function openCModal(){om('mco');document.getElementById('cnom').value='';document.getElementById('cqte').value='';}
+async function saveCo(){const n=document.getElementById('cnom').value.trim();if(!n){toast('❌ Nom requis');return;}const temp={id:'tmp-'+Date.now(),nom:n,quantite:document.getElementById('cqte').value||null,categorie:document.getElementById('ccat').value,fait:false};cos.unshift(temp);rHome();rCo();cm('mco');const{data,error}=await db.from('maivi_courses').insert({nom:n,quantite:document.getElementById('cqte').value||null,categorie:document.getElementById('ccat').value,fait:false}).select().single();if(error){cos=cos.filter(x=>x.id!==temp.id);rHome();rCo();toast('❌ '+error.message);return;}cos=cos.filter(x=>x.id!==temp.id);if(data)cos.unshift(data);rHome();rCo();toast('✅ Ajouté !');}
+
+// ── SANTE ────────────────────────────────────────
+function sff(f){sfilt=f;document.getElementById('sf1').className='fp '+(f==='today'?'on':'off');document.getElementById('sf2').className='fp '+(f==='avenir'?'on':'off');rSa();}
+function rSa(){
+  if(!meds.length){document.getElementById('slist').innerHTML=`<div class="empty">💊 Aucun médicament.<br><span style="color:var(--teal);font-weight:700;cursor:pointer" onclick="openMModal()">+ Ajouter</span></div>`;return;}
+  let h='';
+  meds.forEach(m=>{const tc=m.heure&&m.heure<'12:00'?'var(--teal)':m.heure&&m.heure>'18:00'?'var(--purple)':'var(--orange)';const bg=m.heure&&m.heure<'12:00'?'var(--teal-s)':m.heure&&m.heure>'18:00'?'var(--purple-s)':'var(--orange-s)';
+  h+=`<div class="mcard"><div class="mhdr"><div style="width:34px;height:34px;border-radius:50%;background:var(--coral-s);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👧</div><div style="flex:1"><div style="font-size:13px;font-weight:800;color:var(--dk)">${m.nom}</div><div style="font-size:10px;color:var(--soft);font-weight:600">${m.frequence||''}</div></div>${m.heure?`<div style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${bg};color:${tc}">🕐 ${m.heure}</div>`:''}</div><div class="mdet"><div style="font-size:12px;color:var(--mid);font-weight:600;flex:1">${m.dose||''} pour <span style="color:var(--teal);font-weight:700">${m.personne||''}</span></div><span style="font-size:18px;cursor:pointer" onclick="delMed('${m.id}')">🗑</span></div></div>`;});
+  document.getElementById('slist').innerHTML=h;
+}
+function openMModal(){om('msa');['snom','sper','sdos','sfr'].forEach(id=>document.getElementById(id).value='');document.getElementById('shr').value='';}
+async function saveMed(){const n=document.getElementById('snom').value.trim();if(!n){toast('❌ Nom requis');return;}const temp={id:'tmp-'+Date.now(),nom:n,personne:document.getElementById('sper').value,dose:document.getElementById('sdos').value,heure:document.getElementById('shr').value||null,frequence:document.getElementById('sfr').value};meds.unshift(temp);rSa();cm('msa');const{data,error}=await db.from('maivi_medicaments').insert({nom:n,personne:document.getElementById('sper').value,dose:document.getElementById('sdos').value,heure:document.getElementById('shr').value||null,frequence:document.getElementById('sfr').value}).select().single();if(error){meds=meds.filter(x=>x.id!==temp.id);rSa();toast('❌ '+error.message);return;}meds=meds.filter(x=>x.id!==temp.id);if(data)meds.unshift(data);rSa();toast('✅ Ajouté !');}
+async function delMed(id){document.getElementById('cmsg').textContent='Supprimer ce médicament ?';document.getElementById('cyb').onclick=async()=>{await db.from('maivi_medicaments').delete().eq('id',id);cm('mconf');toast('🗑 Supprimé');};om('mconf');}
+
+// ── MEMBRES ──────────────────────────────────────
+function rMem(){
+  let h='';
+  mems.forEach(m=>{h+=`<div class="mcard-fam" onclick="openMemModal('${m.id}')"><div style="position:absolute;top:8px;right:8px;font-size:12px;opacity:.5">✏️</div><div class="mavatar" style="background:${m.couleur}33;border-color:${m.couleur}">${m.avatar_url?`<img src="${m.avatar_url}">`:m.emoji||'👤'}</div><div style="font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--dk)">${m.nom}</div><div style="font-size:10px;font-weight:700;color:var(--soft)">${m.role==='adulte'?'ADULTE':'ENFANT'}</div><div style="display:flex;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:${m.couleur}"></div>${m.role==='adulte'?`<div style="width:10px;height:10px;border-radius:50%;background:${m.couleur_pro||'#378ADD'}"></div>`:''}</div></div>`;});
+  h+=`<div class="add-mem" onclick="openMemModal()"><div style="font-size:28px;color:var(--soft)">+</div><div style="font-size:12px;font-weight:700;color:var(--soft)">Ajouter</div></div>`;
+  document.getElementById('membres-grid').innerHTML=h;
+}
+function toggleProColor(){document.getElementById('pro-col-wrap').style.display=document.getElementById('mmem-role').value==='adulte'?'block':'none';}
+function openMemModal(id){
+  memPhoto=null;selC='#E8735A';selCp='#9B7FD4';
+  document.getElementById('mmem-photo').value='';
+  document.querySelectorAll('#mmem-cols .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selC));
+  document.querySelectorAll('#mmem-cols-pro .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selCp));
+  if(id){
+    const m=mems.find(x=>x.id===id);
+    if(m){document.getElementById('mmem-nom').value=m.nom;document.getElementById('mmem-emoji').value=m.emoji||'';document.getElementById('mmem-role').value=m.role||'adulte';selC=m.couleur||'#E8735A';selCp=m.couleur_pro||'#9B7FD4';document.querySelectorAll('#mmem-cols .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selC));document.querySelectorAll('#mmem-cols-pro .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selCp));document.getElementById('mmem-title').textContent='Modifier ✏️';document.getElementById('mmem-delbtn').style.display='block';const pr=document.getElementById('mmem-avatar-preview');if(m.avatar_url){memPhoto=m.avatar_url;pr.innerHTML=`<img src="${m.avatar_url}" style="width:100%;height:100%;object-fit:cover">`;pr.style.fontSize='0';}else{pr.textContent=m.emoji||'👤';pr.style.fontSize='36px';}pr.style.borderColor=selC;}
+  }else{
+    ['mmem-nom','mmem-emoji'].forEach(x=>document.getElementById(x).value='');document.getElementById('mmem-role').value='adulte';document.getElementById('mmem-title').textContent='Nouveau membre 👤';document.getElementById('mmem-delbtn').style.display='none';const pr=document.getElementById('mmem-avatar-preview');pr.textContent='👤';pr.style.fontSize='36px';pr.style.borderColor=selC;
+  }
+  document.getElementById('mmem-id').value=id||'';toggleProColor();om('mmem');
+}
+function updateAvPreview(){if(memPhoto)return;const pr=document.getElementById('mmem-avatar-preview');pr.textContent=document.getElementById('mmem-emoji').value||'👤';pr.style.borderColor=selC;}
+function handlePhoto(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{memPhoto=e.target.result;const pr=document.getElementById('mmem-avatar-preview');pr.innerHTML=`<img src="${memPhoto}" style="width:100%;height:100%;object-fit:cover">`;pr.style.fontSize='0';};r.readAsDataURL(f);}
+function selMemC(el,t){if(t==='p'){selC=el.dataset.c;document.querySelectorAll('#mmem-cols .co').forEach(o=>o.classList.toggle('sel',o===el));}else{selCp=el.dataset.c;document.querySelectorAll('#mmem-cols-pro .co').forEach(o=>o.classList.toggle('sel',o===el));}if(!memPhoto)updateAvPreview();}
+async function saveMem(){const nom=document.getElementById('mmem-nom').value.trim();if(!nom){toast('❌ Nom requis');return;}const p={nom,emoji:document.getElementById('mmem-emoji').value||'👤',role:document.getElementById('mmem-role').value,couleur:selC,couleur_pro:selCp,avatar_url:memPhoto||null};const id=document.getElementById('mmem-id').value;const{error}=id?await db.from('maivi_membres').update(p).eq('id',id):await db.from('maivi_membres').insert(p);if(error){toast('❌ '+error.message);return;}cm('mmem');toast(id?'✅ Modifié !':'✅ Ajouté !');}
+async function delMem(){const id=document.getElementById('mmem-id').value;document.getElementById('cmsg').textContent='Supprimer ce membre ?';document.getElementById('cyb').onclick=async()=>{await db.from('maivi_membres').delete().eq('id',id);cm('mconf');cm('mmem');toast('🗑 Supprimé');};om('mconf');}
+
+
+
+// ── FIDELITE ─────────────────────────────────────
+function barcodeBars(v){
+  const base=(v||'000000000000').replace(/\D/g,'').padEnd(12,'0').slice(0,12);
+  return `<div class="big-bars" aria-hidden="true"></div><div class="big-num">${base}</div>`;
+}
+function rFid(){
+  const el=document.getElementById('fidlist'); if(!el) return;
+  if(!fids.length){el.innerHTML='<div class="empty">🎁 Aucune carte.<br><span style="color:var(--teal);cursor:pointer;font-weight:700" onclick="openFidModal()">+ Ajouter une carte</span></div>'; return;}
+  let h='';
+  fids.forEach(f=>{
+    const bg=f.couleur||'#2D9E8E';
+    h+=`<div class="fid-card" style="background:${bg}" onclick="showFid('${f.id}')"><div class="fid-title">${f.enseigne||'Carte'}</div><div class="fid-sub">${f.numero||'Sans numéro visible'}</div><div class="fid-sub">Touchez pour l'ouvrir en grand</div><div class="fid-actions"><button class="fid-btn fid-light" onclick="event.stopPropagation();showFid('${f.id}')">📇 Ouvrir</button><button class="fid-btn fid-dark" onclick="event.stopPropagation();openFidModal('${f.id}')">✏️ Modifier</button></div></div>`;
+  });
+  el.innerHTML=h;
+}
+function openFidModal(id){
+  selFidCoul='#2D9E8E';
+  document.querySelectorAll('#fid-cols .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selFidCoul));
+  if(id){
+    const f=fids.find(x=>x.id===id); if(!f) return;
+    document.getElementById('fid-id').value=f.id;
+    document.getElementById('fid-enseigne').value=f.enseigne||'';
+    document.getElementById('fid-numero').value=f.numero||'';
+    document.getElementById('fid-code').value=f.code_barres||'';
+    selFidCoul=f.couleur||'#2D9E8E';
+    document.querySelectorAll('#fid-cols .co').forEach(o=>o.classList.toggle('sel',o.dataset.c===selFidCoul));
+    document.getElementById('mfid-title').textContent='Modifier la carte ✏️';
+    document.getElementById('fid-delbtn').style.display='block';
+  }else{
+    document.getElementById('fid-id').value='';
+    document.getElementById('fid-enseigne').value='';
+    document.getElementById('fid-numero').value='';
+    document.getElementById('fid-code').value='';
+    document.getElementById('mfid-title').textContent='Nouvelle carte 🎁';
+    document.getElementById('fid-delbtn').style.display='none';
+  }
+  om('mfid');
+}
+function selFid(el){ selFidCoul=el.dataset.c; document.querySelectorAll('#fid-cols .co').forEach(o=>o.classList.toggle('sel',o===el)); }
+async function saveFid(){
+  const enseigne=document.getElementById('fid-enseigne').value.trim();
+  if(!enseigne){toast('❌ Enseigne requise');return;}
+  const payload={enseigne,numero:document.getElementById('fid-numero').value.trim()||null,code_barres:document.getElementById('fid-code').value.trim()||null,couleur:selFidCoul};
+  const id=document.getElementById('fid-id').value;
+  const temp={id:'tmp-'+Date.now(),...payload};
+  if(id){
+    const idx=fids.findIndex(x=>x.id===id); const prev=idx>-1?{...fids[idx]}:null; if(idx>-1){fids[idx]={...fids[idx],...payload};rFid();}
+    const {error}=await db.from('maivi_fidelite').update(payload).eq('id',id);
+    if(error&&idx>-1){fids[idx]=prev;rFid();toast('❌ '+error.message);return;}
+  }else{
+    fids.unshift(temp);rFid();
+    const {data,error}=await db.from('maivi_fidelite').insert(payload).select().single();
+    if(error){fids=fids.filter(x=>x.id!==temp.id);rFid();toast('❌ '+error.message);return;}
+    fids=fids.filter(x=>x.id!==temp.id); if(data) fids.unshift(data);
+  }
+  cm('mfid'); rFid(); toast(id?'✅ Carte modifiée !':'✅ Carte ajoutée !');
+}
+function showFid(id){
+  const f=fids.find(x=>x.id===id); if(!f) return; curFidId=id;
+  document.getElementById('fid-big-content').innerHTML=`<div class="big-card" style="background:${f.couleur||'#2D9E8E'}"><div style="font-family:'Baloo 2',cursive;font-size:26px;font-weight:800">${f.enseigne||'Carte'}</div><div style="margin-top:6px;font-size:14px;font-weight:700;opacity:.95">${f.numero||''}</div><div class="big-barcode">${barcodeBars(f.code_barres||f.numero||'')}</div></div>`;
+  om('mfidbig');
+}
+function editCurrentFid(){ if(curFidId){ cm('mfidbig'); openFidModal(curFidId);} }
+function delCurrentFid(){ if(curFidId){ cm('mfidbig'); document.getElementById('fid-id').value=curFidId; delFid(); } }
+async function delFid(){
+  const id=document.getElementById('fid-id').value||curFidId; if(!id) return;
+  const prev=[...fids]; fids=fids.filter(x=>x.id!==id); rFid(); cm('mfid'); cm('mfidbig');
+  const {error}=await db.from('maivi_fidelite').delete().eq('id',id);
+  if(error){fids=prev; rFid(); toast('❌ '+error.message); return;}
+  toast('🗑 Carte supprimée');
+}
+async function openScanModal(){
+  om('mfscan');
+  document.getElementById('scan-status').textContent='Autorise la caméra puis vise le code-barres.';
+  if(typeof Html5Qrcode==='undefined'){ document.getElementById('scan-status').textContent="Le module scan ne s'est pas chargé. Recharge la page."; return; }
+  try{
+    if(scanReader){ try{ await scanReader.stop(); }catch(e){} try{ await scanReader.clear(); }catch(e){} }
+    scanReader=new Html5Qrcode('scan-reader');
+    await scanReader.start({facingMode:'environment'},{fps:10,qrbox:{width:240,height:140}}, async (decodedText)=>{
+      const enseigne=(document.getElementById('scan-enseigne').value||'').trim();
+      if(!enseigne){ document.getElementById('scan-status').textContent="Entre l'enseigne avant de scanner."; return; }
+      const numero=(document.getElementById('scan-numero').value||'').trim();
+      document.getElementById('scan-status').textContent='Code détecté : '+decodedText;
+      try{ await scanReader.stop(); await scanReader.clear(); }catch(e){}
+      scanReader=null; cm('mfscan');
+      const payload={enseigne,numero:numero||null,code_barres:decodedText,couleur:'#2D9E8E'};
+      const temp={id:'tmp-'+Date.now(),...payload}; fids.unshift(temp); rFid();
+      const {data,error}=await db.from('maivi_fidelite').insert(payload).select().single();
+      if(error){ fids=fids.filter(x=>x.id!==temp.id); rFid(); toast('❌ '+error.message); return; }
+      fids=fids.filter(x=>x.id!==temp.id); if(data) fids.unshift(data); rFid(); toast('✅ Carte scannée !'); showFid(data.id);
+    }, ()=>{});
+  }catch(err){
+    document.getElementById('scan-status').textContent='Impossible de démarrer la caméra.';
+  }
+}
+async function closeScanModal(){
+  try{ if(scanReader){ await scanReader.stop(); await scanReader.clear(); scanReader=null; } }catch(e){}
+  cm('mfscan');
+}
+
+// ── NOTIFS ────────────────────────────────────────
+function schedNotifs(){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  evs.forEach(e=>{if(!e.heure_debut)return;const[h,m]=(e.heure_debut||'0:0').split(':').map(Number);const evD=new Date(e.date_debut+'T00:00:00');evD.setHours(h,m,0,0);const now=Date.now();const t1h=evD.getTime()-3600000;if(t1h>now)setTimeout(()=>{new Notification('⏰ Dans 1h — Maivi',{body:`${e.emoji||'📅'} ${e.titre}`,icon:'./icon-192.png'});},t1h-now);const veille=new Date(evD);veille.setDate(veille.getDate()-1);veille.setHours(20,0,0,0);if(veille.getTime()>now)setTimeout(()=>{new Notification('📅 Demain — Maivi',{body:`${e.emoji||'📅'} ${e.titre}`,icon:'./icon-192.png'});},veille.getTime()-now);});
+}
+
+init();
+setTimeout(()=>{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission().then(p=>{if(p==='granted'){schedNotifs();toast('🔔 Notifications activées !');}});},1000);
+</script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
+</body>
+</html>
