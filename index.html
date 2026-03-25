@@ -12,7 +12,7 @@
 <meta name="theme-color" content="#2D9E8E">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{overflow:hidden;height:100%;position:fixed;width:100%;-webkit-overflow-scrolling:touch}
@@ -711,25 +711,35 @@ body{
   <div class="modal">
     <div class="mh"></div>
     <div class="mt">Scanner un article</div>
-    <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:12px;line-height:1.5">Scannez le code-barres pour identifier l'article et mémoriser son prix.</div>
-    <div style="position:relative;width:100%;border-radius:20px;overflow:hidden;background:#000;margin-bottom:12px">
-      <video id="scan-co-video" style="width:100%;display:block;border-radius:20px" autoplay muted playsinline></video>
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
-        <div style="width:220px;height:80px;border:2px solid rgba(126,169,159,.9);border-radius:10px;box-shadow:0 0 0 4000px rgba(0,0,0,.4)"></div>
-      </div>
+    <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:16px;line-height:1.5">
+      Photographiez le code-barres de l'article. L'app identifie le produit automatiquement.
     </div>
-    <div id="scan-co-status" style="font-size:12px;font-weight:700;color:var(--mid);text-align:center;margin-bottom:12px">Visez le code-barres dans le cadre</div>
+
+    <!-- Bouton capture caméra native iOS -->
+    <label style="display:block;width:100%;padding:16px;border-radius:18px;background:linear-gradient(180deg,#9CC0B8,#7EA99F);color:white;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;text-align:center;cursor:pointer;box-shadow:0 8px 20px rgba(126,169,159,.3);margin-bottom:10px">
+      Ouvrir la caméra
+      <input type="file" accept="image/*" capture="environment" id="scan-co-input" style="display:none" onchange="handleScanPhoto(this)">
+    </label>
+
+    <label style="display:block;width:100%;padding:12px;border-radius:16px;background:rgba(255,255,255,.7);color:var(--mid);font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;text-align:center;cursor:pointer;border:1px solid rgba(255,255,255,.9)">
+      Choisir depuis la galerie
+      <input type="file" accept="image/*" id="scan-co-gallery" style="display:none" onchange="handleScanPhoto(this)">
+    </label>
+
+    <div id="scan-co-status" style="font-size:12px;font-weight:700;color:var(--mid);text-align:center;margin:12px 0;min-height:18px"></div>
+
     <div id="scan-co-result" style="display:none">
       <div style="background:var(--teal-s);border-radius:16px;padding:14px;margin-bottom:12px">
-        <div style="font-size:15px;font-weight:900;color:var(--dk)" id="scan-co-nom"></div>
+        <input class="fi" id="scan-co-nom" placeholder="Nom du produit" style="margin-bottom:0;background:transparent;border:none;font-weight:900;font-size:15px;color:var(--dk)">
         <div style="font-size:12px;font-weight:700;color:var(--mid);margin-top:4px" id="scan-co-marque"></div>
       </div>
       <div class="fr">
-        <div style="flex:1"><label class="fl">PRIX EN RAYON (€)</label><input class="fi" id="scan-co-prix" type="number" step="0.01" placeholder="0.00"></div>
+        <div style="flex:1"><label class="fl">PRIX (€)</label><input class="fi" id="scan-co-prix" type="number" step="0.01" placeholder="0.00"></div>
         <div style="flex:1"><label class="fl">QUANTITÉ</label><input class="fi" id="scan-co-qte" placeholder="x1" value="x1"></div>
       </div>
       <button class="sav" onclick="addScannedItem()">Ajouter à la liste</button>
     </div>
+
     <button class="can" onclick="closeScanCo()">Fermer</button>
   </div>
 </div>
@@ -1786,87 +1796,98 @@ async function addFromBiblio(id){const b=biblio.find(x=>x.id===id);if(!b||!curLi
 
 function openScanCourse(){
   document.getElementById('scan-co-result').style.display='none';
-  document.getElementById('scan-co-status').textContent='Ouverture de la caméra...';
+  document.getElementById('scan-co-status').textContent='';
+  // Reset file inputs
+  document.getElementById('scan-co-input').value='';
+  document.getElementById('scan-co-gallery').value='';
   om('mscan-co');
-  setTimeout(()=>startScanCo(),400);
 }
 
 function closeScanCo(){
-  if(scanCoReader){
-    try{scanCoReader.reset();}catch(e){}
-    scanCoReader=null;
-  }
-  const video=document.getElementById('scan-co-video');
-  if(video&&video.srcObject){
-    video.srcObject.getTracks().forEach(t=>t.stop());
-    video.srcObject=null;
-  }
+  scanCoReader=null;
   cm('mscan-co');
 }
 
-async function startScanCo(){
+async function handleScanPhoto(input){
+  if(!input.files||!input.files[0])return;
+  const file=input.files[0];
+  const status=document.getElementById('scan-co-status');
+  status.textContent='Analyse en cours...';
+
+  // Essayer Quagga pour décoder le code-barres depuis l'image
+  const url=URL.createObjectURL(file);
   try{
-    const video=document.getElementById('scan-co-video');
-    if(!video){toast('Erreur vidéo');return;}
-
-    // Demander accès caméra directement
-    const stream=await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}
-    });
-    video.srcObject=stream;
-    await video.play();
-
-    document.getElementById('scan-co-status').textContent='Visez le code-barres dans le cadre';
-
-    // ZXing reader
-    const hints=new Map();
-    const formats=[
-      ZXing.BarcodeFormat.EAN_13,
-      ZXing.BarcodeFormat.EAN_8,
-      ZXing.BarcodeFormat.UPC_A,
-      ZXing.BarcodeFormat.UPC_E,
-      ZXing.BarcodeFormat.CODE_128,
-    ];
-    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
-    const reader=new ZXing.BrowserMultiFormatReader(hints);
-    scanCoReader=reader;
-
-    reader.decodeFromVideoElement(video, async(result, err)=>{
-      if(result){
-        const code=result.getText();
-        reader.reset();
-        document.getElementById('scan-co-status').textContent='Code détecté — recherche...';
-        await lookupBarcode(code);
-      }
-    });
+    const code=await decodeBarcode(url);
+    URL.revokeObjectURL(url);
+    if(code){
+      status.textContent='Code détecté : '+code;
+      await lookupBarcode(code);
+    } else {
+      status.textContent='Code-barres non détecté — essayez une autre photo';
+    }
   }catch(e){
-    document.getElementById('scan-co-status').textContent='Caméra non disponible : vérifiez les autorisations';
+    URL.revokeObjectURL(url);
+    status.textContent='Impossible de lire l\'image';
   }
 }
 
+function decodeBarcode(imageUrl){
+  return new Promise((resolve)=>{
+    if(typeof Quagga==='undefined'){resolve(null);return;}
+    Quagga.decodeSingle({
+      decoder:{readers:['ean_reader','ean_8_reader','upc_reader','upc_e_reader','code_128_reader']},
+      locate:true,
+      src:imageUrl
+    },(result)=>{
+      if(result&&result.codeResult){
+        resolve(result.codeResult.code);
+      } else {
+        resolve(null);
+      }
+    });
+  });
+}
+
 async function lookupBarcode(code){
+  const status=document.getElementById('scan-co-status');
   try{
+    status.textContent='Recherche du produit...';
     const r=await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
     const d=await r.json();
     const nom=d.status===1&&d.product?(d.product.product_name_fr||d.product.product_name||code):code;
     const marque=d.status===1&&d.product?(d.product.brands||''):'';
-    document.getElementById('scan-co-nom').textContent=nom;
-    document.getElementById('scan-co-marque').textContent=marque||'Saisissez le nom si incorrect';
+    const nomInput=document.getElementById('scan-co-nom');
+    nomInput.value=nom;
+    document.getElementById('scan-co-marque').textContent=marque;
     document.getElementById('scan-co-result').style.display='block';
     document.getElementById('scan-co-result').dataset.code=code;
-    document.getElementById('scan-co-result').dataset.nom=nom;
     document.getElementById('scan-co-qte').value='x1';
     const bibItem=biblio.find(b=>b.code_barre===code||b.nom.toLowerCase()===nom.toLowerCase());
     document.getElementById('scan-co-prix').value=bibItem?.prix?bibItem.prix.toFixed(2):'';
-    document.getElementById('scan-co-status').textContent=d.status===1?'Produit identifié':'Code non référencé — modifiez le nom';
-    // Stopper la caméra
-    const video=document.getElementById('scan-co-video');
-    if(video&&video.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());}
+    status.textContent=d.status===1?'Produit identifié — vérifiez et confirmez':'Code non référencé — modifiez le nom si besoin';
   }catch(e){
-    document.getElementById('scan-co-status').textContent='Erreur réseau — réessayez';
+    status.textContent='Erreur réseau';
   }
 }
-async function addScannedItem(){const res=document.getElementById('scan-co-result');const nom=res.dataset.nom;const code=res.dataset.code;const rayon=res.dataset.rayon||'Épicerie';const prix=parseFloat(document.getElementById('scan-co-prix').value)||null;const qte=document.getElementById('scan-co-qte').value||'x1';if(!nom||!curListeId){toast('Erreur');return;}const{data,error}=await db.from('maivi_courses').insert({nom,quantite:qte,categorie:rayon,prix,fait:false,liste_id:curListeId}).select().single();if(error){toast('Erreur');return;}if(data)cos.unshift(data);const existing=biblio.find(b=>b.code_barre===code||b.nom.toLowerCase()===nom.toLowerCase());if(existing){await db.from('maivi_biblio').update({prix:prix||existing.prix,code_barre:code}).eq('id',existing.id);}else{const{data:bd}=await db.from('maivi_biblio').insert({nom,rayon,prix,code_barre:code,nb_achats:0}).select().single();if(bd)biblio.unshift(bd);}updateBiblioDatalist();closeScanCo();rCo();rHome();toast(nom+' ajouté');}
+async function addScannedItem(){
+  const res=document.getElementById('scan-co-result');
+  const nom=document.getElementById('scan-co-nom').value.trim();
+  const code=res.dataset.code||'';
+  const rayon='Épicerie';
+  const prix=parseFloat(document.getElementById('scan-co-prix').value)||null;
+  const qte=document.getElementById('scan-co-qte').value||'x1';
+  if(!nom||!curListeId){toast('Nom requis');return;}
+  const{data,error}=await db.from('maivi_courses').insert({nom,quantite:qte,categorie:rayon,prix,fait:false,liste_id:curListeId}).select().single();
+  if(error){toast('Erreur');return;}
+  if(data)cos.unshift(data);
+  // Mémoriser en bibliothèque
+  const existing=biblio.find(b=>b.code_barre===code||b.nom.toLowerCase()===nom.toLowerCase());
+  if(existing){await db.from('maivi_biblio').update({prix:prix||existing.prix,code_barre:code||existing.code_barre}).eq('id',existing.id);}
+  else{const{data:bd}=await db.from('maivi_biblio').insert({nom,rayon,prix,code_barre:code||null,nb_achats:0}).select().single();if(bd)biblio.unshift(bd);}
+  updateBiblioDatalist();
+  closeScanCo();rCo();rHome();
+  toast(nom+' ajouté');
+}
 
 // ── SANTE ────────────────────────────────────────
 function sff(f){sfilt=f;document.getElementById('sf1').className='fp '+(f==='today'?'on':'off');document.getElementById('sf2').className='fp '+(f==='avenir'?'on':'off');rSa();}
