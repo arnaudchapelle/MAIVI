@@ -412,6 +412,7 @@ body{
       <div style="display:flex;gap:8px;padding-top:4px">
         <button onclick="openScanCourse()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.8);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mid)">⊙</button>
         <button onclick="openBibliotheque()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.8);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mid);font-weight:900">★</button>
+        <button onclick="om('mticket')" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.8);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mid)" title="Scanner ticket">🧾</button>
         <button onclick="openCModal()" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,#F0D5C6,#EAB796);border:none;font-size:18px;font-weight:900;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(234,183,150,.35)">+</button>
       </div>
     </div>
@@ -768,7 +769,53 @@ body{
   </div>
 </div>
 
-<!-- Modal bibliothèque -->
+<!-- Modal scan ticket de caisse -->
+<div class="modal-bg" id="mticket" style="display:none" onclick="if(event.target===this)closeTicket()">
+  <div class="modal" style="max-height:92vh;display:flex;flex-direction:column">
+    <div class="mh"></div>
+
+    <!-- État initial -->
+    <div id="ticket-step-photo">
+      <div class="mt">Scanner un ticket</div>
+      <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:20px;line-height:1.5">
+        Photographiez votre ticket de caisse. Claude analyse le texte et extrait tous les articles avec leur prix.
+      </div>
+      <label style="display:block;width:100%;padding:16px;border-radius:18px;background:linear-gradient(180deg,#9CC0B8,#7EA99F);color:white;font-size:15px;font-weight:900;font-family:Nunito,sans-serif;text-align:center;cursor:pointer;box-shadow:0 8px 20px rgba(126,169,159,.3);margin-bottom:8px">
+        Photographier le ticket
+        <input type="file" accept="image/*" capture="environment" id="ticket-input" style="display:none" onchange="analyseTicket(this)">
+      </label>
+      <label style="display:block;width:100%;padding:11px;border-radius:14px;background:rgba(255,255,255,.7);color:var(--mid);font-size:13px;font-weight:800;font-family:Nunito,sans-serif;text-align:center;cursor:pointer;border:1px solid rgba(255,255,255,.9)">
+        Choisir depuis la galerie
+        <input type="file" accept="image/*" id="ticket-gallery" style="display:none" onchange="analyseTicket(this)">
+      </label>
+      <div id="ticket-loading" style="display:none;text-align:center;padding:20px">
+        <div class="spin" style="margin:0 auto 10px"></div>
+        <div style="font-size:13px;font-weight:700;color:var(--mid)">Claude analyse le ticket...</div>
+      </div>
+    </div>
+
+    <!-- Résultats -->
+    <div id="ticket-step-result" style="display:none;flex:1;overflow:hidden;display:none;flex-direction:column">
+      <div style="padding:0 0 12px;flex-shrink:0">
+        <div style="font-size:18px;font-weight:900;color:var(--dk)" id="ticket-result-title">Ticket analysé</div>
+        <div style="font-size:13px;font-weight:700;color:var(--mid);margin-top:2px" id="ticket-result-sub"></div>
+      </div>
+      <!-- Infos ticket -->
+      <div style="background:rgba(47,65,75,.04);border-radius:14px;padding:10px 14px;margin-bottom:12px;display:flex;gap:12px;align-items:center;flex-shrink:0" id="ticket-info-bar"></div>
+      <!-- Liste articles -->
+      <div id="ticket-items-list" style="flex:1;overflow-y:auto;margin-bottom:12px"></div>
+      <!-- Footer -->
+      <div style="flex-shrink:0;border-top:.5px solid var(--line);padding-top:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--mid);text-align:center;margin-bottom:10px" id="ticket-ready-count"></div>
+        <button class="sav" id="ticket-import-btn" onclick="importTicketItems()">Ajouter à ma bibliothèque</button>
+        <button class="can" onclick="closeTicket()">Fermer</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
 <div class="modal-bg" id="mbiblio" style="display:none" onclick="if(event.target===this)cm('mbiblio')">
   <div class="modal">
     <div class="mh"></div>
@@ -784,10 +831,26 @@ body{
 <div class="modal-bg" id="mnewliste" style="display:none" onclick="if(event.target===this)cm('mnewliste')">
   <div class="modal">
     <div class="mh"></div>
-    <div class="mt">Nouvelle liste</div>
+    <div class="mt" id="mnewliste-title">Nouvelle liste</div>
     <label class="fl">NOM DE LA LISTE</label>
-    <input class="fi" id="newliste-nom" placeholder="Ex: Leclerc, Pharmacie, Marché...">
+    <input class="fi" id="newliste-nom" placeholder="Ex: Semaine du 3 avril...">
+    <label class="fl">ENSEIGNE</label>
+    <select class="fi" id="newliste-enseigne">
+      <option value="">— Choisir —</option>
+      <option value="Leclerc">Leclerc</option>
+      <option value="Carrefour">Carrefour</option>
+      <option value="Intermarché">Intermarché</option>
+      <option value="Lidl">Lidl</option>
+      <option value="Aldi">Aldi</option>
+      <option value="Super U">Super U</option>
+      <option value="Monoprix">Monoprix</option>
+      <option value="Pharmacie">Pharmacie</option>
+      <option value="Marché">Marché</option>
+      <option value="Autre">Autre</option>
+    </select>
+    <input type="hidden" id="newliste-id">
     <button class="sav" onclick="saveNewListe()">Créer</button>
+    <button class="can" id="newliste-delbtn" style="display:none;background:#FEE;color:#E85A5A;border-color:#F5C5C5" onclick="deleteListe()">Supprimer cette liste</button>
     <button class="can" onclick="cm('mnewliste')">Annuler</button>
   </div>
 </div>
@@ -1722,22 +1785,67 @@ async function initCourses(){
 
 function rListesTabs(){
   const el=document.getElementById('listes-tabs');if(!el)return;
-  let h=listes.map(l=>`<div style="padding:7px 16px;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .15s;${curListeId===l.id?'background:var(--dk);color:white':'background:rgba(255,255,255,.8);color:var(--mid);border:1px solid rgba(255,255,255,.9)'}" onclick="switchListe('${l.id}')">${l.nom}</div>`).join('');
-  h+=`<div style="padding:7px 14px;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;background:rgba(255,255,255,.5);color:var(--soft);border:1px dashed rgba(47,65,75,.2)" onclick="om('mnewliste');document.getElementById('newliste-nom').value=''">+ Liste</div>`;
+  let h=listes.map(l=>{
+    const label=l.enseigne?`${l.enseigne} — ${l.nom}`:l.nom;
+    const active=curListeId===l.id;
+    return`<div style="padding:7px 16px;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .15s;${active?'background:var(--dk);color:white':'background:rgba(255,255,255,.8);color:var(--mid);border:1px solid rgba(255,255,255,.9)'};display:flex;align-items:center;gap:6px" onclick="switchListe('${l.id}')" onlongclick="openListeModal('${l.id}')">
+      <span>${label}</span>
+      ${active?`<span onclick="event.stopPropagation();openListeModal('${l.id}')" style="opacity:.6;font-size:10px">✎</span>`:''}
+    </div>`;
+  }).join('');
+  h+=`<div style="padding:7px 14px;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;background:rgba(255,255,255,.5);color:var(--soft);border:1px dashed rgba(47,65,75,.2)" onclick="openListeModal(null)">+ Liste</div>`;
   el.innerHTML=h;
   const sel=document.getElementById('cliste-sel');
-  if(sel)sel.innerHTML=listes.map(l=>`<option value="${l.id}"${l.id===curListeId?' selected':''}>${l.nom}</option>`).join('');
+  if(sel)sel.innerHTML=listes.map(l=>`<option value="${l.id}"${l.id===curListeId?' selected':''}>${l.enseigne?l.enseigne+' — ':''}${l.nom}</option>`).join('');
+}
+
+function openListeModal(id){
+  const l=id?listes.find(x=>x.id===id):null;
+  document.getElementById('mnewliste-title').textContent=l?'Modifier la liste':'Nouvelle liste';
+  document.getElementById('newliste-nom').value=l?l.nom:'';
+  document.getElementById('newliste-enseigne').value=l?l.enseigne||'':'';
+  document.getElementById('newliste-id').value=l?l.id:'';
+  document.getElementById('newliste-delbtn').style.display=l?'block':'none';
+  om('mnewliste');
 }
 
 function switchListe(id){curListeId=id;rListesTabs();rCo();}
 
 async function saveNewListe(){
   const nom=document.getElementById('newliste-nom').value.trim();
-  if(!nom){toast('Nom requis');return;}
-  const{data,error}=await db.from('maivi_listes').insert({nom}).select().single();
-  if(error){toast('Erreur');return;}
-  listes.push(data);curListeId=data.id;
-  cm('mnewliste');rListesTabs();rCo();toast('Liste créée');
+  const enseigne=document.getElementById('newliste-enseigne').value||null;
+  const id=document.getElementById('newliste-id').value;
+  if(!nom&&!enseigne){toast('Nom ou enseigne requis');return;}
+  const finalNom=nom||(enseigne||'Ma liste');
+  if(id){
+    // Modifier
+    const{error}=await db.from('maivi_listes').update({nom:finalNom,enseigne}).eq('id',id);
+    if(error){toast('Erreur');return;}
+    const l=listes.find(x=>x.id===id);
+    if(l){l.nom=finalNom;l.enseigne=enseigne;}
+  } else {
+    // Créer
+    const{data,error}=await db.from('maivi_listes').insert({nom:finalNom,enseigne}).select().single();
+    if(error){toast('Erreur');return;}
+    listes.push(data);curListeId=data.id;
+  }
+  cm('mnewliste');rListesTabs();rCo();toast(id?'Liste modifiée':'Liste créée');
+}
+
+async function deleteListe(){
+  const id=document.getElementById('newliste-id').value;
+  if(!id)return;
+  if(listes.length<=1){toast('Impossible de supprimer la dernière liste');return;}
+  document.getElementById('cmsg').textContent='Supprimer cette liste et tous ses articles ?';
+  document.getElementById('cyb').onclick=async()=>{
+    await db.from('maivi_courses').delete().eq('liste_id',id);
+    await db.from('maivi_listes').delete().eq('id',id);
+    listes=listes.filter(x=>x.id!==id);
+    cos=cos.filter(x=>x.liste_id!==id);
+    curListeId=listes[0]?.id||null;
+    cm('mconf');cm('mnewliste');rListesTabs();rCo();toast('Liste supprimée');
+  };
+  om('mconf');
 }
 
 function updateBiblioDatalist(){
@@ -1921,6 +2029,177 @@ async function lookupBarcode(code){
     status.textContent=d.status===1?'Produit identifié':'Code inconnu — modifiez le nom';
   }catch(e){status.textContent='Erreur réseau';}
 }
+// ── SCAN TICKET DE CAISSE ─────────────────────
+let ticketItems=[];
+
+function closeTicket(){
+  document.getElementById('ticket-step-photo').style.display='block';
+  document.getElementById('ticket-step-result').style.display='none';
+  document.getElementById('ticket-loading').style.display='none';
+  document.getElementById('ticket-input').value='';
+  document.getElementById('ticket-gallery').value='';
+  ticketItems=[];
+  cm('mticket');
+}
+
+async function analyseTicket(input){
+  if(!input.files||!input.files[0])return;
+  const file=input.files[0];
+
+  // Afficher loading
+  document.getElementById('ticket-loading').style.display='block';
+  document.querySelector('#ticket-step-photo label').style.display='none';
+  document.querySelector('#ticket-step-photo label:last-of-type').style.display='none';
+
+  // Convertir en base64
+  const base64=await new Promise((res)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result.split(',')[1]);
+    r.readAsDataURL(file);
+  });
+
+  try{
+    // Appel API Claude Vision
+    const response=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        messages:[{
+          role:'user',
+          content:[
+            {type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:base64}},
+            {type:'text',text:`Analyse ce ticket de caisse et extrais tous les articles achetés.
+Réponds UNIQUEMENT en JSON valide, sans texte avant ou après, avec cette structure exacte:
+{
+  "magasin": "nom du magasin ou null",
+  "date": "date au format JJ/MM/AAAA ou null",
+  "total": nombre ou null,
+  "articles": [
+    {"nom": "nom propre de l'article", "prix": nombre, "fiable": true/false}
+  ]
+}
+- fiable=false si le nom est illisible, abrégé bizarrement, ou si c'est une remise/avoir/total
+- Nettoie les noms : "LT DEMI ECREME 1L" devient "Lait demi-écrémé 1L"
+- Ignore les lignes de TVA, sous-totaux, modes de paiement
+- prix en nombre décimal (ex: 1.25)`}
+          ]
+        }]
+      })
+    });
+
+    const data=await response.json();
+    const text=data.content?.[0]?.text||'';
+
+    // Parser le JSON
+    let result;
+    try{
+      const clean=text.replace(/```json|```/g,'').trim();
+      result=JSON.parse(clean);
+    }catch(e){
+      throw new Error('Réponse non parseable');
+    }
+
+    ticketItems=(result.articles||[]).map((a,i)=>({...a,id:i,selected:a.fiable!==false}));
+
+    // Afficher résultats
+    document.getElementById('ticket-loading').style.display='none';
+    document.getElementById('ticket-step-photo').style.display='none';
+    const resultEl=document.getElementById('ticket-step-result');
+    resultEl.style.display='flex';
+
+    // Infos ticket
+    const infoBar=document.getElementById('ticket-info-bar');
+    if(result.magasin)infoBar.dataset.enseigne=result.magasin;
+    // Trouver liste correspondante
+    const enseigneMatch=listes.find(l=>l.enseigne&&result.magasin&&l.enseigne.toLowerCase().includes(result.magasin.toLowerCase().substring(0,5)));
+    const listeSuggestion=enseigneMatch?`— Liste <b>${enseigneMatch.nom}</b>`:(result.magasin?`— Nouvelle liste <b>${result.magasin}</b> créée`:'');
+    infoBar.innerHTML=`
+      ${result.magasin?`<span style="font-size:12px;font-weight:800;color:var(--dk)">${result.magasin}</span>`:''}
+      ${result.date?`<span style="font-size:12px;font-weight:700;color:var(--mid)">· ${result.date}</span>`:''}
+      ${result.total?`<span style="font-size:13px;font-weight:900;color:var(--teal)">· ${result.total.toFixed(2)} €</span>`:''}
+      ${listeSuggestion?`<div style="font-size:10px;font-weight:700;color:var(--mid);margin-top:4px;width:100%">${listeSuggestion}</div>`:''}
+    `;
+
+    const fiables=ticketItems.filter(a=>a.fiable!==false);
+    document.getElementById('ticket-result-title').textContent='Ticket analysé';
+    document.getElementById('ticket-result-sub').textContent=`${ticketItems.length} articles détectés`;
+    document.getElementById('ticket-import-btn').textContent=`Ajouter ${fiables.length} articles à ma bibliothèque`;
+
+    renderTicketItems();
+
+  }catch(e){
+    document.getElementById('ticket-loading').style.display='none';
+    document.querySelector('#ticket-step-photo label').style.display='block';
+    document.querySelector('#ticket-step-photo label:last-of-type').style.display='block';
+    toast('Erreur analyse — réessayez avec une meilleure photo');
+  }
+}
+
+function renderTicketItems(){
+  const ready=ticketItems.filter(a=>a.selected).length;
+  document.getElementById('ticket-ready-count').textContent=`${ready} / ${ticketItems.length} articles sélectionnés`;
+  document.getElementById('ticket-import-btn').textContent=`Ajouter ${ready} articles à ma bibliothèque`;
+
+  let h='';
+  ticketItems.forEach(a=>{
+    const isDoubt=a.fiable===false;
+    h+=`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:6px;border-radius:16px;background:${isDoubt?'rgba(242,201,120,.1)':'rgba(255,255,255,.8)'};border:1px solid ${isDoubt?'rgba(242,201,120,.4)':'rgba(255,255,255,.8)'};cursor:pointer" onclick="toggleTicketItem(${a.id})">
+      <div style="width:24px;height:24px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${a.selected?(isDoubt?'var(--yellow)':'var(--teal)'):'rgba(255,255,255,.9)'};border:${a.selected?'none':'1.5px solid rgba(47,65,75,.15)'}">
+        ${a.selected?'<div style="width:8px;height:5px;border-left:2px solid white;border-bottom:2px solid white;transform:rotate(-45deg);margin-top:-2px"></div>':''}
+      </div>
+      <div style="flex:1">
+        <input value="${a.nom}" onchange="ticketItems[${a.id}].nom=this.value" onclick="event.stopPropagation()" style="background:transparent;border:none;outline:none;font-size:13px;font-weight:${isDoubt?700:800};color:var(--dk);font-family:Nunito,sans-serif;width:100%">
+        ${isDoubt?'<div style="font-size:10px;font-weight:700;color:#A07840">À vérifier</div>':''}
+      </div>
+      <div style="font-size:13px;font-weight:900;color:var(--dk);white-space:nowrap">${a.prix?a.prix.toFixed(2)+' €':''}</div>
+    </div>`;
+  });
+  document.getElementById('ticket-items-list').innerHTML=h;
+}
+
+function toggleTicketItem(id){
+  const item=ticketItems.find(a=>a.id===id);
+  if(item)item.selected=!item.selected;
+  renderTicketItems();
+}
+
+async function importTicketItems(){
+  const toImport=ticketItems.filter(a=>a.selected&&a.nom);
+  if(!toImport.length){toast('Aucun article sélectionné');return;}
+
+  // Trouver ou créer la liste selon l'enseigne détectée
+  const enseigne=document.getElementById('ticket-info-bar').dataset.enseigne||null;
+  if(enseigne){
+    const existing=listes.find(l=>l.enseigne&&l.enseigne.toLowerCase().includes(enseigne.toLowerCase().substring(0,5)));
+    if(existing){
+      curListeId=existing.id;
+    } else {
+      const{data}=await db.from('maivi_listes').insert({nom:enseigne,enseigne}).select().single();
+      if(data){listes.push(data);curListeId=data.id;}
+    }
+    rListesTabs();
+  }
+
+  let added=0;
+  for(const a of toImport){
+    const existing=biblio.find(b=>b.nom.toLowerCase()===a.nom.toLowerCase());
+    if(existing){
+      await db.from('maivi_biblio').update({prix:a.prix||existing.prix,nb_achats:(existing.nb_achats||0)+1}).eq('id',existing.id);
+      existing.prix=a.prix||existing.prix;
+      existing.nb_achats=(existing.nb_achats||0)+1;
+    } else {
+      const{data}=await db.from('maivi_biblio').insert({nom:a.nom,rayon:'Épicerie',prix:a.prix||null,nb_achats:1}).select().single();
+      if(data)biblio.unshift(data);
+    }
+    added++;
+  }
+  updateBiblioDatalist();
+  closeTicket();rCo();
+  toast(`${added} articles ajoutés à la bibliothèque${enseigne?' — Liste '+enseigne:''}`);
+}
+
 async function addScannedItem(){
   const res=document.getElementById('scan-co-result');
   const nom=document.getElementById('scan-co-nom').value.trim();
