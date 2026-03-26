@@ -1,9 +1,9 @@
 {
   "name": "Maivi",
   "short_name": "Maivi",
-  "description": "Your daily dose of friendly chaos.",
-  "start_url": "/",
-  "scope": "/",
+  "description": "L'app de la famille Chapelle.",
+  "start_url": "/MAIVI/",
+  "scope": "/MAIVI/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#F7F3ED",
