@@ -799,22 +799,43 @@ body{
 
     <!-- État initial -->
     <div id="ticket-step-photo">
-      <div class="mt">Scanner un ticket</div>
-      <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:20px;line-height:1.5">
-        Photographiez votre ticket de caisse. L'app lit le texte et extrait tous les articles avec leur prix — directement sur votre téléphone, sans connexion externe.
+      <div class="mt">Importer un ticket</div>
+      <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:16px;line-height:1.5">
+        Choisissez comment importer votre ticket de courses.
       </div>
-      <label style="display:block;width:100%;padding:16px;border-radius:18px;background:linear-gradient(180deg,#9CC0B8,#7EA99F);color:white;font-size:15px;font-weight:900;font-family:Nunito,sans-serif;text-align:center;cursor:pointer;box-shadow:0 8px 20px rgba(126,169,159,.3);margin-bottom:8px">
-        Photographier le ticket
+
+      <!-- 3 options d'import -->
+      <label style="display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;border-radius:18px;background:linear-gradient(135deg,#2F414B,#3D5260);color:white;cursor:pointer;box-shadow:0 6px 18px rgba(47,65,75,.25);margin-bottom:8px">
+        <div style="font-size:26px">📄</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:900">Fichier HTML ou PDF</div>
+          <div style="font-size:11px;opacity:.6;margin-top:2px">Email Leclerc transféré par Julie</div>
+        </div>
+        <input type="file" accept=".html,.htm,.pdf,text/html,application/pdf" id="ticket-file" style="display:none" onchange="analyseTicketFile(this)">
+      </label>
+
+      <label style="display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;border-radius:18px;background:linear-gradient(135deg,#7EA99F,#5C8F85);color:white;cursor:pointer;box-shadow:0 6px 18px rgba(126,169,159,.3);margin-bottom:8px">
+        <div style="font-size:26px">📷</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:900">Photographier le ticket</div>
+          <div style="font-size:11px;opacity:.7;margin-top:2px">Ticket papier en caisse</div>
+        </div>
         <input type="file" accept="image/*" capture="environment" id="ticket-input" style="display:none" onchange="analyseTicket(this)">
       </label>
-      <label style="display:block;width:100%;padding:11px;border-radius:14px;background:rgba(255,255,255,.7);color:var(--mid);font-size:13px;font-weight:800;font-family:Nunito,sans-serif;text-align:center;cursor:pointer;border:1px solid rgba(255,255,255,.9)">
-        Choisir depuis la galerie
+
+      <label style="display:flex;align-items:center;gap:14px;width:100%;padding:12px 16px;border-radius:16px;background:rgba(255,255,255,.7);color:var(--mid);cursor:pointer;border:1px solid rgba(255,255,255,.9);margin-bottom:8px">
+        <div style="font-size:22px">🖼</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:800;color:var(--dk)">Choisir depuis la galerie</div>
+          <div style="font-size:11px;margin-top:2px">Screenshot du ticket</div>
+        </div>
         <input type="file" accept="image/*" id="ticket-gallery" style="display:none" onchange="analyseTicket(this)">
       </label>
-      <div id="ticket-loading" style="display:none;text-align:center;padding:20px">
-        <div class="spin" style="margin:0 auto 10px"></div>
-        <div style="font-size:13px;font-weight:700;color:var(--mid)">Lecture du ticket en cours...</div>
-        <div style="font-size:11px;font-weight:600;color:var(--soft);margin-top:6px">L'analyse se fait sur votre téléphone,<br>aucune donnée n'est envoyée.</div>
+
+      <div id="ticket-loading" style="display:none;text-align:center;padding:24px">
+        <div class="spin" style="margin:0 auto 12px"></div>
+        <div style="font-size:13px;font-weight:700;color:var(--mid)" id="ticket-loading-msg">Lecture du ticket...</div>
+        <div style="font-size:11px;font-weight:600;color:var(--soft);margin-top:6px">Analyse locale — aucune donnée envoyée.</div>
       </div>
     </div>
 
@@ -2129,67 +2150,125 @@ function closeTicket(){
   document.getElementById('ticket-step-photo').style.display='block';
   document.getElementById('ticket-step-result').style.display='none';
   document.getElementById('ticket-loading').style.display='none';
-  document.getElementById('ticket-input').value='';
-  document.getElementById('ticket-gallery').value='';
+  document.querySelectorAll('#ticket-step-photo label').forEach(l=>l.style.display='flex');
+  ['ticket-input','ticket-gallery','ticket-file'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ticketItems=[];
   cm('mticket');
+}
+
+function showTicketLoading(msg){
+  document.getElementById('ticket-loading').style.display='block';
+  const msgEl=document.getElementById('ticket-loading-msg');
+  if(msgEl)msgEl.textContent=msg;
+  document.querySelectorAll('#ticket-step-photo label').forEach(l=>l.style.display='none');
+}
+
+function resetTicketLoading(){
+  document.getElementById('ticket-loading').style.display='none';
+  document.querySelectorAll('#ticket-step-photo label').forEach(l=>l.style.display='flex');
+  ['ticket-input','ticket-gallery','ticket-file'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+
+function afficherResultatTicket(result){
+  ticketItems=(result.articles||[]).map((a,i)=>({...a,id:i,selected:a.fiable!==false}));
+  document.getElementById('ticket-loading').style.display='none';
+  document.getElementById('ticket-step-photo').style.display='none';
+  const resultEl=document.getElementById('ticket-step-result');
+  resultEl.style.display='flex';
+  const infoBar=document.getElementById('ticket-info-bar');
+  if(result.magasin)infoBar.dataset.enseigne=result.magasin;
+  const enseigneMatch=listes.find(l=>l.enseigne&&result.magasin&&l.enseigne.toLowerCase().includes(result.magasin.toLowerCase().substring(0,4)));
+  const listeSugg=enseigneMatch?`Liste : <b>${enseigneMatch.nom}</b>`:(result.magasin?`Nouvelle liste <b>${result.magasin}</b>`:'');
+  infoBar.innerHTML=`
+    ${result.magasin?`<span style="font-size:13px;font-weight:900;color:var(--dk)">${result.magasin}</span>`:''}
+    ${result.date?`<span style="font-size:12px;font-weight:700;color:var(--mid)"> · ${result.date}</span>`:''}
+    ${result.total?`<span style="font-size:13px;font-weight:900;color:var(--teal)"> · ${result.total.toFixed(2)} €</span>`:''}
+    ${listeSugg?`<div style="font-size:10px;font-weight:700;color:var(--mid);margin-top:4px;width:100%">${listeSugg}</div>`:''}
+  `;
+  const fiables=ticketItems.filter(a=>a.fiable!==false);
+  document.getElementById('ticket-result-title').textContent='Ticket importé';
+  document.getElementById('ticket-result-sub').textContent=`${ticketItems.length} lignes · ${fiables.length} articles`;
+  document.getElementById('ticket-import-btn').textContent=`Ajouter ${fiables.length} articles à ma bibliothèque`;
+  renderTicketItems();
+}
+
+// ── IMPORT HTML / PDF ─────────────────────────
+async function analyseTicketFile(input){
+  if(!input.files||!input.files[0])return;
+  const file=input.files[0];
+  showTicketLoading('Lecture du fichier...');
+  try{
+    if(file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf')){
+      // PDF → Tesseract
+      const{data:{text}}=await Tesseract.recognize(file,'fra',{
+        logger:m=>{if(m.status==='recognizing text')showTicketLoading(`Analyse PDF : ${Math.round(m.progress*100)}%`);}
+      });
+      afficherResultatTicket(parseTicketText(text));
+    } else {
+      // HTML → parser structuré
+      const html=await file.text();
+      const result=parseTicketHTML(html);
+      if(result.articles.length>0){
+        afficherResultatTicket(result);
+      } else {
+        // Fallback : extraire le texte brut du HTML
+        const txt=html.replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/\s+/g,' ');
+        afficherResultatTicket(parseTicketText(txt));
+      }
+    }
+  }catch(e){
+    resetTicketLoading();
+    toast('Erreur lecture — vérifiez le fichier');
+  }
+}
+
+function parseTicketHTML(html){
+  const parser=new DOMParser();
+  const doc=parser.parseFromString(html,'text/html');
+  const articles=[];
+  let magasin=null,date=null,total=null;
+
+  // Détecter enseigne
+  const bodyText=doc.body?.textContent?.substring(0,300)||'';
+  const enseignes=['Leclerc','Carrefour','Intermarché','Intermarche','Lidl','Aldi','Super U','Monoprix','Casino','Auchan'];
+  for(const e of enseignes){if(bodyText.toLowerCase().includes(e.toLowerCase())){magasin=e;break;}}
+
+  // Date
+  const dateMatch=doc.body?.textContent?.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{2,4})/);
+  if(dateMatch)date=dateMatch[0];
+
+  // Chercher articles dans tableaux et listes
+  const rows=doc.querySelectorAll('tr,li,[class*="item"],[class*="product"],[class*="article"],[class*="ligne"],[class*="row"]');
+  rows.forEach(row=>{
+    const txt=row.textContent.replace(/\s+/g,' ').trim();
+    const m=txt.match(/(.{3,50}?)\s+(\d+[,\.]\d{2})\s*[€$]?\s*$/);
+    if(!m)return;
+    const prix=parseFloat(m[2].replace(',','.'));
+    if(isNaN(prix)||prix<=0||prix>500)return;
+    const nom=cleanNom(m[1]);
+    if(!nom||nom.length<2)return;
+    if(/total|montant|payer|payé|net/i.test(nom)){if(!total)total=prix;return;}
+    articles.push({nom,prix,fiable:nom.length>=3&&!/^\d+$/.test(nom)});
+  });
+
+  return{magasin,date,total,articles};
 }
 
 async function analyseTicket(input){
   if(!input.files||!input.files[0])return;
   const file=input.files[0];
-
-  // Afficher loading
-  document.getElementById('ticket-loading').style.display='block';
-  document.getElementById('ticket-loading').querySelector('div:last-child').textContent='Lecture du ticket en cours...';
-  document.querySelectorAll('#ticket-step-photo label').forEach(l=>l.style.display='none');
-
+  showTicketLoading('Lecture du ticket...');
   try{
-    // OCR avec Tesseract.js — français
-    const {data:{text}}=await Tesseract.recognize(file,'fra',{
-      logger:m=>{
-        if(m.status==='recognizing text'){
-          const pct=Math.round(m.progress*100);
-          const el=document.getElementById('ticket-loading');
-          if(el)el.querySelector('div:last-child').textContent=`Analyse : ${pct}%`;
-        }
-      }
+    const{data:{text}}=await Tesseract.recognize(file,'fra',{
+      logger:m=>{if(m.status==='recognizing text')showTicketLoading(`Analyse : ${Math.round(m.progress*100)}%`);}
     });
-
-    // Parser le texte OCR → articles + prix
-    const result=parseTicketText(text);
-    ticketItems=result.articles.map((a,i)=>({...a,id:i,selected:a.fiable!==false}));
-
-    // Afficher résultats
-    document.getElementById('ticket-loading').style.display='none';
-    document.getElementById('ticket-step-photo').style.display='none';
-    const resultEl=document.getElementById('ticket-step-result');
-    resultEl.style.display='flex';
-
-    // Info bar
-    const infoBar=document.getElementById('ticket-info-bar');
-    if(result.magasin)infoBar.dataset.enseigne=result.magasin;
-    const enseigneMatch=listes.find(l=>l.enseigne&&result.magasin&&l.enseigne.toLowerCase().includes(result.magasin.toLowerCase().substring(0,4)));
-    const listeSuggestion=enseigneMatch?`Liste : <b>${enseigneMatch.nom}</b>`:(result.magasin?`Nouvelle liste <b>${result.magasin}</b>`:'' );
-    infoBar.innerHTML=`
-      ${result.magasin?`<span style="font-size:13px;font-weight:900;color:var(--dk)">${result.magasin}</span>`:''}
-      ${result.date?`<span style="font-size:12px;font-weight:700;color:var(--mid)"> · ${result.date}</span>`:''}
-      ${result.total?`<span style="font-size:13px;font-weight:900;color:var(--teal)"> · ${result.total.toFixed(2)} €</span>`:''}
-      ${listeSuggestion?`<div style="font-size:10px;font-weight:700;color:var(--mid);margin-top:4px;width:100%">${listeSuggestion}</div>`:''}
-    `;
-
-    const fiables=ticketItems.filter(a=>a.fiable!==false);
-    document.getElementById('ticket-result-title').textContent='Ticket analysé';
-    document.getElementById('ticket-result-sub').textContent=`${ticketItems.length} lignes détectées · ${fiables.length} articles`;
-    document.getElementById('ticket-import-btn').textContent=`Ajouter ${fiables.length} articles à ma bibliothèque`;
-    renderTicketItems();
-
+    afficherResultatTicket(parseTicketText(text));
   }catch(e){
-    document.getElementById('ticket-loading').style.display='none';
-    document.querySelectorAll('#ticket-step-photo label').forEach(l=>l.style.display='block');
-    toast('Erreur — réessayez avec une photo plus nette et bien éclairée');
+    resetTicketLoading();
+    toast('Erreur — réessayez avec une photo plus nette');
   }
 }
+
 
 // ── PARSER TICKET OCR ─────────────────────────
 function parseTicketText(text){
