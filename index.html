@@ -1533,7 +1533,7 @@ async function init(){
     db.channel('mv')
       .on('postgres_changes',{event:'*',schema:'public',table:'maivi_evenements'},async()=>{
         const{data}=await db.from('maivi_evenements').select('*').order('date_debut');
-        if(data){evs=data;rHome();rAg();rPro();}
+        if(data){evs=data;rHome();rAg();rPro();navigator.serviceWorker?.ready.then(reg=>schedNotifs(reg));}
       })
       .on('postgres_changes',{event:'*',schema:'public',table:'maivi_courses'},async()=>{
         const{data}=await db.from('maivi_courses').select('*').order('categorie,nom');
@@ -1552,7 +1552,7 @@ async function init(){
         if(data){fids=data;rFid();}
       })
       .subscribe();
-    schedNotifs();
+    initPushNotifications();
   }catch(e){console.error(e);}
 }
 
@@ -3113,9 +3113,137 @@ async function closeScanModal(){
 }
 
 // ── NOTIFS ────────────────────────────────────────
-function schedNotifs(){
-  if(!('Notification' in window)||Notification.permission!=='granted')return;
-  evs.forEach(e=>{if(!e.heure_debut)return;const[h,m]=(e.heure_debut||'0:0').split(':').map(Number);const evD=new Date(e.date_debut+'T00:00:00');evD.setHours(h,m,0,0);const now=Date.now();const t1h=evD.getTime()-3600000;if(t1h>now)setTimeout(()=>{new Notification('⏰ Dans 1h — Maivi',{body:`${e.emoji||'📅'} ${e.titre}`,icon:'./icon-192.png'});},t1h-now);const veille=new Date(evD);veille.setDate(veille.getDate()-1);veille.setHours(20,0,0,0);if(veille.getTime()>now)setTimeout(()=>{new Notification('📅 Demain — Maivi',{body:`${e.emoji||'📅'} ${e.titre}`,icon:'./icon-192.png'});},veille.getTime()-now);});
+// ── NOTIFICATIONS PUSH ────────────────────────────────
+const VAPID_PUBLIC='BH1rAxT94_2Q90pcIvt2IamfbZpLWoRhFax47Gp2897Mo3u-Y58j-Z3CVoxGYa8YsyHtnc5h1yLUyUvNhaM22w4';
+const SUPABASE_PUSH_URL='https://blzmitanecalzmmqulsa.supabase.co/functions/v1/push-notif';
+
+// Convertir clé VAPID base64url → Uint8Array
+function urlBase64ToUint8Array(base64String){
+  const padding='='.repeat((4-base64String.length%4)%4);
+  const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+  const rawData=window.atob(base64);
+  const outputArray=new Uint8Array(rawData.length);
+  for(let i=0;i<rawData.length;++i)outputArray[i]=rawData.charCodeAt(i);
+  return outputArray;
+}
+
+async function initPushNotifications(){
+  // Vérifier le support
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)){
+    console.log('Push non supporté');return;
+  }
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    // Demander permission si pas encore accordée
+    if(Notification.permission==='default'){
+      const perm=await Notification.requestPermission();
+      if(perm!=='granted'){console.log('Notif refusée');return;}
+    }
+    if(Notification.permission!=='granted')return;
+
+    // Vérifier si déjà abonné
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub){
+      // Créer un nouvel abonnement
+      sub=await reg.pushManager.subscribe({
+        userVisibleOnly:true,
+        applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC)
+      });
+    }
+
+    // Sauvegarder l'abonnement dans Supabase
+    const subData=sub.toJSON();
+    const{error}=await db.from('push_subscriptions')
+      .upsert({subscription:subData,endpoint:sub.endpoint,updated_at:new Date().toISOString()},
+        {onConflict:'endpoint'});
+    if(error)console.error('Erreur sauvegarde abonnement:',error);
+    else console.log('Push abonnement actif');
+
+    // Programmer les notifications locales via le SW
+    schedNotifs(reg);
+  }catch(e){
+    console.error('Erreur push init:',e);
+  }
+}
+
+function schedNotifs(reg){
+  if(!reg)return;
+  const now=Date.now();
+  const notifs=[];
+
+  // Événements du calendrier — rappel veille à 20h + rappel 1h avant
+  evs.forEach(e=>{
+    const evD=new Date(e.date_debut+'T00:00:00');
+    if(e.heure_debut){
+      const[h,m]=(e.heure_debut||'08:00').split(':').map(Number);
+      evD.setHours(h,m,0,0);
+      // Rappel 1h avant
+      const t1h=evD.getTime()-3600000;
+      if(t1h>now){
+        notifs.push({title:'⏰ Dans 1h',body:`${e.emoji||'📅'} ${e.titre}`,
+          url:'/MAIVI/',tag:'ev-1h-'+e.id,delayMs:t1h-now});
+      }
+    }
+    // Rappel la veille à 20h
+    const veille=new Date(evD);
+    veille.setDate(veille.getDate()-1);
+    veille.setHours(20,0,0,0);
+    if(veille.getTime()>now){
+      notifs.push({title:'📅 Demain',body:`${e.emoji||'📅'} ${e.titre}`,
+        url:'/MAIVI/',tag:'ev-veille-'+e.id,delayMs:veille.getTime()-now});
+    }
+  });
+
+  // Garde — rappel la veille du changement à 20h
+  try{
+    const todayD=new Date(tod);
+    const dayOfWeek=todayD.getDay();
+    const daysUntilMon=dayOfWeek===1?7:(8-dayOfWeek)%7||7;
+    const nextMon=new Date(todayD);
+    nextMon.setDate(todayD.getDate()+daysUntilMon);
+    const veilleMon=new Date(nextMon);
+    veilleMon.setDate(nextMon.getDate()-1);
+    veilleMon.setHours(20,0,0,0);
+    if(veilleMon.getTime()>now){
+      const sem=getWeekNum(nextMon);
+      notifs.push({title:'👧 Changement de garde demain',
+        body:`Semaine ${sem} commence lundi`,
+        url:'/MAIVI/',tag:'garde-'+nextMon.toISOString().slice(0,10),
+        delayMs:veilleMon.getTime()-now});
+    }
+  }catch(err){}
+
+  // Médicaments — rappel à l'heure configurée
+  meds.forEach(med=>{
+    if(!med.heure)return;
+    const[h,m]=med.heure.split(':').map(Number);
+    const medD=new Date(tod);
+    medD.setHours(h,m,0,0);
+    if(medD.getTime()>now){
+      notifs.push({title:'💊 Médicament',
+        body:`${med.nom}${med.personne?' — '+med.personne:''}`,
+        url:'/MAIVI/',tag:'med-'+med.id,delayMs:medD.getTime()-now});
+    }
+  });
+
+  // Envoyer les notifications programmées au service worker
+  if(reg&&notifs.length>0){
+    notifs.forEach(n=>{
+      reg.active?.postMessage({type:'SCHEDULE_NOTIF',payload:n});
+    });
+    console.log(`${notifs.length} notification(s) programmée(s)`);
+  }
+}
+
+// Envoyer une notification push immédiate via le serveur
+async function sendPushNow(title, body, url='/MAIVI/'){
+  try{
+    await fetch(SUPABASE_PUSH_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_KEY},
+      body:JSON.stringify({title,body,url})
+    });
+  }catch(e){console.error('Push serveur:',e);}
 }
 
 init();
@@ -3277,9 +3405,26 @@ setTimeout(()=>{
 <div class="modal-bg" id="mgarderef" style="display:none" onclick="if(event.target===this)cm('mgarderef')">
   <div class="modal">
     <div class="mh"></div>
-    <div class="mt">Planning de garde ⚙️</div>
+    <div class="mt">Réglages ⚙️</div>
+
+    <!-- Notifications -->
+    <div style="background:rgba(47,65,75,.04);border-radius:16px;padding:14px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:900;color:var(--soft);letter-spacing:.6px;margin-bottom:10px">NOTIFICATIONS</div>
+      <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:10px" id="notif-status">Vérification...</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="testNotifNow()" style="flex:1;padding:10px;border-radius:14px;background:linear-gradient(135deg,#7EA99F,#5C8F85);color:white;border:none;font-size:12px;font-weight:900;font-family:Nunito,sans-serif;cursor:pointer">
+          🔔 Tester maintenant
+        </button>
+        <button onclick="initPushNotifications(true)" style="flex:1;padding:10px;border-radius:14px;background:rgba(47,65,75,.08);color:var(--dk);border:none;font-size:12px;font-weight:900;font-family:Nunito,sans-serif;cursor:pointer">
+          Réactiver
+        </button>
+      </div>
+    </div>
+
+    <!-- Garde -->
+    <div style="font-size:11px;font-weight:900;color:var(--soft);letter-spacing:.6px;margin-bottom:10px">PLANNING DE GARDE</div>
     <p style="font-size:13px;color:var(--mid);font-weight:700;margin-bottom:16px;line-height:1.5">
-      Choisissez une date qui correspond au début d'une <span style="color:var(--teal);font-weight:900">Semaine A</span> (semaine chez maman). L'alternance se calcule automatiquement.
+      Choisissez une date qui correspond au début d'une <span style="color:var(--teal);font-weight:900">Semaine A</span> (semaine chez maman).
     </p>
     <div style="display:flex;gap:8px;margin-bottom:14px">
       <div style="flex:1;background:rgba(126,169,159,.15);border-radius:14px;padding:10px;text-align:center">
@@ -3297,11 +3442,55 @@ setTimeout(()=>{
     <input class="fi" type="date" id="garde-ref-input" onchange="previewGarde(this.value)">
     <div style="font-size:12px;color:var(--teal);font-weight:700;margin:-8px 0 14px;min-height:18px" id="garde-preview"></div>
     <button class="sav" onclick="applyGardeRef()">Enregistrer</button>
-    <button class="can" onclick="cm('mgarderef')">Annuler</button>
+    <button class="can" onclick="cm('mgarderef')">Fermer</button>
   </div>
 </div>
 
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+// Test notification immédiat — déclenche dans 3 secondes pour laisser le temps de fermer le modal
+async function testNotifNow(){
+  if(!('Notification' in window)){toast('Notifications non supportées');return;}
+  if(Notification.permission!=='granted'){
+    const p=await Notification.requestPermission();
+    if(p!=='granted'){toast('Autorisez les notifications dans les réglages iOS');return;}
+  }
+  toast('Notification dans 3 secondes — fermez l\'app !');
+  cm('mgarderef');
+  const reg=await navigator.serviceWorker.ready;
+  reg.active?.postMessage({
+    type:'SCHEDULE_NOTIF',
+    payload:{
+      title:'🔔 Maivi fonctionne !',
+      body:'Les notifications push sont actives. Parfait !',
+      url:'/MAIVI/',
+      tag:'test-notif',
+      delayMs:3000
+    }
+  });
+}
+
+// Mettre à jour le statut affiché dans les réglages
+async function updateNotifStatus(){
+  const el=document.getElementById('notif-status');
+  if(!el)return;
+  if(!('Notification' in window)){el.textContent='❌ Non supporté sur ce navigateur';return;}
+  if(!('serviceWorker' in navigator)){el.textContent='❌ Service Worker non disponible';return;}
+  const perm=Notification.permission;
+  if(perm==='granted'){
+    const reg=await navigator.serviceWorker.ready.catch(()=>null);
+    const sub=reg?await reg.pushManager?.getSubscription().catch(()=>null):null;
+    if(sub){
+      el.innerHTML='<span style="color:#3D9460;font-weight:800">✓ Actives et abonnées</span>';
+    } else {
+      el.innerHTML='<span style="color:var(--teal);font-weight:800">✓ Autorisées — tap Réactiver pour s\'abonner</span>';
+    }
+  } else if(perm==='denied'){
+    el.innerHTML='<span style="color:#E85A5A;font-weight:800">❌ Bloquées — Réglages iPhone → Maivi → Notifications</span>';
+  } else {
+    el.innerHTML='<span style="color:var(--mid);font-weight:700">⚠ Pas encore autorisées — tap Réactiver</span>';
+  }
+}
 
 function previewGarde(val){
   if(!val)return;
@@ -3314,6 +3503,7 @@ function openGardeModal(){
   const y=ref.getFullYear(),m=String(ref.getMonth()+1).padStart(2,'0'),d=String(ref.getDate()).padStart(2,'0');
   document.getElementById('garde-ref-input').value=`${y}-${m}-${d}`;
   previewGarde(`${y}-${m}-${d}`);
+  updateNotifStatus();
   om('mgarderef');
 }
 function applyGardeRef(){
