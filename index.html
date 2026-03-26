@@ -256,117 +256,114 @@ body{
   <div class="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
 
   <!-- Mascotte déco -->
-  <div style="position:absolute;right:-20px;top:20px;width:170px;height:170px;pointer-events:none;z-index:0;opacity:.08">
+  <div style="position:absolute;right:-20px;top:10px;width:160px;height:160px;pointer-events:none;z-index:0;opacity:.07">
     <img src="mascotte.png" style="width:100%;height:100%;object-fit:contain">
   </div>
 
   <div class="rel" style="position:relative;z-index:1">
 
-    <!-- Header -->
-    <div style="padding:20px 20px 6px;display:flex;align-items:center;justify-content:space-between">
-      <div style="width:40px;height:40px;border-radius:13px;background:linear-gradient(145deg,#F2C4A0,#E8956A);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(232,149,106,.35)">
-        <img src="mascotte.png" style="width:30px;height:30px;object-fit:contain">
+    <!-- HEADER -->
+    <div style="padding:20px 20px 4px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:22px;font-weight:900;color:#1C2B33;letter-spacing:-.4px" id="home-greeting">Bonjour 👋</div>
+        <div style="font-size:12px;font-weight:700;color:#8A9EA8;margin-top:1px" id="home-date"></div>
       </div>
-      <div style="width:36px;height:36px;border-radius:50%;background:rgba(232,149,106,.12);border:2px solid rgba(232,149,106,.3);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" onclick="go('membres')">👧</div>
-    </div>
-
-    <!-- Bonjour + météo humeur -->
-    <div style="padding:8px 20px 20px">
-      <div style="font-size:28px;font-weight:900;color:#1C2B33;letter-spacing:-.6px;line-height:1.1">Bonjour 👋</div>
-      <div style="font-size:13px;font-weight:600;color:#8A9EA8;margin-top:4px" id="hbub">Bonne journée !</div>
-    </div>
-
-    <!-- Row Aujourd'hui + Courses -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 20px 14px">
-
-      <!-- Aujourd'hui -->
-      <div onclick="go('agenda')" style="background:white;border-radius:20px;padding:14px;box-shadow:0 2px 16px rgba(28,43,51,.08);cursor:pointer;min-height:90px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div style="display:flex;align-items:center;gap:6px">
-            <div style="width:8px;height:8px;border-radius:50%;background:#5B9FCC"></div>
-            <div style="font-size:10px;font-weight:900;color:#8A9EA8;letter-spacing:.5px">AGENDA</div>
-          </div>
-          <div style="font-size:11px;color:#B0C4CC;font-weight:700">→</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:38px;height:38px;border-radius:50%;background:rgba(232,149,106,.12);border:2px solid rgba(232,149,106,.25);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" onclick="go('membres')">👧</div>
+        <div style="width:38px;height:38px;border-radius:13px;background:linear-gradient(145deg,#F2C4A0,#E8956A);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(232,149,106,.3)">
+          <img src="mascotte.png" style="width:28px;height:28px;object-fit:contain">
         </div>
-        <div id="htoday"></div>
-        <div style="font-size:11px;font-weight:800;color:#5B9FCC;margin-top:6px" id="ma-sub">0 aujourd'hui</div>
+      </div>
+    </div>
+
+    <!-- BLOC GARDE — contextuel, s'affiche si garde alternée configurée -->
+    <div id="home-garde" style="margin:12px 20px 0;display:none">
+      <!-- rempli par rHome() -->
+    </div>
+
+    <!-- BLOC PRIORITAIRE : Ta journée — fusionné agenda + courses -->
+    <div style="margin:12px 20px 0;background:white;border-radius:22px;overflow:hidden;box-shadow:0 2px 18px rgba(28,43,51,.08)">
+
+      <!-- Header bloc -->
+      <div style="padding:12px 16px 0;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:11px;font-weight:900;color:#A8B8C0;letter-spacing:.6px">TA JOURNÉE</div>
+        <div id="home-date-label" style="font-size:11px;font-weight:700;color:#C0CDD2"></div>
       </div>
 
-      <!-- Courses -->
-      <div onclick="go('courses')" style="background:white;border-radius:20px;padding:14px;box-shadow:0 2px 16px rgba(28,43,51,.08);cursor:pointer;min-height:90px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div style="display:flex;align-items:center;gap:6px">
-            <div style="width:8px;height:8px;border-radius:50%;background:#5BAF7A"></div>
-            <div style="font-size:10px;font-weight:900;color:#8A9EA8;letter-spacing:.5px">COURSES</div>
+      <!-- Événements du jour -->
+      <div id="htoday" style="padding:8px 16px 0;min-height:38px"></div>
+
+      <!-- Séparateur courses si items -->
+      <div id="home-courses-sep" style="margin:8px 16px 0;height:.5px;background:rgba(28,43,51,.06)"></div>
+
+      <!-- Courses aperçu -->
+      <div style="padding:8px 16px 12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="display:flex;align-items:center;gap:5px">
+            <div style="width:7px;height:7px;border-radius:50%;background:#5BAF7A"></div>
+            <div style="font-size:10px;font-weight:900;color:#A8B8C0;letter-spacing:.5px">COURSES</div>
           </div>
-          <div style="font-size:11px;color:#B0C4CC;font-weight:700">→</div>
+          <div style="font-size:10px;font-weight:800;color:#5BAF7A;cursor:pointer" onclick="go('courses')" id="mc-sub">0 restants</div>
         </div>
         <div id="hcourses"></div>
-        <div style="font-size:11px;font-weight:800;color:#5BAF7A;margin-top:6px" id="mc-sub">0 restants</div>
       </div>
-
     </div>
 
-    <!-- Label modules -->
-    <div style="margin:0 20px 10px;display:flex;align-items:center;gap:8px">
-      <div style="font-size:11px;font-weight:900;color:#A8B8C0;letter-spacing:.6px">MES MODULES</div>
-      <div style="flex:1;height:1px;background:rgba(168,184,192,.2)"></div>
-    </div>
-
-    <!-- Grille modules -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 20px 24px">
+    <!-- MODULES — grille 2×2 + contacts -->
+    <div style="margin:14px 20px 4px;font-size:10px;font-weight:900;color:#B0BEC5;letter-spacing:.7px">MODULES</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 20px 20px">
 
       <!-- Agenda -->
-      <div onclick="go('agenda')" style="background:white;border-radius:20px;padding:16px;box-shadow:0 2px 16px rgba(28,43,51,.07);cursor:pointer;position:relative;overflow:hidden">
-        <div style="position:absolute;top:0;right:0;width:70px;height:70px;border-radius:50%;background:rgba(91,159,204,.08);transform:translate(20px,-20px)"></div>
-        <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#7BBDE8,#4A8FC5);display:flex;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:0 4px 12px rgba(74,143,197,.3)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+      <div onclick="go('agenda')" style="background:white;border-radius:20px;padding:16px;box-shadow:0 2px 14px rgba(28,43,51,.07);cursor:pointer;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent">
+        <div style="position:absolute;right:-12px;top:-12px;width:60px;height:60px;border-radius:50%;background:rgba(74,143,197,.07)"></div>
+        <div style="width:36px;height:36px;border-radius:11px;background:linear-gradient(145deg,#7BBDE8,#4A8FC5);display:flex;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:0 4px 10px rgba(74,143,197,.3)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
         </div>
-        <div style="font-size:14px;font-weight:900;color:#1C2B33">Agenda</div>
-        <div style="font-size:10px;font-weight:700;color:#A8B8C0;margin-top:2px">Planning famille</div>
+        <div style="font-size:13px;font-weight:900;color:#1C2B33">Agenda</div>
+        <div style="font-size:10px;font-weight:700;color:#A8B8C0;margin-top:2px" id="ma-sub">0 aujourd'hui</div>
       </div>
 
       <!-- Courses -->
-      <div onclick="go('courses')" style="background:white;border-radius:20px;padding:16px;box-shadow:0 2px 16px rgba(28,43,51,.07);cursor:pointer;position:relative;overflow:hidden">
-        <div style="position:absolute;top:0;right:0;width:70px;height:70px;border-radius:50%;background:rgba(91,175,122,.08);transform:translate(20px,-20px)"></div>
-        <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#7ACB94,#3D9460);display:flex;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:0 4px 12px rgba(61,148,96,.3)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <div onclick="go('courses')" style="background:white;border-radius:20px;padding:16px;box-shadow:0 2px 14px rgba(28,43,51,.07);cursor:pointer;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent">
+        <div style="position:absolute;right:-12px;top:-12px;width:60px;height:60px;border-radius:50%;background:rgba(61,148,96,.07)"></div>
+        <div style="width:36px;height:36px;border-radius:11px;background:linear-gradient(145deg,#7ACB94,#3D9460);display:flex;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:0 4px 10px rgba(61,148,96,.28)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         </div>
-        <div style="font-size:14px;font-weight:900;color:#1C2B33">Courses</div>
-        <div style="font-size:10px;font-weight:700;color:#A8B8C0;margin-top:2px" id="mc2-sub">Listes & tickets</div>
+        <div style="font-size:13px;font-weight:900;color:#1C2B33">Courses</div>
+        <div style="font-size:10px;font-weight:700;color:#A8B8C0;margin-top:2px">Listes & tickets</div>
       </div>
 
       <!-- Santé -->
-      <div onclick="go('sante')" style="background:white;border-radius:20px;padding:16px;box-shadow:0 2px 16px rgba(28,43,51,.07);cursor:pointer;position:relative;overflow:hidden">
-        <div style="position:absolute;top:0;right:0;width:70px;height:70px;border-radius:50%;background:rgba(224,112,112,.07);transform:translate(20px,-20px)"></div>
-        <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#EE8A8A,#C84F4F);display:flex;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:0 4px 12px rgba(200,79,79,.28)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      <div onclick="go('sante')" style="background:white;border-radius:20px;padding:16px;box-shadow:0 2px 14px rgba(28,43,51,.07);cursor:pointer;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent">
+        <div style="position:absolute;right:-12px;top:-12px;width:60px;height:60px;border-radius:50%;background:rgba(200,79,79,.06)"></div>
+        <div style="width:36px;height:36px;border-radius:11px;background:linear-gradient(145deg,#EE8A8A,#C84F4F);display:flex;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:0 4px 10px rgba(200,79,79,.25)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
         </div>
-        <div style="font-size:14px;font-weight:900;color:#1C2B33">Santé</div>
+        <div style="font-size:13px;font-weight:900;color:#1C2B33">Santé</div>
         <div style="font-size:10px;font-weight:700;color:#A8B8C0;margin-top:2px" id="ms-sub">0 médicaments</div>
       </div>
 
       <!-- Pro -->
-      <div onclick="go('pro')" style="background:white;border-radius:20px;padding:16px;box-shadow:0 2px 16px rgba(28,43,51,.07);cursor:pointer;position:relative;overflow:hidden">
-        <div style="position:absolute;top:0;right:0;width:70px;height:70px;border-radius:50%;background:rgba(201,160,80,.07);transform:translate(20px,-20px)"></div>
-        <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#DEAC58,#A87828);display:flex;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:0 4px 12px rgba(168,120,40,.28)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+      <div onclick="go('pro')" style="background:white;border-radius:20px;padding:16px;box-shadow:0 2px 14px rgba(28,43,51,.07);cursor:pointer;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent">
+        <div style="position:absolute;right:-12px;top:-12px;width:60px;height:60px;border-radius:50%;background:rgba(168,120,40,.06)"></div>
+        <div style="width:36px;height:36px;border-radius:11px;background:linear-gradient(145deg,#DEAC58,#A87828);display:flex;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:0 4px 10px rgba(168,120,40,.25)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
         </div>
-        <div style="font-size:14px;font-weight:900;color:#1C2B33">Pro</div>
+        <div style="font-size:13px;font-weight:900;color:#1C2B33">Pro</div>
         <div style="font-size:10px;font-weight:700;color:#A8B8C0;margin-top:2px" id="mp-sub">0 prestation</div>
       </div>
 
       <!-- Contacts — pleine largeur -->
-      <div onclick="go('contacts')" style="grid-column:1/-1;background:white;border-radius:20px;padding:14px 16px;box-shadow:0 2px 16px rgba(28,43,51,.07);cursor:pointer;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden">
-        <div style="position:absolute;right:-20px;top:-20px;width:90px;height:90px;border-radius:50%;background:rgba(120,100,200,.05)"></div>
-        <div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#9A88D8,#6650A8);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(102,80,168,.28)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <div onclick="go('contacts')" style="grid-column:1/-1;background:white;border-radius:20px;padding:13px 16px;box-shadow:0 2px 14px rgba(28,43,51,.07);cursor:pointer;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent">
+        <div style="position:absolute;right:-16px;top:-16px;width:70px;height:70px;border-radius:50%;background:rgba(102,80,168,.05)"></div>
+        <div style="width:36px;height:36px;border-radius:11px;background:linear-gradient(145deg,#9A88D8,#6650A8);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 10px rgba(102,80,168,.25)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
         <div style="flex:1">
-          <div style="font-size:14px;font-weight:900;color:#1C2B33">Contacts</div>
+          <div style="font-size:13px;font-weight:900;color:#1C2B33">Contacts</div>
           <div style="font-size:10px;font-weight:700;color:#A8B8C0;margin-top:1px" id="mct-sub">0 contact</div>
         </div>
-        <div style="font-size:12px;color:#C8D4D8;font-weight:700">›</div>
+        <div style="font-size:16px;color:#C8D4D8;font-weight:300">›</div>
       </div>
 
     </div>
@@ -1530,25 +1527,93 @@ async function init(){
 
 // ── HOME ────────────────────────────────────────
 function rHome(){
-  const te=evs.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return tod>=s&&tod<=f;});
-  // Card Aujourd'hui
-  let th=te.length?'':` <div style="font-size:12px;font-weight:700;color:#C0CDD2;padding:2px 0">Rien de prévu</div>`;
-  te.slice(0,2).forEach(e=>{const c=ec(e);th+=`<div style="display:flex;align-items:center;gap:7px;padding:3px 0;cursor:pointer" onclick="showEv('${e.id}')"><div style="width:3px;height:24px;border-radius:2px;background:${c};flex-shrink:0"></div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:800;color:#1C2B33;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.titre}</div><div style="font-size:10px;color:#A0B4BC;font-weight:700">${e.heure_debut||'Toute la journée'}</div></div></div>`;});
-  document.getElementById('htoday').innerHTML=th;
-  // Card Courses
-  const p=cos.filter(c=>!c.fait).slice(0,3);
-  let ch=p.length?'':'<div style="font-size:12px;font-weight:700;color:#C0CDD2;padding:2px 0">Liste vide</div>';
-  p.forEach(c=>{ch+=`<div style="display:flex;align-items:center;gap:7px;padding:3px 0"><div style="width:12px;height:12px;border-radius:50%;border:1.5px solid #B8CCCA;flex-shrink:0"></div><span style="font-size:12px;font-weight:700;color:#1C2B33;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.nom}</span></div>`;});
-  if(cos.filter(c=>!c.fait).length>3)ch+=`<div style="font-size:10px;color:#A0B4BC;font-weight:700;padding:2px 0">+${cos.filter(c=>!c.fait).length-3} autres</div>`;
-  document.getElementById('hcourses').innerHTML=ch;
-  document.getElementById('ma-sub').textContent=te.length+` aujourd'hui`;
-  document.getElementById('mc-sub').textContent=cos.filter(c=>!c.fait).length+' restants';
-  document.getElementById('ms-sub').textContent=meds.length+' médicaments';
-  const proCount=evs.filter(e=>e.type==='mariage'||e.type==='portrait').filter(e=>new Date(e.date_debut+'T23:59:59')>=new Date()).length;
-  const mpEl=document.getElementById('mp-sub');if(mpEl)mpEl.textContent=proCount+' à venir';
-  const mctEl=document.getElementById('mct-sub');if(mctEl)mctEl.textContent=contacts.length+' contact'+(contacts.length>1?'s':'');
-  const h=new Date().getHours();
-  document.getElementById('hbub').textContent=te.length?`${te.length} événement${te.length>1?'s':''} aujourd'hui 📅`:h<12?'Bonne journée ! ☀️':h>=20?'Bonne soirée ! 🌙':'Rien de prévu 😊';
+  const now=new Date();
+  const h=now.getHours();
+  const jours=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const moisFr=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+
+  // Header — date + salutation
+  const greeting=h<12?'Bonjour 👋':h<18?'Bonjour 👋':'Bonsoir 🌙';
+  const el=document.getElementById('home-greeting');
+  if(el)el.textContent=greeting;
+  const dateEl=document.getElementById('home-date');
+  if(dateEl)dateEl.textContent=`${jours[now.getDay()]} ${now.getDate()} ${moisFr[now.getMonth()]}`;
+  const dateLabelEl=document.getElementById('home-date-label');
+  if(dateLabelEl)dateLabelEl.textContent=`${now.getDate()} ${moisFr[now.getMonth()]}`;
+
+  // Événements du jour
+  const te=evs.filter(e=>{
+    const s=new Date(e.date_debut+'T00:00:00');
+    const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;
+    return tod>=s&&tod<=f;
+  }).sort((a,b)=>(a.heure_debut||'').localeCompare(b.heure_debut||''));
+
+  let th=te.length?'':'<div style="font-size:12px;font-weight:600;color:#C0CDD2;padding:4px 0">Aucun événement aujourd\'hui</div>';
+  te.slice(0,3).forEach(e=>{
+    const c=ec(e);
+    th+=`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer" onclick="showEv('${e.id}')">
+      <div style="width:3px;height:30px;border-radius:2px;background:${c};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:800;color:#1C2B33;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.titre}</div>
+        <div style="font-size:10px;color:#9AB0B8;font-weight:700">${e.heure_debut||'Toute la journée'}</div>
+      </div>
+    </div>`;
+  });
+  if(te.length>3)th+=`<div style="font-size:10px;color:#9AB0B8;font-weight:700;padding:2px 0">+${te.length-3} autres événements</div>`;
+  const htodayEl=document.getElementById('htoday');
+  if(htodayEl)htodayEl.innerHTML=th;
+
+  // Courses
+  const pending=cos.filter(c=>!c.fait);
+  const p=pending.slice(0,3);
+  let ch=p.length?'':'<div style="font-size:12px;font-weight:600;color:#C0CDD2;padding:2px 0">Liste vide</div>';
+  p.forEach(c=>{
+    ch+=`<div style="display:flex;align-items:center;gap:7px;padding:3px 0">
+      <div style="width:11px;height:11px;border-radius:50%;border:1.5px solid #B8D4CA;flex-shrink:0"></div>
+      <span style="font-size:12px;font-weight:700;color:#2C3E45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.nom}</span>
+    </div>`;
+  });
+  if(pending.length>3)ch+=`<div style="font-size:10px;color:#9AB0B8;font-weight:700;padding:2px 0">+${pending.length-3} autres articles</div>`;
+  const hcoursesEl=document.getElementById('hcourses');
+  if(hcoursesEl)hcoursesEl.innerHTML=ch;
+
+  // Sous-titres modules
+  const maEl=document.getElementById('ma-sub');if(maEl)maEl.textContent=te.length?`${te.length} aujourd'hui`:'Aucun événement';
+  const mcEl=document.getElementById('mc-sub');if(mcEl)mcEl.textContent=pending.length?`${pending.length} article${pending.length>1?'s':''}`:'Liste vide';
+  const msEl=document.getElementById('ms-sub');if(msEl)msEl.textContent=meds.length?`${meds.length} médicament${meds.length>1?'s':''}`:'Tout va bien';
+  const proCount=evs.filter(e=>e.type==='mariage'||e.type==='portrait').filter(e=>new Date(e.date_debut+'T23:59:59')>=now).length;
+  const mpEl=document.getElementById('mp-sub');if(mpEl)mpEl.textContent=proCount?`${proCount} à venir`:'Aucune prestation';
+  const mctEl=document.getElementById('mct-sub');if(mctEl)mctEl.textContent=`${contacts.length} contact${contacts.length>1?'s':''}`;
+
+  // Bloc garde — calcule semaine actuelle et prochain changement
+  const gardeEl=document.getElementById('home-garde');
+  if(gardeEl){
+    const sem=getWeekNum(tod);
+    const isA=sem==='A';
+    // Trouver prochain changement de semaine
+    const nextChange=new Date(tod);
+    // Aller au lundi suivant
+    const dayOfWeek=nextChange.getDay();
+    const daysUntilMon=dayOfWeek===1?7:(8-dayOfWeek)%7||7;
+    nextChange.setDate(nextChange.getDate()+daysUntilMon);
+    const diff=Math.ceil((nextChange-tod)/86400000);
+    const diffTxt=diff===1?'demain':`dans ${diff} jours`;
+    const couleur=isA?'#7EA99F':'#B79AD6';
+    const bg=isA?'rgba(126,169,159,.1)':'rgba(183,154,214,.1)';
+    const border=isA?'rgba(126,169,159,.25)':'rgba(183,154,214,.25)';
+    gardeEl.style.display='block';
+    gardeEl.innerHTML=`
+      <div style="background:${bg};border:1px solid ${border};border-radius:16px;padding:11px 14px;display:flex;align-items:center;gap:10px">
+        <div style="width:32px;height:32px;border-radius:10px;background:${couleur};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:white;flex-shrink:0">
+          ${sem}
+        </div>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:900;color:#1C2B33">Semaine ${sem} — chez toi</div>
+          <div style="font-size:10px;font-weight:700;color:#8A9EA8;margin-top:1px">Prochain changement ${diffTxt}</div>
+        </div>
+        <div style="font-size:10px;font-weight:800;color:${couleur};cursor:pointer" onclick="go('agenda')">Voir →</div>
+      </div>`;
+  }
 }
 
 // ── AGENDA ──────────────────────────────────────
