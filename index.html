@@ -255,58 +255,95 @@ body{
 <div class="page on" id="pg-home">
   <div class="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
 
-  <!-- Mascotte décorative en arrière-plan -->
-  <div style="position:absolute;right:0;top:0;width:180px;height:180px;pointer-events:none;z-index:0;opacity:.06">
+  <!-- Mascotte décorative -->
+  <div style="position:absolute;right:-10px;top:10px;width:160px;height:160px;pointer-events:none;z-index:0;opacity:.09">
     <img src="mascotte.png" style="width:100%;height:100%;object-fit:contain">
   </div>
 
   <div class="rel">
-    <!-- Header logo -->
+    <!-- Header -->
     <div style="padding:18px 20px 8px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#EAB796,#D4845A);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(212,132,90,.3)">
-          <img src="mascotte.png" style="width:32px;height:32px;object-fit:contain">
-        </div>
+      <div style="width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#EAB796,#D4845A);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(212,132,90,.3)">
+        <img src="mascotte.png" style="width:32px;height:32px;object-fit:contain">
       </div>
       <div style="width:38px;height:38px;border-radius:50%;background:var(--coral-s);border:2.5px solid var(--coral);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer" onclick="go('membres')">👧</div>
     </div>
 
-    <!-- Message du jour -->
-    <div style="padding:0 20px 16px;position:relative;z-index:1">
-      <div style="font-size:22px;font-weight:900;color:var(--dk);letter-spacing:-.3px">Bonjour 👋</div>
+    <!-- Bonjour -->
+    <div style="padding:0 20px 14px;position:relative;z-index:1">
+      <div style="font-size:24px;font-weight:900;color:var(--dk);letter-spacing:-.4px">Bonjour 👋</div>
       <div style="font-size:13px;font-weight:700;color:var(--mid);margin-top:2px" id="hbub">Bonne journée !</div>
     </div>
-    <div class="sh"><div class="st">Aujourd'hui</div><div class="sl" onclick="go('agenda')">Tout voir →</div></div>
-    <div class="card" id="htoday"><div class="empty">😴 Aucun événement aujourd'hui !</div></div>
-    <div class="sh"><div class="st">🛒 Courses</div><div class="sl" onclick="go('courses')">Gérer →</div></div>
-    <div class="card" id="hcourses"><div class="empty">🎉 Liste vide !</div></div>
-    <div class="sh" style="margin-top:4px"><div class="st">Mes modules</div></div>
-    <div class="mgrid">
-      <div class="mc" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9)" onclick="go('agenda')">
-        <div style="font-size:24px;margin-bottom:5px">📅</div>
-        <div style="font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--dk)">Agenda</div>
-        <div style="font-size:11px;color:var(--mid);font-weight:600;margin-top:1px" id="ma-sub">0 aujourd'hui</div>
+
+    <!-- Section Aujourd'hui — card plus marquée -->
+    <div style="margin:0 20px 6px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:13px;font-weight:900;color:var(--dk);letter-spacing:.2px">AUJOURD'HUI</div>
+      <div style="font-size:12px;font-weight:800;color:var(--teal);cursor:pointer" onclick="go('agenda')">Tout voir →</div>
+    </div>
+    <div style="margin:0 20px 14px;background:white;border-radius:22px;padding:14px 16px;box-shadow:0 4px 20px rgba(47,65,75,.10);border:none" id="htoday">
+      <div style="font-size:13px;font-weight:700;color:var(--soft);text-align:center;padding:6px 0">Aucun événement aujourd'hui</div>
+    </div>
+
+    <!-- Section Courses — card plus marquée -->
+    <div style="margin:0 20px 6px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:13px;font-weight:900;color:var(--dk);letter-spacing:.2px">COURSES</div>
+      <div style="font-size:12px;font-weight:800;color:var(--teal);cursor:pointer" onclick="go('courses')">Gérer →</div>
+    </div>
+    <div style="margin:0 20px 18px;background:white;border-radius:22px;padding:14px 16px;box-shadow:0 4px 20px rgba(47,65,75,.10)" id="hcourses">
+      <div style="font-size:13px;font-weight:700;color:var(--soft);text-align:center;padding:6px 0">Liste vide</div>
+    </div>
+
+    <!-- Modules — style bulles Apple -->
+    <div style="margin:0 20px 6px;font-size:13px;font-weight:900;color:var(--dk);letter-spacing:.2px">MES MODULES</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 20px 20px">
+
+      <!-- Agenda -->
+      <div onclick="go('agenda')" style="background:linear-gradient(145deg,#5B9FCC,#3A7FB5);border-radius:24px;padding:18px 16px;cursor:pointer;box-shadow:0 8px 24px rgba(58,127,181,.35);active:scale(.97);transition:.15s">
+        <div style="width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;margin-bottom:10px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:900;color:white">Agenda</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.75);font-weight:700;margin-top:2px" id="ma-sub">0 aujourd'hui</div>
       </div>
-      <div class="mc" style="background:linear-gradient(135deg,#FFF8E1,#FFECB3)" onclick="go('courses')">
-        <div style="font-size:24px;margin-bottom:5px">🛒</div>
-        <div style="font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--dk)">Courses</div>
-        <div style="font-size:11px;color:var(--mid);font-weight:600;margin-top:1px" id="mc-sub">0 restants</div>
+
+      <!-- Courses -->
+      <div onclick="go('courses')" style="background:linear-gradient(145deg,#5BAF7A,#3D9160);border-radius:24px;padding:18px 16px;cursor:pointer;box-shadow:0 8px 24px rgba(61,145,96,.35);transition:.15s">
+        <div style="width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;margin-bottom:10px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:900;color:white">Courses</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.75);font-weight:700;margin-top:2px" id="mc-sub">0 restants</div>
       </div>
-      <div class="mc" style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB)" onclick="go('sante')">
-        <div style="font-size:24px;margin-bottom:5px">💊</div>
-        <div style="font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--dk)">Santé</div>
-        <div style="font-size:11px;color:var(--mid);font-weight:600;margin-top:1px" id="ms-sub">0 médicaments</div>
+
+      <!-- Santé -->
+      <div onclick="go('sante')" style="background:linear-gradient(145deg,#E07070,#C44F4F);border-radius:24px;padding:18px 16px;cursor:pointer;box-shadow:0 8px 24px rgba(196,79,79,.35);transition:.15s">
+        <div style="width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;margin-bottom:10px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:900;color:white">Santé</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.75);font-weight:700;margin-top:2px" id="ms-sub">0 médicaments</div>
       </div>
-      <div class="mc" style="background:linear-gradient(135deg,#FDF3D7,#FAE8B4)" onclick="go('pro')">
-        <div style="font-size:24px;margin-bottom:5px">📸</div>
-        <div style="font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--dk)">Pro</div>
-        <div style="font-size:11px;color:var(--mid);font-weight:600;margin-top:1px" id="mp-sub">0 prestation</div>
+
+      <!-- Pro -->
+      <div onclick="go('pro')" style="background:linear-gradient(145deg,#C9A050,#A07830);border-radius:24px;padding:18px 16px;cursor:pointer;box-shadow:0 8px 24px rgba(160,120,48,.35);transition:.15s">
+        <div style="width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;margin-bottom:10px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:900;color:white">Pro</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.75);font-weight:700;margin-top:2px" id="mp-sub">0 prestation</div>
       </div>
-      <div class="mc" style="background:linear-gradient(135deg,#EDE7F6,#D1C4E9)" onclick="go('contacts')">
-        <div style="font-size:24px;margin-bottom:5px">👤</div>
-        <div style="font-family:'Baloo 2',cursive;font-size:14px;font-weight:700;color:var(--dk)">Contacts</div>
-        <div style="font-size:11px;color:var(--mid);font-weight:600;margin-top:1px" id="mct-sub">0 contact</div>
+
+      <!-- Contacts — pleine largeur -->
+      <div onclick="go('contacts')" style="grid-column:1/-1;background:linear-gradient(145deg,#7B6FB5,#5C50A0);border-radius:24px;padding:16px 18px;cursor:pointer;box-shadow:0 8px 24px rgba(92,80,160,.3);transition:.15s;display:flex;align-items:center;gap:14px">
+        <div style="width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:900;color:white">Contacts</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.75);font-weight:700;margin-top:1px" id="mct-sub">0 contact</div>
+        </div>
       </div>
+
     </div>
   </div>
 </div>
