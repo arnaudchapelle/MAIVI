@@ -255,23 +255,25 @@ body{
 <div class="page on" id="pg-home">
   <div class="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
 
-  <!-- Mascotte en grand fond transparent -->
-  <div style="position:absolute;right:-30px;top:-10px;width:200px;height:200px;pointer-events:none;z-index:0;overflow:hidden;border-radius:50%;opacity:.08;filter:saturate(0)">
+  <!-- Mascotte décorative en arrière-plan -->
+  <div style="position:absolute;right:0;top:0;width:180px;height:180px;pointer-events:none;z-index:0;opacity:.06">
     <img src="mascotte.png" style="width:100%;height:100%;object-fit:contain">
   </div>
 
   <div class="rel">
     <!-- Header logo -->
-    <div style="padding:16px 20px 8px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1">
-      <div style="display:flex;align-items:center;gap:8px">
-        <img src="mascotte.png" style="width:36px;height:36px;object-fit:contain">
-        <div style="font-family:'Baloo 2',cursive;font-size:24px;font-weight:800;color:var(--dk);letter-spacing:.2px">maivi</div>
+    <div style="padding:18px 20px 8px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#EAB796,#D4845A);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(212,132,90,.3)">
+          <img src="mascotte.png" style="width:32px;height:32px;object-fit:contain;mix-blend-mode:multiply">
+        </div>
+        <div style="font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:var(--dk);letter-spacing:.2px">maivi</div>
       </div>
       <div style="width:38px;height:38px;border-radius:50%;background:var(--coral-s);border:2.5px solid var(--coral);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer" onclick="go('membres')">👧</div>
     </div>
 
     <!-- Message du jour -->
-    <div style="padding:4px 20px 16px;position:relative;z-index:1">
+    <div style="padding:0 20px 16px;position:relative;z-index:1">
       <div style="font-size:22px;font-weight:900;color:var(--dk);letter-spacing:-.3px">Bonjour 👋</div>
       <div style="font-size:13px;font-weight:700;color:var(--mid);margin-top:2px" id="hbub">Bonne journée !</div>
     </div>
@@ -604,10 +606,10 @@ body{
     <div class="tlab">COURSES</div>
   </div>
 
-  <!-- Accueil — mascotte (bouton central surélevé) -->
+  <!-- Accueil — mascotte transparente sur fond corail -->
   <div class="tab on" id="tab-home" onclick="go('home')">
-    <div class="tab-icon" style="background:linear-gradient(135deg,#EAB796,#D4845A);width:42px;height:42px;border-radius:14px;box-shadow:0 6px 16px rgba(212,132,90,.35)">
-      <img src="mascotte.png" style="width:30px;height:30px;object-fit:contain;border-radius:8px">
+    <div class="tab-icon" style="background:linear-gradient(135deg,#EAB796,#D4845A);width:42px;height:42px;border-radius:14px;box-shadow:0 6px 16px rgba(212,132,90,.35);overflow:hidden">
+      <img src="mascotte.png" style="width:36px;height:36px;object-fit:contain;mix-blend-mode:multiply">
     </div>
     <div class="tlab" style="color:#D4845A">ACCUEIL</div>
   </div>
