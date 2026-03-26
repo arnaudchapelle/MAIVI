@@ -2,17 +2,15 @@
   "name": "Maivi",
   "short_name": "Maivi",
   "description": "L'app de la famille Chapelle.",
-  "start_url": "https://arnaudchapelle.github.io/MAIVI/",
-  "scope": "https://arnaudchapelle.github.io/MAIVI/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#F7F3ED",
   "theme_color": "#2D9E8E",
   "prefer_related_applications": false,
   "icons": [
-    { "src": "https://arnaudchapelle.github.io/MAIVI/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "https://arnaudchapelle.github.io/MAIVI/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "https://arnaudchapelle.github.io/MAIVI/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "https://arnaudchapelle.github.io/MAIVI/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }
