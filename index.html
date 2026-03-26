@@ -406,34 +406,43 @@ body{
 
     <!-- Header -->
     <div style="padding:20px 20px 0">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div>
           <div style="font-size:30px;font-weight:900;color:var(--dk);letter-spacing:-.6px">Courses</div>
           <div id="courses-estimtotal" style="font-size:13px;font-weight:700;color:var(--mid);margin-top:2px">Liste vide</div>
         </div>
-        <div style="display:flex;gap:7px;padding-top:6px">
-          <button onclick="openScanCourse()" title="Scanner article" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.9);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-soft)">⊙</button>
-          <button onclick="om('mticket')" title="Scanner ticket" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.9);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-soft)">🧾</button>
-          <button onclick="openBibliotheque()" title="Ma bibliothèque" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.9);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-soft);font-weight:900;color:var(--mid)">★</button>
-          <button onclick="openCModal()" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(180deg,#F0D5C6,#EAB796);border:none;font-size:20px;font-weight:900;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(234,183,150,.35)">+</button>
-        </div>
+        <button onclick="openCModal()" style="width:42px;height:42px;border-radius:50%;background:linear-gradient(180deg,#F0D5C6,#EAB796);border:none;font-size:22px;font-weight:900;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(234,183,150,.4)">+</button>
       </div>
 
-      <!-- Estimation proéminente si articles -->
-      <div id="courses-total-bar" style="display:none;background:linear-gradient(135deg,#2F414B,#3D5260);border-radius:20px;padding:14px 18px;margin:12px 0;display:none;align-items:center;justify-content:space-between">
+      <!-- 2 gros boutons d'action -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <button onclick="om('mticket')" style="background:linear-gradient(135deg,#2F414B,#3D5260);color:white;border:none;border-radius:18px;padding:16px 14px;font-family:Nunito,sans-serif;cursor:pointer;text-align:left;box-shadow:0 6px 18px rgba(47,65,75,.25)">
+          <div style="font-size:26px;margin-bottom:8px">🧾</div>
+          <div style="font-size:14px;font-weight:900;line-height:1.2">Scanner<br>le ticket</div>
+          <div style="font-size:11px;font-weight:700;opacity:.55;margin-top:4px">Après les courses</div>
+        </button>
+        <button onclick="openScanCourse()" style="background:linear-gradient(135deg,#7EA99F,#5C8F85);color:white;border:none;border-radius:18px;padding:16px 14px;font-family:Nunito,sans-serif;cursor:pointer;text-align:left;box-shadow:0 6px 18px rgba(126,169,159,.3)">
+          <div style="font-size:26px;margin-bottom:8px">⊙</div>
+          <div style="font-size:14px;font-weight:900;line-height:1.2">Scanner<br>un article</div>
+          <div style="font-size:11px;font-weight:700;opacity:.7;margin-top:4px">Code-barres</div>
+        </button>
+      </div>
+
+      <!-- Estimation dark -->
+      <div id="courses-total-bar" style="display:none;background:linear-gradient(135deg,#2F414B,#3D5260);border-radius:20px;padding:14px 18px;margin-bottom:12px;align-items:center;justify-content:space-between">
         <div>
-          <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.6);letter-spacing:.5px">ESTIMATION TOTALE</div>
+          <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.55);letter-spacing:.5px">ESTIMATION</div>
           <div style="font-size:26px;font-weight:900;color:white;letter-spacing:-.5px;margin-top:2px" id="courses-total-val">0 €</div>
         </div>
         <div style="text-align:right">
-          <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.6);letter-spacing:.5px">ARTICLES</div>
+          <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.55);letter-spacing:.5px">ARTICLES</div>
           <div style="font-size:26px;font-weight:900;color:white;letter-spacing:-.5px;margin-top:2px" id="courses-total-count">0</div>
         </div>
       </div>
     </div>
 
     <!-- Listes onglets -->
-    <div style="margin:10px 20px 0;display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch" id="listes-tabs"></div>
+    <div style="margin:0 20px;display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch" id="listes-tabs"></div>
 
     <!-- Ajout rapide -->
     <div style="margin:12px 20px;display:flex;gap:8px">
@@ -442,9 +451,13 @@ body{
       <button onclick="qadd()" style="background:linear-gradient(180deg,#9CC0B8,#7EA99F);color:white;border:none;border-radius:14px;padding:12px 18px;font-size:13px;font-weight:900;font-family:'Nunito',sans-serif;cursor:pointer;white-space:nowrap;box-shadow:0 4px 12px rgba(126,169,159,.25)">Ajouter</button>
     </div>
 
+    <!-- Lien bibliothèque -->
+    <div style="text-align:center;margin:-4px 0 10px">
+      <span onclick="openBibliotheque()" style="font-size:12px;font-weight:800;color:var(--teal);cursor:pointer">★ Mes articles habituels</span>
+    </div>
+
     <!-- Liste articles -->
     <div id="clist" style="padding:0 20px"></div>
-
     <div style="height:100px"></div>
   </div>
 </div>
