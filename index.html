@@ -33,7 +33,11 @@ body{
   --shadow:0 12px 36px rgba(113,103,95,.08);--shadow-soft:0 8px 24px rgba(113,103,95,.06);
 }
 
-.page{display:none;position:fixed;top:0;left:0;right:0;bottom:92px;background:transparent;z-index:10;overflow-y:scroll;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:none}
+.page{display:none;position:fixed;top:0;left:0;right:0;bottom:92px;background:transparent;z-index:10;overflow-y:scroll;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:auto}
+.ptr-indicator{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:center;height:60px;z-index:999;pointer-events:none;transform:translateY(-60px);transition:transform .2s ease;background:transparent}
+.ptr-spinner{width:28px;height:28px;border:2.5px solid rgba(126,169,159,.25);border-top-color:var(--teal);border-radius:50%;animation:none}
+@keyframes ptr-spin{to{transform:rotate(360deg)}}
+.ptr-spinning .ptr-spinner{animation:ptr-spin .6s linear infinite}
 .page.on{display:block}
 .page.slide-in{animation:slideIn .28s cubic-bezier(.25,.46,.45,.94) both}
 .page.slide-back{animation:slideBack .28s cubic-bezier(.25,.46,.45,.94) both}
@@ -1276,6 +1280,152 @@ function tds(d){d=d||tod;return`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 function om(id){document.getElementById(id).style.display='flex';}
 function cm(id){document.getElementById(id).style.display='none';}
+
+// ── GESTURES ───────────────────────────────────
+// 1. Swipe bas pour fermer les modals
+function initModalSwipe(modalId){
+  const bg=document.getElementById(modalId);
+  if(!bg)return;
+  const modal=bg.querySelector('.modal');
+  if(!modal)return;
+  let startY=0,startScrollTop=0,dragging=false;
+  modal.addEventListener('touchstart',e=>{
+    startY=e.touches[0].clientY;
+    startScrollTop=modal.scrollTop;
+    dragging=true;
+  },{passive:true});
+  modal.addEventListener('touchmove',e=>{
+    if(!dragging)return;
+    const dy=e.touches[0].clientY-startY;
+    // Swipe bas uniquement si on est en haut du scroll
+    if(dy>0&&modal.scrollTop<=0){
+      modal.style.transform=`translateY(${Math.min(dy*0.6,200)}px)`;
+      modal.style.transition='none';
+    }
+  },{passive:true});
+  modal.addEventListener('touchend',e=>{
+    if(!dragging)return;
+    dragging=false;
+    const dy=e.changedTouches[0].clientY-startY;
+    if(dy>80&&modal.scrollTop<=0){
+      modal.style.transition='transform .25s ease';
+      modal.style.transform='translateY(100%)';
+      setTimeout(()=>{cm(modalId);modal.style.transform='';modal.style.transition='';},240);
+    } else {
+      modal.style.transition='transform .2s ease';
+      modal.style.transform='';
+      setTimeout(()=>modal.style.transition='',200);
+    }
+  },{passive:true});
+}
+
+// 2. Swipe sur les articles de courses (gauche=suppr, droite=cocher)
+function addSwipeToItem(el, onLeft, onRight){
+  let startX=0,startY=0,swiping=false;
+  el.addEventListener('touchstart',e=>{
+    startX=e.touches[0].clientX;
+    startY=e.touches[0].clientY;
+    swiping=true;
+    el.style.transition='none';
+  },{passive:true});
+  el.addEventListener('touchmove',e=>{
+    if(!swiping)return;
+    const dx=e.touches[0].clientX-startX;
+    const dy=e.touches[0].clientY-startY;
+    if(Math.abs(dy)>Math.abs(dx)){swiping=false;el.style.transform='';return;}
+    el.style.transform=`translateX(${Math.max(-80,Math.min(80,dx*0.7))}px)`;
+  },{passive:true});
+  el.addEventListener('touchend',e=>{
+    if(!swiping)return;
+    swiping=false;
+    const dx=e.changedTouches[0].clientX-startX;
+    el.style.transition='transform .2s ease';
+    el.style.transform='';
+    if(dx<-60&&onLeft)onLeft();
+    else if(dx>60&&onRight)onRight();
+  },{passive:true});
+}
+
+// 3. Pull to refresh
+function initPullToRefresh(pageId, onRefresh){
+  const page=document.getElementById(pageId);
+  if(!page)return;
+  let startY=0,pulling=false;
+  let indicator=null;
+  page.addEventListener('touchstart',e=>{
+    if(page.scrollTop>0)return;
+    startY=e.touches[0].clientY;
+    pulling=true;
+  },{passive:true});
+  page.addEventListener('touchmove',e=>{
+    if(!pulling)return;
+    const dy=e.touches[0].clientY-startY;
+    if(dy>10&&page.scrollTop<=0){
+      if(!indicator){
+        indicator=document.createElement('div');
+        indicator.style.cssText='position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(47,65,75,.12);border-radius:999px;padding:6px 16px;font-size:12px;font-weight:800;color:var(--mid);font-family:Nunito,sans-serif;z-index:10;transition:opacity .2s';
+        indicator.textContent='↓ Actualiser';
+        page.style.position='relative';
+        page.appendChild(indicator);
+      }
+      indicator.textContent=dy>60?'↑ Relâcher':'↓ Actualiser';
+      indicator.style.opacity=Math.min(dy/60,1);
+    }
+  },{passive:true});
+  page.addEventListener('touchend',e=>{
+    if(!pulling)return;
+    pulling=false;
+    const dy=e.changedTouches[0].clientY-startY;
+    if(indicator){indicator.remove();indicator=null;}
+    if(dy>60&&onRefresh)onRefresh();
+  },{passive:true});
+}
+
+// 4. Tap long sur un jour de calendrier → préfiller la date
+function initLongPress(el, cb, delay=500){
+  let timer=null;
+  el.addEventListener('touchstart',e=>{
+    timer=setTimeout(()=>{cb(e);timer=null;},delay);
+  },{passive:true});
+  el.addEventListener('touchend',()=>{if(timer){clearTimeout(timer);timer=null;}},{passive:true});
+  el.addEventListener('touchmove',()=>{if(timer){clearTimeout(timer);timer=null;}},{passive:true});
+}
+
+// Initialiser toutes les gestures au chargement
+function initGestures(){
+  // Swipe bas sur tous les modals
+  ['mev','mco','mticket','mscan-co','mbiblio','mbiblio-edit','mconf',
+   'mgarderef','mnewliste','msa','mfid','mevd','msc','mbc'].forEach(id=>{
+    try{initModalSwipe(id);}catch(e){}
+  });
+  // Pull to refresh sur agenda et courses
+  initPullToRefresh('pg-agenda', async()=>{
+    toast('Actualisation...');
+    const{data}=await db.from('maivi_evenements').select('*').order('date_debut');
+    if(data){evs=data;rAg();rHome();}
+  });
+  initPullToRefresh('pg-courses', async()=>{
+    toast('Actualisation...');
+    const{data}=await db.from('maivi_courses').select('*').order('categorie,nom');
+    if(data){cos=data;rCo();rHome();}
+  });
+}
+
+// Long press helpers
+let _lpTimer=null;
+function lpStart(e,cb,delay=500){
+  lpEnd();
+  _lpTimer=setTimeout(()=>{
+    _lpTimer=null;
+    // Vibration légère si supportée
+    if(navigator.vibrate)navigator.vibrate(30);
+    cb();
+  },delay);
+}
+function lpEnd(){if(_lpTimer){clearTimeout(_lpTimer);_lpTimer=null;}}
+
+// Ajouter les swipes sur les items de courses après rendu
+const _origRCo=null;
 function gm(id){return mems.find(m=>m.id===id)||null;}
 function ec(e){
   if(PHOTO_TYPES[e.type])return PHOTO_TYPES[e.type].color;
@@ -1570,6 +1720,9 @@ async function init(){
       }
     });
 
+    // Initialiser les gestures
+    setTimeout(initGestures, 500);
+
   }catch(e){console.error(e);}
 }
 
@@ -1707,7 +1860,7 @@ function rSem(){
     const de=fe.filter(e=>{const s=new Date(e.date_debut+'T00:00:00');const f=e.date_fin?new Date(e.date_fin+'T00:00:00'):s;return d>=s&&d<=f;});
     const bars=de.slice(0,3).map(e=>`<div class="wbar" style="background:${ec(e)}"></div>`).join('');
     const bg=gardeColor(d);
-    wh+=`<div class="wd" onclick="selDay(${i})" style="background:${isS?'':bg}"><div class="wdn">${DN[i]}</div><div class="wdd ${isT?'tod':isS?'sel':''}">${d.getDate()}</div><div class="wbars">${bars}</div></div>`;
+    wh+=`<div class="wd" onclick="selDay(${i})" ontouchstart="lpStart(event,()=>openEvModal(null,tds(d)))" ontouchend="lpEnd()" ontouchmove="lpEnd()" style="background:${isS?'':bg}"><div class="wdn">${DN[i]}</div><div class="wdd ${isT?'tod':isS?'sel':''}">${d.getDate()}</div><div class="wbars">${bars}</div></div>`;
   }
   document.getElementById('wdays').innerHTML=wh;rDayEvs();
 }
@@ -2204,7 +2357,7 @@ function rCo(){
       items.forEach((c,i)=>{
         const prix=c.prix?(c.prix*(parseInt((c.quantite||'x1').replace(/[^0-9]/g,''))||1)).toFixed(2)+' €':'';
         const isLast=i===items.length-1;
-        h+=`<div style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:${isLast?'none':'.5px solid rgba(47,65,75,.04)'};cursor:pointer;background:white;transition:.1s" onclick="togCo('${c.id}')">
+        h+=`<div data-swipe-id="${c.id}" style="display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:${isLast?'none':'.5px solid rgba(47,65,75,.04)'};cursor:pointer;background:white;transition:.1s" onclick="togCo('${c.id}')">
           <div style="width:26px;height:26px;border-radius:999px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${c.fait?'#2DC37B':'white'};border:2px solid ${c.fait?'#2DC37B':'rgba(47,65,75,.2)'};transition:.15s">
             ${c.fait?'<svg width="12" height="9" viewBox="0 0 12 9"><polyline points="1,5 4,8 11,1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}
           </div>
@@ -2241,6 +2394,15 @@ function rCo(){
   }
 
   document.getElementById('clist').innerHTML=h;
+
+  // Ajouter swipe gauche=suppr / droite=cocher sur chaque article
+  document.querySelectorAll('#clist [data-swipe-id]').forEach(el=>{
+    const id=el.dataset.swipeId;
+    addSwipeToItem(el,
+      ()=>delCo(id),        // swipe gauche → supprimer
+      ()=>togCo(id)         // swipe droite → cocher
+    );
+  });
 }
 
 async function togCo(id){
@@ -3491,7 +3653,78 @@ setTimeout(()=>{
   </div>
 </div>
 
+<!-- Pull-to-refresh indicator -->
+<div class="ptr-indicator" id="ptr-indicator">
+  <div class="ptr-spinner" id="ptr-spinner"></div>
+</div>
+
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+// ── PULL TO REFRESH ─────────────────────────────
+(function(){
+  let startY=0,pulling=false,threshold=70,refreshing=false;
+  const indicator=document.getElementById('ptr-indicator');
+  const spinner=document.getElementById('ptr-spinner');
+
+  function getActivePage(){
+    return document.querySelector('.page.on');
+  }
+
+  document.addEventListener('touchstart',e=>{
+    const page=getActivePage();
+    if(!page||page.scrollTop>0)return;
+    startY=e.touches[0].clientY;
+    pulling=true;
+  },{passive:true});
+
+  document.addEventListener('touchmove',e=>{
+    if(!pulling||refreshing)return;
+    const page=getActivePage();
+    if(!page||page.scrollTop>0){pulling=false;return;}
+    const dy=e.touches[0].clientY-startY;
+    if(dy<=0){indicator.style.transform='translateY(-60px)';return;}
+    const progress=Math.min(dy/threshold,1);
+    const translateY=Math.min(dy*0.4,40)-60;
+    indicator.style.transform=`translateY(${translateY}px)`;
+    spinner.style.opacity=progress;
+    if(progress>=1)indicator.classList.add('ptr-spinning');
+    else indicator.classList.remove('ptr-spinning');
+  },{passive:true});
+
+  document.addEventListener('touchend',async e=>{
+    if(!pulling||refreshing)return;
+    pulling=false;
+    const dy=e.changedTouches[0].clientY-startY;
+    if(dy<threshold){
+      indicator.style.transform='translateY(-60px)';
+      indicator.classList.remove('ptr-spinning');
+      return;
+    }
+    // Déclencher le refresh
+    refreshing=true;
+    indicator.style.transform='translateY(0px)';
+    indicator.classList.add('ptr-spinning');
+    try{
+      const[r0,r1]=await Promise.all([
+        db.from('maivi_evenements').select('*').order('date_debut'),
+        db.from('maivi_courses').select('*').order('categorie,nom')
+      ]);
+      if(r0.data)evs=r0.data;
+      if(r1.data)cos=r1.data;
+      rHome();rAg();rCo();rPro();
+    }catch(err){}
+    // Masquer l'indicateur
+    setTimeout(()=>{
+      indicator.style.transition='transform .3s ease';
+      indicator.style.transform='translateY(-60px)';
+      indicator.classList.remove('ptr-spinning');
+      setTimeout(()=>{
+        indicator.style.transition='';
+        refreshing=false;
+      },300);
+    },600);
+  },{passive:true});
+})();
 
 // Test notification immédiat — déclenche dans 3 secondes pour laisser le temps de fermer le modal
 async function testNotifNow(){
