@@ -516,9 +516,19 @@ body{
     <!-- Listes onglets -->
     <div style="margin:0 20px;display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch" id="listes-tabs"></div>
 
-    <!-- Ajout rapide -->
+    <!-- Ajout rapide avec micro -->
     <div style="margin:12px 20px;display:flex;gap:8px">
-      <input style="flex:1;background:rgba(255,255,255,.85);border-radius:16px;padding:12px 16px;font-size:14px;font-family:'Nunito',sans-serif;border:1px solid rgba(255,255,255,.9);color:var(--dk);box-shadow:var(--shadow-soft);outline:none" id="cqi" placeholder="Ajouter un article..." onkeydown="if(event.key==='Enter')qadd()" list="biblio-datalist">
+      <div style="flex:1;position:relative;display:flex;align-items:center">
+        <input style="width:100%;background:rgba(255,255,255,.85);border-radius:16px;padding:12px 44px 12px 16px;font-size:14px;font-family:'Nunito',sans-serif;border:1px solid rgba(255,255,255,.9);color:var(--dk);box-shadow:var(--shadow-soft);outline:none;box-sizing:border-box" id="cqi" placeholder="Ajouter un article..." onkeydown="if(event.key==='Enter')qadd()" list="biblio-datalist">
+        <button id="mic-btn" onclick="toggleVoice()" style="position:absolute;right:8px;width:30px;height:30px;border-radius:50%;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s" title="Dicter un article">
+          <svg id="mic-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8B8C0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </button>
+      </div>
       <datalist id="biblio-datalist"></datalist>
       <button onclick="qadd()" style="background:linear-gradient(180deg,#9CC0B8,#7EA99F);color:white;border:none;border-radius:14px;padding:12px 18px;font-size:13px;font-weight:900;font-family:'Nunito',sans-serif;cursor:pointer;white-space:nowrap;box-shadow:0 4px 12px rgba(126,169,159,.25)">Ajouter</button>
     </div>
@@ -2420,6 +2430,89 @@ async function addToBiblio(c){
 }
 
 async function delCo(id){cos=cos.filter(x=>x.id!==id);rCo();rHome();await db.from('maivi_courses').delete().eq('id',id);}
+
+// ── RECONNAISSANCE VOCALE ─────────────────────
+let voiceRecog=null;
+let voiceActive=false;
+
+function toggleVoice(){
+  if(voiceActive){stopVoice();return;}
+  // Vérifier support
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){
+    toast('Dictée vocale non supportée sur ce navigateur');return;
+  }
+  startVoice(SR);
+}
+
+function startVoice(SR){
+  voiceRecog=new SR();
+  voiceRecog.lang='fr-FR';
+  voiceRecog.continuous=false;
+  voiceRecog.interimResults=true;
+  voiceRecog.maxAlternatives=1;
+
+  const input=document.getElementById('cqi');
+  const btn=document.getElementById('mic-btn');
+  const icon=document.getElementById('mic-icon');
+
+  // UI : micro actif
+  voiceActive=true;
+  if(btn)btn.style.background='rgba(232,90,90,.12)';
+  if(icon){icon.setAttribute('stroke','#E85A5A');}
+  input.placeholder='🎤 Parle maintenant...';
+  if(navigator.vibrate)navigator.vibrate(20);
+
+  voiceRecog.onresult=e=>{
+    let interim='';
+    let final='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal)final+=t;
+      else interim+=t;
+    }
+    input.value=final||interim;
+  };
+
+  voiceRecog.onend=()=>{
+    stopVoice();
+    // Si on a du texte, proposer d'ajouter
+    const val=input.value.trim();
+    if(val){
+      // Vérifier si l'article est dans la biblio
+      const match=biblio.find(b=>b.nom.toLowerCase().includes(val.toLowerCase())||val.toLowerCase().includes(b.nom.toLowerCase().substring(0,4)));
+      if(match&&match.nom.toLowerCase()!==val.toLowerCase()){
+        // Suggérer le nom complet de la bibliothèque
+        input.value=match.nom;
+        toast(`"${match.nom}" — tape Ajouter pour confirmer`);
+      } else {
+        toast(`"${val}" — tape Ajouter pour confirmer`);
+      }
+      input.focus();
+    }
+  };
+
+  voiceRecog.onerror=e=>{
+    stopVoice();
+    if(e.error==='not-allowed')toast('Autorise le micro dans les réglages Safari');
+    else if(e.error==='no-speech')toast('Rien entendu — réessaie');
+    else toast('Erreur micro : '+e.error);
+  };
+
+  voiceRecog.start();
+}
+
+function stopVoice(){
+  voiceActive=false;
+  try{voiceRecog?.stop();}catch(e){}
+  voiceRecog=null;
+  const btn=document.getElementById('mic-btn');
+  const icon=document.getElementById('mic-icon');
+  const input=document.getElementById('cqi');
+  if(btn)btn.style.background='transparent';
+  if(icon)icon.setAttribute('stroke','#A8B8C0');
+  if(input&&!input.value)input.placeholder='Ajouter un article...';
+}
 
 async function qadd(){
   const input=document.getElementById('cqi');const n=input.value.trim();if(!n)return;
