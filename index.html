@@ -13,6 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{overflow:hidden;height:100%;position:fixed;width:100%;-webkit-overflow-scrolling:touch}
@@ -800,7 +801,7 @@ body{
     <div id="ticket-step-photo">
       <div class="mt">Scanner un ticket</div>
       <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:20px;line-height:1.5">
-        Photographiez votre ticket de caisse. Claude analyse le texte et extrait tous les articles avec leur prix.
+        Photographiez votre ticket de caisse. L'app lit le texte et extrait tous les articles avec leur prix — directement sur votre téléphone, sans connexion externe.
       </div>
       <label style="display:block;width:100%;padding:16px;border-radius:18px;background:linear-gradient(180deg,#9CC0B8,#7EA99F);color:white;font-size:15px;font-weight:900;font-family:Nunito,sans-serif;text-align:center;cursor:pointer;box-shadow:0 8px 20px rgba(126,169,159,.3);margin-bottom:8px">
         Photographier le ticket
@@ -812,7 +813,8 @@ body{
       </label>
       <div id="ticket-loading" style="display:none;text-align:center;padding:20px">
         <div class="spin" style="margin:0 auto 10px"></div>
-        <div style="font-size:13px;font-weight:700;color:var(--mid)">Claude analyse le ticket...</div>
+        <div style="font-size:13px;font-weight:700;color:var(--mid)">Lecture du ticket en cours...</div>
+        <div style="font-size:11px;font-weight:600;color:var(--soft);margin-top:6px">L'analyse se fait sur votre téléphone,<br>aucune donnée n'est envoyée.</div>
       </div>
     </div>
 
@@ -2139,60 +2141,24 @@ async function analyseTicket(input){
 
   // Afficher loading
   document.getElementById('ticket-loading').style.display='block';
-  document.querySelector('#ticket-step-photo label').style.display='none';
-  document.querySelector('#ticket-step-photo label:last-of-type').style.display='none';
-
-  // Convertir en base64
-  const base64=await new Promise((res)=>{
-    const r=new FileReader();
-    r.onload=()=>res(r.result.split(',')[1]);
-    r.readAsDataURL(file);
-  });
+  document.getElementById('ticket-loading').querySelector('div:last-child').textContent='Lecture du ticket en cours...';
+  document.querySelectorAll('#ticket-step-photo label').forEach(l=>l.style.display='none');
 
   try{
-    // Appel API Claude Vision
-    const response=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1500,
-        messages:[{
-          role:'user',
-          content:[
-            {type:'image',source:{type:'base64',media_type:file.type||'image/jpeg',data:base64}},
-            {type:'text',text:`Analyse ce ticket de caisse et extrais tous les articles achetés.
-Réponds UNIQUEMENT en JSON valide, sans texte avant ou après, avec cette structure exacte:
-{
-  "magasin": "nom du magasin ou null",
-  "date": "date au format JJ/MM/AAAA ou null",
-  "total": nombre ou null,
-  "articles": [
-    {"nom": "nom propre de l'article", "prix": nombre, "fiable": true/false}
-  ]
-}
-- fiable=false si le nom est illisible, abrégé bizarrement, ou si c'est une remise/avoir/total
-- Nettoie les noms : "LT DEMI ECREME 1L" devient "Lait demi-écrémé 1L"
-- Ignore les lignes de TVA, sous-totaux, modes de paiement
-- prix en nombre décimal (ex: 1.25)`}
-          ]
-        }]
-      })
+    // OCR avec Tesseract.js — français
+    const {data:{text}}=await Tesseract.recognize(file,'fra',{
+      logger:m=>{
+        if(m.status==='recognizing text'){
+          const pct=Math.round(m.progress*100);
+          const el=document.getElementById('ticket-loading');
+          if(el)el.querySelector('div:last-child').textContent=`Analyse : ${pct}%`;
+        }
+      }
     });
 
-    const data=await response.json();
-    const text=data.content?.[0]?.text||'';
-
-    // Parser le JSON
-    let result;
-    try{
-      const clean=text.replace(/```json|```/g,'').trim();
-      result=JSON.parse(clean);
-    }catch(e){
-      throw new Error('Réponse non parseable');
-    }
-
-    ticketItems=(result.articles||[]).map((a,i)=>({...a,id:i,selected:a.fiable!==false}));
+    // Parser le texte OCR → articles + prix
+    const result=parseTicketText(text);
+    ticketItems=result.articles.map((a,i)=>({...a,id:i,selected:a.fiable!==false}));
 
     // Afficher résultats
     document.getElementById('ticket-loading').style.display='none';
@@ -2200,32 +2166,99 @@ Réponds UNIQUEMENT en JSON valide, sans texte avant ou après, avec cette struc
     const resultEl=document.getElementById('ticket-step-result');
     resultEl.style.display='flex';
 
-    // Infos ticket
+    // Info bar
     const infoBar=document.getElementById('ticket-info-bar');
     if(result.magasin)infoBar.dataset.enseigne=result.magasin;
-    // Trouver liste correspondante
-    const enseigneMatch=listes.find(l=>l.enseigne&&result.magasin&&l.enseigne.toLowerCase().includes(result.magasin.toLowerCase().substring(0,5)));
-    const listeSuggestion=enseigneMatch?`— Liste <b>${enseigneMatch.nom}</b>`:(result.magasin?`— Nouvelle liste <b>${result.magasin}</b> créée`:'');
+    const enseigneMatch=listes.find(l=>l.enseigne&&result.magasin&&l.enseigne.toLowerCase().includes(result.magasin.toLowerCase().substring(0,4)));
+    const listeSuggestion=enseigneMatch?`Liste : <b>${enseigneMatch.nom}</b>`:(result.magasin?`Nouvelle liste <b>${result.magasin}</b>`:'' );
     infoBar.innerHTML=`
-      ${result.magasin?`<span style="font-size:12px;font-weight:800;color:var(--dk)">${result.magasin}</span>`:''}
-      ${result.date?`<span style="font-size:12px;font-weight:700;color:var(--mid)">· ${result.date}</span>`:''}
-      ${result.total?`<span style="font-size:13px;font-weight:900;color:var(--teal)">· ${result.total.toFixed(2)} €</span>`:''}
+      ${result.magasin?`<span style="font-size:13px;font-weight:900;color:var(--dk)">${result.magasin}</span>`:''}
+      ${result.date?`<span style="font-size:12px;font-weight:700;color:var(--mid)"> · ${result.date}</span>`:''}
+      ${result.total?`<span style="font-size:13px;font-weight:900;color:var(--teal)"> · ${result.total.toFixed(2)} €</span>`:''}
       ${listeSuggestion?`<div style="font-size:10px;font-weight:700;color:var(--mid);margin-top:4px;width:100%">${listeSuggestion}</div>`:''}
     `;
 
     const fiables=ticketItems.filter(a=>a.fiable!==false);
     document.getElementById('ticket-result-title').textContent='Ticket analysé';
-    document.getElementById('ticket-result-sub').textContent=`${ticketItems.length} articles détectés`;
+    document.getElementById('ticket-result-sub').textContent=`${ticketItems.length} lignes détectées · ${fiables.length} articles`;
     document.getElementById('ticket-import-btn').textContent=`Ajouter ${fiables.length} articles à ma bibliothèque`;
-
     renderTicketItems();
 
   }catch(e){
     document.getElementById('ticket-loading').style.display='none';
-    document.querySelector('#ticket-step-photo label').style.display='block';
-    document.querySelector('#ticket-step-photo label:last-of-type').style.display='block';
-    toast('Erreur analyse — réessayez avec une meilleure photo');
+    document.querySelectorAll('#ticket-step-photo label').forEach(l=>l.style.display='block');
+    toast('Erreur — réessayez avec une photo plus nette et bien éclairée');
   }
+}
+
+// ── PARSER TICKET OCR ─────────────────────────
+function parseTicketText(text){
+  const lines=text.split('\n').map(l=>l.trim()).filter(l=>l.length>2);
+  const articles=[];
+  let magasin=null,date=null,total=null;
+
+  // Détecter enseigne connue
+  const enseignes=['LECLERC','CARREFOUR','INTERMARCHE','INTERMARCHÉ','LIDL','ALDI','SUPER U','MONOPRIX','CASINO','AUCHAN'];
+  for(const l of lines.slice(0,8)){
+    const ul=l.toUpperCase();
+    for(const e of enseignes){if(ul.includes(e)){magasin=e.charAt(0)+e.slice(1).toLowerCase();break;}}
+    if(magasin)break;
+  }
+
+  // Détecter date (format JJ/MM/AAAA ou JJ/MM/AA)
+  const dateMatch=text.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{2,4})/);
+  if(dateMatch)date=dateMatch[0];
+
+  // Pattern prix : nombre décimal en fin de ligne (ex: "Lait 1,25" ou "PAIN DE MIE 1.90")
+  const prixRe=/(\d+[,\.]\d{2})\s*[A-Z]?\s*$/;
+  // Pattern total
+  const totalRe=/total|montant|net|payer|payé/i;
+
+  for(const line of lines){
+    const ul=line.toUpperCase();
+
+    // Ignorer lignes parasites
+    if(ul.match(/^(tva|tpe|cb|carte|espece|rendu|avoir|ticket|caisse|merci|bienvenue|siret|tel|www|http|adresse|code|n°|ref|caissier|encaiss)/i))continue;
+    if(line.length<4||line.length>60)continue;
+
+    const m=line.match(prixRe);
+    if(!m)continue;
+
+    const prixStr=m[1].replace(',','.');
+    const prix=parseFloat(prixStr);
+    if(isNaN(prix)||prix<=0||prix>500)continue;
+
+    // Nom = tout ce qui est avant le prix
+    let nom=line.slice(0,line.lastIndexOf(m[1])).trim();
+    nom=nom.replace(/^\*+|\*+$/g,'').replace(/\s+/g,' ').trim();
+
+    // Détecter total
+    if(totalRe.test(nom)){
+      if(!total)total=prix;
+      continue;
+    }
+
+    // Nettoyage basique du nom
+    nom=cleanNom(nom);
+    if(!nom||nom.length<2)continue;
+
+    // Fiabilité : nom trop court, trop de chiffres, ou ressemble à un code
+    const fiable=nom.length>=3&&!/^\d+$/.test(nom)&&!/^[A-Z]{1,3}\d/.test(nom);
+
+    articles.push({nom,prix,fiable});
+  }
+
+  return{magasin,date,total,articles};
+}
+
+function cleanNom(nom){
+  // Supprimer caractères parasites
+  nom=nom.replace(/[|\\\/\[\]{}^~`]/g,' ').replace(/\s+/g,' ').trim();
+  // Supprimer quantité en début (ex: "1 x LAIT")
+  nom=nom.replace(/^\d+\s*[xX]\s*/,'');
+  // Capitaliser première lettre
+  if(nom.length>0)nom=nom.charAt(0).toUpperCase()+nom.slice(1).toLowerCase();
+  return nom.trim();
 }
 
 function renderTicketItems(){
