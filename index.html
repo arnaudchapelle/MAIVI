@@ -1559,6 +1559,17 @@ async function init(){
       })
       .subscribe();
     initPushNotifications();
+
+    // Recharger les données quand l'app revient au premier plan
+    document.addEventListener('visibilitychange', async () => {
+      if (document.visibilityState === 'visible') {
+        const {data} = await db.from('maivi_evenements').select('*').order('date_debut');
+        if (data) { evs = data; rHome(); rAg(); rPro(); }
+        const {data: cd} = await db.from('maivi_courses').select('*').order('categorie,nom');
+        if (cd) { cos = cd; rHome(); rCo(); }
+      }
+    });
+
   }catch(e){console.error(e);}
 }
 
@@ -1969,7 +1980,6 @@ function selMemChip(chip){
   chip.classList.add('sel');
 }
 
-function selc(el){selC=el.dataset.c;document.querySelectorAll('#ecols .co').forEach(o=>o.classList.toggle('sel',o===el));}
 function selc(el){selC=el.dataset.c;document.querySelectorAll('#ecols .co').forEach(o=>o.classList.toggle('sel',o===el));}
 async function saveEv(){
   const t=document.getElementById('ett').value.trim();if(!t){toast('Titre requis');return;}

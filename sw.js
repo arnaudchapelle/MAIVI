@@ -1,8 +1,8 @@
-const CACHE = 'maivi-v5';
+const CACHE = 'maivi-v6';
 const VAPID_PUBLIC = 'BH1rAxT94_2Q90pcIvt2IamfbZpLWoRhFax47Gp2897Mo3u-Y58j-Z3CVoxGYa8YsyHtnc5h1yLUyUvNhaM22w4';
 
-// ── INSTALL / ACTIVATE ──────────────────────────────
 self.addEventListener('install', e => { self.skipWaiting(); });
+
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -12,12 +12,47 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
-// ── FETCH — réseau d'abord, cache en fallback ───────
+// Stratégie : réseau d'abord, cache en fallback UNIQUEMENT pour les assets statiques
+// Les requêtes Supabase (API) passent toujours par le réseau
 self.addEventListener('fetch', e => {
-  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+  const url = new URL(e.request.url);
+
+  // Supabase / API → toujours réseau, jamais cache
+  if (url.hostname.includes('supabase') || url.hostname.includes('anthropic')) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
+
+  // index.html → réseau d'abord pour avoir toujours la dernière version
+  if (url.pathname.endsWith('/') || url.pathname.endsWith('index.html')) {
+    e.respondWith(
+      fetch(e.request)
+        .then(res => {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+          return res;
+        })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Assets statiques (images, fonts) → cache d'abord
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      if (cached) return cached;
+      return fetch(e.request).then(res => {
+        if (res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return res;
+      });
+    })
+  );
 });
 
-// ── PUSH — reçoit les notifs du serveur ─────────────
+// Push notifications
 self.addEventListener('push', e => {
   let data = { title: 'Maivi', body: 'Nouvelle notification', url: '/MAIVI/' };
   try { data = e.data?.json() || data; } catch {}
@@ -28,13 +63,10 @@ self.addEventListener('push', e => {
       badge: '/MAIVI/icon-192.png',
       tag: data.tag || 'maivi-notif',
       data: { url: data.url || '/MAIVI/' },
-      requireInteraction: false,
-      silent: false,
     })
   );
 });
 
-// ── NOTIFICATION CLICK ──────────────────────────────
 self.addEventListener('notificationclick', e => {
   e.notification.close();
   const url = e.notification.data?.url || '/MAIVI/';
@@ -48,20 +80,16 @@ self.addEventListener('notificationclick', e => {
   );
 });
 
-// ── MESSAGES depuis l'app ───────────────────────────
 self.addEventListener('message', e => {
   if (e.data?.type === 'SCHEDULE_NOTIF') {
-    scheduleNotification(e.data.payload);
+    const { title, body, url, delayMs, tag } = e.data.payload;
+    if (delayMs > 0) {
+      setTimeout(() => {
+        self.registration.showNotification(title, {
+          body, icon: '/MAIVI/icon-192.png', badge: '/MAIVI/icon-192.png',
+          tag: tag || 'maivi-local', data: { url: url || '/MAIVI/' }
+        });
+      }, delayMs);
+    }
   }
 });
-
-// Notification locale programmée (via setTimeout — reste en mémoire du SW)
-function scheduleNotification({ title, body, url, delayMs, tag }) {
-  if (!delayMs || delayMs < 0) return;
-  setTimeout(() => {
-    self.registration.showNotification(title, {
-      body, icon: '/MAIVI/icon-192.png', badge: '/MAIVI/icon-192.png',
-      tag: tag || 'maivi-local', data: { url: url || '/MAIVI/' }
-    });
-  }, delayMs);
-}
