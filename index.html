@@ -884,6 +884,162 @@ body{background:var(--bg);color:var(--dk)}
 
 </div>
 
+<div class="modal-bg" id="mev" style="display:none" onclick="if(event.target===this)cm('mev')">
+  <div class="ev-modal" id="ev-modal-inner">
+    <!-- Header coloré dynamique -->
+    <div class="ev-header" id="ev-header">
+      <div class="ev-handle"></div>
+      <div class="ev-type-grid" id="ev-type-grid">
+        <button class="ev-type-btn active" data-type="normal" onclick="selEvType(this)">Personnel</button>
+        <button class="ev-type-btn" data-type="mariage" onclick="selEvType(this)">Mariage</button>
+        <button class="ev-type-btn" data-type="portrait" onclick="selEvType(this)">Portrait</button>
+        <button class="ev-type-btn" data-type="garde_papa" onclick="selEvType(this)">Garde papa</button>
+        <button class="ev-type-btn" data-type="garde_partage" onclick="selEvType(this)">Pro</button>
+        <button class="ev-type-btn" data-type="vacances" onclick="selEvType(this)">Vacances</button>
+      </div>
+    </div>
+
+    <!-- Corps scrollable -->
+    <div class="ev-body">
+      <!-- Titre -->
+      <input class="ev-title-input" id="ett" placeholder="Titre de l'événement">
+
+      <!-- Dates & Heures -->
+      <div class="ev-date-row">
+        <div class="ev-date-block">
+          <div class="ev-date-label">DÉBUT</div>
+          <input type="date" class="ev-date-input" id="edd" onchange="updateDateDisplay()">
+          <div style="height:.5px;background:rgba(47,65,75,.1);margin:6px 0"></div>
+          <div class="ev-date-label">HEURE</div>
+          <input type="time" class="ev-time-input" id="ehd">
+        </div>
+        <div class="ev-date-block">
+          <div class="ev-date-label">FIN</div>
+          <input type="date" class="ev-date-input" id="edf" onchange="updateDateDisplay()">
+          <div style="height:.5px;background:rgba(47,65,75,.1);margin:6px 0"></div>
+          <div class="ev-date-label">HEURE</div>
+          <input type="time" class="ev-time-input" id="ehf">
+        </div>
+      </div>
+
+      <!-- Membre -->
+      <div class="ev-section" id="ev-membre-section">
+        <div class="ev-section-label">MEMBRE</div>
+        <div class="ev-member-chips" id="ev-member-chips"></div>
+      </div>
+
+      <!-- Récurrence -->
+      <div class="ev-section">
+        <div class="ev-section-label">RÉCURRENCE</div>
+        <select class="ev-recur-select" id="erecur" onchange="onRecurChange()">
+          <option value="none">Pas de récurrence</option>
+          <option value="weekly">Toutes les semaines</option>
+          <option value="biweekly_a">Semaines A — garde maman</option>
+          <option value="biweekly_b">Semaines B — garde papa</option>
+          <option value="monthly">Chaque mois</option>
+        </select>
+        <div id="recur-end-wrap" style="display:none;margin-top:8px">
+          <div class="ev-section-label">JUSQU'AU</div>
+          <input type="date" class="ev-recur-select" id="erecur-end" style="margin-top:4px">
+        </div>
+      </div>
+
+      <!-- Lieu -->
+      <div class="ev-section">
+        <div class="ev-section-label">LIEU</div>
+        <input class="ev-notes-input" id="elieu" placeholder="Adresse, salle, ville..." style="min-height:auto;padding:10px 12px" oninput="updateLieuPreview()">
+        <div id="lieu-preview" style="display:none;margin-top:6px">
+          <a id="lieu-maps-link" href="#" target="_blank" style="font-size:12px;font-weight:800;color:var(--teal);text-decoration:none;display:flex;align-items:center;gap:4px">
+            <span style="width:18px;height:18px;background:var(--teal);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:10px">↗</span>
+            Ouvrir dans Maps
+          </a>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="ev-section">
+        <div class="ev-section-label">NOTES</div>
+        <textarea class="ev-notes-input" id="enot" placeholder="Client, informations..."></textarea>
+      </div>
+
+      <input type="hidden" id="eid">
+      <input type="hidden" id="etype" value="normal">
+      <div style="height:10px"></div>
+    </div>
+
+    <!-- Footer fixe -->
+    <div class="ev-footer">
+      <button class="ev-save-btn" id="ev-save-btn" onclick="saveEv()">Enregistrer</button>
+      <span class="ev-cancel-link" onclick="cm('mev')">Annuler</span>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="mevd" style="display:none" onclick="if(event.target===this)cm('mevd')">
+  <div class="modal">
+    <div class="mh"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div id="ddd" style="width:14px;height:14px;border-radius:50%"></div>
+      <div id="ddn" style="font-family:'Baloo 2',cursive;font-size:17px;font-weight:800;color:var(--dk);flex:1"></div>
+      <div id="dde" style="font-size:24px"></div>
+    </div>
+    <div style="font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">Du <span id="dds" style="color:var(--dk);font-weight:700"></span></div>
+    <div style="font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">Au <span id="ddf" style="color:var(--dk);font-weight:700"></span></div>
+    <div id="ddlr" style="display:none;margin-bottom:8px">
+      <a id="ddl-link" href="#" target="_blank" style="font-size:13px;font-weight:800;color:var(--teal);text-decoration:none;display:flex;align-items:center;gap:6px">
+        <span style="width:22px;height:22px;background:var(--teal);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:11px;flex-shrink:0">↗</span>
+        <span id="ddl"></span>
+      </a>
+    </div>
+    <div id="ddmr" style="display:none;font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px">— <span id="ddm" style="color:var(--dk);font-weight:700"></span></div>
+    <div id="ddnr" style="display:none;font-size:13px;color:var(--mid);font-weight:600;margin-bottom:6px;line-height:1.5"><span id="ddno" style="color:var(--dk);font-weight:600"></span></div>
+    <div id="ddrec" style="display:none;font-size:12px;font-weight:800;color:var(--teal);background:var(--teal-s);padding:4px 12px;border-radius:999px;display:inline-block;margin-bottom:10px"></div>
+    <div class="ear">
+      <button class="eab eedit" onclick="editEv()">✏️ Modifier</button>
+      <button class="eab edel" onclick="confDelEv()">🗑 Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="mconf" style="display:none" onclick="if(event.target===this)cm('mconf')">
+  <div class="modal">
+    <div class="mh"></div><div class="mt">Confirmer</div>
+    <div style="font-size:14px;color:var(--mid);font-weight:600;margin-bottom:16px;line-height:1.5" id="cmsg"></div>
+    <div style="display:flex;gap:8px"><button class="cno" onclick="cm('mconf')">Annuler</button><button class="cyes" id="cyb">Confirmer</button></div>
+  </div>
+</div>
+
+<!-- Modal ajout article -->
+<div class="modal-bg" id="mco" style="display:none" onclick="if(event.target===this)cm('mco')">
+  <div class="modal">
+    <div class="mh"></div>
+    <div class="mt">Nouvel article</div>
+    <label class="fl">NOM DE L'ARTICLE</label>
+    <input class="fi" id="cnom" placeholder="Lait, Pain, Yaourt...">
+    <div class="fr">
+      <div style="flex:1"><label class="fl">QUANTITÉ</label><input class="fi" id="cqte" placeholder="x1 x2 x3..."></div>
+      <div style="flex:1"><label class="fl">PRIX ESTIMÉ</label><input class="fi" id="cprix" type="number" step="0.01" placeholder="0.00 €"></div>
+    </div>
+    <label class="fl">LISTE</label>
+    <select class="fi" id="cliste-sel"></select>
+    <label class="fl">RAYON</label>
+    <select class="fi" id="ccat">
+      <option value="Fruits & légumes">Fruits & légumes</option>
+      <option value="Produits frais">Produits frais</option>
+      <option value="Petit déjeuner">Petit déjeuner</option>
+      <option value="Viandes & poissons">Viandes & poissons</option>
+      <option value="Épicerie">Épicerie</option>
+      <option value="Boissons">Boissons</option>
+      <option value="Entretien">Entretien</option>
+      <option value="Hygiène">Hygiène</option>
+      <option value="Pharmacie">Pharmacie</option>
+    </select>
+    <button class="sav" onclick="saveCo()">Ajouter à la liste</button>
+    <button class="can" onclick="cm('mco')">Annuler</button>
+  </div>
+</div>
+
+
 <!-- Modal scan code-barres -->
 <div class="modal-bg" id="mscan-co" style="display:none" onclick="if(event.target===this)closeScanCo()">
   <div class="modal">
