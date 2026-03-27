@@ -4280,7 +4280,8 @@ function rMessages(){
   Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([date,items])=>{
     const d=new Date(date+'T00:00:00');
     const isTod=sd(d,tod);const isYest=sd(d,new Date(tod.getTime()-86400000));
-    h+=`<div style="text-align:center;margin:6px 0 4px"><span style="font-size:9px;font-weight:700;color:#A7B1B7;background:rgba(47,65,75,.06);padding:2px 10px;border-radius:99px">${isTod?'Aujourd\'hui':isYest?'Hier':fmtD(d)}</span></div>`;
+    const jourLabel=isTod?"Aujourd'hui":isYest?"Hier":fmtD(d);
+    h+=`<div style="text-align:center;margin:6px 0 4px"><span style="font-size:9px;font-weight:700;color:#A7B1B7;background:rgba(47,65,75,.06);padding:2px 10px;border-radius:99px">${jourLabel}</span></div>`;
     items.forEach(m=>{
       const from=mems.find(mb=>mb.id==m.from_membre_id);
       const fn=from?from.nom:'—';const fc=from?.couleur||'#7EA99F';
