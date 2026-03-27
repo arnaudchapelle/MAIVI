@@ -3986,7 +3986,13 @@ setTimeout(()=>{
   <div class="ptr-spinner" id="ptr-spinner"></div>
 </div>
 
-<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+<script>if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs=>{
+    regs.forEach(r=>r.unregister());
+  });
+  caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)));
+  setTimeout(()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}), 1000);
+}
 
 // ── PULL TO REFRESH ─────────────────────────────
 (function(){
