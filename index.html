@@ -884,14 +884,38 @@ body{background:var(--bg);color:var(--dk)}
 
 </div>
 
-    <!-- Fallback photo -->
-    <label id="scan-co-fallback" style="display:none;text-align:center;width:100%;padding:11px;border-radius:14px;background:rgba(255,255,255,.7);color:var(--mid);font-size:13px;font-weight:800;font-family:Nunito,sans-serif;cursor:pointer;border:1px solid rgba(255,255,255,.9);margin-bottom:8px">
+<!-- Modal scan code-barres -->
+<div class="modal-bg" id="mscan-co" style="display:none" onclick="if(event.target===this)closeScanCo()">
+  <div class="modal">
+    <div class="mh"></div>
+    <div class="mt">Scanner un article</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <div style="flex:1;background:var(--teal-l);border-radius:14px;padding:10px;text-align:center">
+        <div style="font-size:10px;font-weight:900;color:var(--teal);letter-spacing:.5px">1. SCANNEZ</div>
+        <div style="font-size:10px;font-weight:600;color:var(--mid);margin-top:2px">le code-barres</div>
+      </div>
+      <div style="flex:1;background:var(--teal-l);border-radius:14px;padding:10px;text-align:center">
+        <div style="font-size:10px;font-weight:900;color:var(--teal);letter-spacing:.5px">2. PRIX</div>
+        <div style="font-size:10px;font-weight:600;color:var(--mid);margin-top:2px">saisi une fois</div>
+      </div>
+      <div style="flex:1;background:var(--teal-l);border-radius:14px;padding:10px;text-align:center">
+        <div style="font-size:10px;font-weight:900;color:var(--teal);letter-spacing:.5px">3. MÉMORISÉ</div>
+        <div style="font-size:10px;font-weight:600;color:var(--mid);margin-top:2px">pour toujours</div>
+      </div>
+    </div>
+    <div id="scan-co-viewfinder" style="display:none;position:relative;width:100%;border-radius:20px;overflow:hidden;background:#000;margin-bottom:12px;height:200px">
+      <video id="scan-co-video" style="width:100%;height:100%;object-fit:cover;display:block" autoplay muted playsinline></video>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+        <div style="width:200px;height:70px;border:2px solid var(--teal);border-radius:10px;box-shadow:0 0 0 2000px rgba(0,0,0,.5)"></div>
+      </div>
+      <div id="scan-co-hint" style="position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:11px;font-weight:800;color:rgba(255,255,255,.9)">Cadrez le code-barres dans le rectangle</div>
+    </div>
+    <button id="scan-co-startbtn" onclick="startScanCo()" class="sav" style="margin-bottom:8px">Démarrer le scan</button>
+    <label id="scan-co-fallback" style="display:none;text-align:center;width:100%;padding:11px;border-radius:14px;background:var(--surf);color:var(--mid);font-size:13px;font-weight:800;font-family:Nunito,sans-serif;cursor:pointer;border:0.5px solid var(--line);margin-bottom:8px">
       Photographier le code-barres
       <input type="file" accept="image/*" capture="environment" id="scan-co-input" style="display:none" onchange="handleScanPhoto(this)">
     </label>
-
     <div id="scan-co-status" style="font-size:12px;font-weight:700;color:var(--mid);text-align:center;margin:8px 0;min-height:16px"></div>
-
     <div id="scan-co-result" style="display:none">
       <div style="background:var(--gold-ll);border-radius:16px;padding:14px;margin-bottom:12px">
         <div style="font-size:10px;font-weight:900;color:var(--soft);letter-spacing:.6px;margin-bottom:6px">PRODUIT — modifiez si besoin</div>
@@ -899,7 +923,7 @@ body{background:var(--bg);color:var(--dk)}
         <div style="font-size:11px;font-weight:700;color:var(--mid)" id="scan-co-marque"></div>
       </div>
       <div style="background:var(--gold-ll);border:0.5px solid var(--gold-border);border-radius:16px;padding:14px;margin-bottom:12px">
-        <div style="font-size:10px;font-weight:900;color:#A07840;letter-spacing:.6px;margin-bottom:8px">PRIX VU EN RAYON — mémorisé pour la prochaine fois</div>
+        <div style="font-size:10px;font-weight:900;color:var(--gold);letter-spacing:.6px;margin-bottom:8px">PRIX VU EN RAYON — mémorisé pour la prochaine fois</div>
         <div class="fr" style="margin-bottom:0">
           <div style="flex:1"><input class="fi" id="scan-co-prix" type="number" step="0.01" placeholder="Prix €" style="margin-bottom:0"></div>
           <div style="flex:1"><input class="fi" id="scan-co-qte" placeholder="x1" value="x1" style="margin-bottom:0"></div>
@@ -908,7 +932,6 @@ body{background:var(--bg);color:var(--dk)}
       <button class="sav" onclick="addScannedItem()">Ajouter à la liste</button>
       <button style="width:100%;margin-top:8px;padding:10px;border-radius:14px;background:transparent;color:var(--mid);font-size:12px;font-weight:800;font-family:Nunito,sans-serif;border:none;cursor:pointer" onclick="resetScanCo()">Scanner un autre article</button>
     </div>
-
     <button class="can" onclick="closeScanCo()">Fermer</button>
   </div>
 </div>
