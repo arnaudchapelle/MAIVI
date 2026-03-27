@@ -4207,7 +4207,8 @@ function openMsgModal(){
   document.getElementById('mmsg-title').textContent='Nouveau message';
   document.getElementById('msg-texte').value='';
   document.getElementById('msg-delbtn').style.display='none';
-  selMsgCtx('general',document.querySelector('#msg-ctx-btns button'));
+  document.getElementById('msg-ctx-val').value='general';
+  document.querySelectorAll('#msg-ctx-btns button').forEach((b,i)=>b.classList.toggle('on',i===0));
   const fromBtns=document.getElementById('msg-from-btns');
   if(fromBtns&&mems.length){
     const adults=mems.filter(m=>m.role==='adulte');
