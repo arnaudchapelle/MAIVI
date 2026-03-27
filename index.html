@@ -1439,7 +1439,7 @@ function isVac(d){return VACS.find(v=>d>=v.s&&d<v.e)||null;}
 
 let tod=new Date();tod.setHours(0,0,0,0);
 let selD=new Date(tod),ws=getMon(tod),mCur=new Date(tod);
-let evs=[],cos=[],meds=[],mems=[],fids=[],deps=[],msgs=[];
+let evs=[],cos=[],meds=[],mems=[],fids=[],deps=[],msgs=[],contacts=[];
 let selC='#4CAF50',selCp='#9B7FD4',selFidCoul='#2D9E8E',delEvId=null,curFidId=null,scanReader=null,sfilt='today',agV='mois';
 let agFilters=new Set(),memPhoto=null;
 
@@ -3758,7 +3758,6 @@ if(!localStorage.getItem('maivi_onboarded')){
 document.getElementById('onboarding')?.addEventListener('dblclick',obSkip);
 
 // ── CONTACTS ──────────────────────────────────
-let contacts=[];
 let contactFilter='all';
 
 async function loadContacts(){
