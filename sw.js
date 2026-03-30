@@ -1,4 +1,4 @@
-const CACHE = 'maivi-v7';
+const CACHE = 'maivi-v6';
 const VAPID_PUBLIC = 'BH1rAxT94_2Q90pcIvt2IamfbZpLWoRhFax47Gp2897Mo3u-Y58j-Z3CVoxGYa8YsyHtnc5h1yLUyUvNhaM22w4';
 
 self.addEventListener('install', e => { self.skipWaiting(); });
