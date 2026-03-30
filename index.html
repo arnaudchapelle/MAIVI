@@ -8,11 +8,8 @@
     :root{
       --bg-top:#ffffff;
       --bg-bottom:#79aee6;
-
       --ink:#2b5ca8;
       --ink-soft:rgba(43,92,168,.72);
-      --white:rgba(255,255,255,.96);
-
       --agenda:#8fc7ff;
       --tasks:#9be8c8;
       --courses:#9ce3b2;
@@ -20,7 +17,6 @@
       --messages:#d8b8ff;
       --profile:#f8e8a8;
       --add:#73d9ff;
-
       --glass:rgba(123,170,232,.18);
       --glass-line:rgba(255,255,255,.22);
       --shadow:0 14px 32px rgba(68,112,190,.16);
@@ -49,37 +45,37 @@
       margin:0 auto;
     }
 
-    /* HEADER */
     .brand{
       text-align:center;
-      margin-top:4px;
+      margin-top:10px;
+      margin-bottom:6px;
     }
 
     .brand h1{
       margin:0;
-      font-size:76px;
+      font-size:88px;
       line-height:1;
       font-weight:900;
-      letter-spacing:-0.07em;
-      color:#e8f4ff;
+      letter-spacing:-0.075em;
+      color:#f6fbff;
       text-shadow:
-        0 1px 0 rgba(255,255,255,.95),
-        0 3px 0 rgba(139,188,240,.45),
-        0 12px 26px rgba(67,120,202,.18);
+        0 1px 0 rgba(255,255,255,.98),
+        0 2px 0 rgba(191,220,249,.82),
+        0 8px 20px rgba(72,122,198,.24);
     }
 
     .brand .sub{
       margin-top:8px;
       font-size:16px;
-      letter-spacing:.22em;
+      letter-spacing:.24em;
       text-transform:lowercase;
-      color:rgba(88,84,180,.88);
-      font-weight:600;
+      color:rgba(73,90,170,.95);
+      font-weight:700;
     }
 
     .hello{
       text-align:center;
-      margin:34px 0 28px;
+      margin:28px 0 28px;
     }
 
     .hello h2{
@@ -96,7 +92,6 @@
       color:var(--ink-soft);
     }
 
-    /* CALENDAR */
     .calendar-shell{
       margin-top:14px;
     }
@@ -145,24 +140,29 @@
     }
 
     .days-grid{
-      row-gap:18px;
-      column-gap:2px;
+      row-gap:12px;
+      column-gap:6px;
       margin-bottom:34px;
     }
 
     .day{
-      min-height:44px;
-      position:relative;
+      min-height:58px;
+      border-radius:16px;
       display:flex;
       flex-direction:column;
       align-items:center;
-      justify-content:center;
-      gap:6px;
-      font-size:18px;
+      justify-content:flex-start;
+      padding:6px 4px 4px;
+      font-size:16px;
       font-weight:500;
-      color:rgba(45,85,163,.9);
+      color:rgba(45,85,163,.92);
       cursor:pointer;
-      user-select:none;
+      position:relative;
+      transition:transform .15s ease, background .15s ease;
+    }
+
+    .day:hover{
+      transform:translateY(-1px);
     }
 
     .day.muted{
@@ -170,39 +170,34 @@
     }
 
     .day.selected{
+      background:linear-gradient(180deg,#67d1ff,#2a95ff);
       color:white;
       font-weight:700;
+      box-shadow:0 10px 22px rgba(42,149,255,.22);
     }
 
-    .day.selected::before{
-      content:"";
-      position:absolute;
-      width:50px;
-      height:50px;
-      border-radius:50%;
-      background:radial-gradient(circle at 30% 25%, #b8efff 0%, #68d1ff 44%, #2995ff 100%);
-      box-shadow:0 12px 26px rgba(41,149,255,.24);
-      z-index:-1;
+    .day > span{
+      display:block;
+      line-height:1.1;
     }
 
     .day-dots{
-      position:absolute;
-      bottom:-8px;
-      left:50%;
-      transform:translateX(-50%);
+      margin-top:6px;
       display:flex;
-      gap:4px;
+      align-items:center;
+      justify-content:center;
+      gap:5px;
+      min-height:10px;
     }
 
     .day-dots i{
-      width:8px;
-      height:8px;
+      width:7px;
+      height:7px;
       border-radius:50%;
       display:block;
-      box-shadow:0 3px 8px rgba(0,0,0,.06);
+      box-shadow:0 2px 6px rgba(0,0,0,.10);
     }
 
-    /* EVENTS */
     .section-title{
       margin:0 0 18px;
       font-size:28px;
@@ -242,9 +237,9 @@
       border-radius:50%;
       display:inline-block;
       box-shadow:0 3px 10px rgba(0,0,0,.08);
+      flex-shrink:0;
     }
 
-    /* QUICK ACCESS */
     .quick-title{
       margin:42px 0 18px;
       font-size:22px;
@@ -289,7 +284,6 @@
       color:rgba(255,255,255,.94);
     }
 
-    /* BOTTOM NAV */
     .nav{
       position:fixed;
       left:50%;
@@ -356,9 +350,144 @@
       font-size:18px;
     }
 
+    .sheet-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(18,42,84,.18);
+      backdrop-filter:blur(3px);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s ease;
+      z-index:80;
+    }
+
+    .sheet-backdrop.show{
+      opacity:1;
+      pointer-events:auto;
+    }
+
+    .sheet{
+      position:fixed;
+      left:50%;
+      bottom:-100%;
+      transform:translateX(-50%);
+      width:min(94vw,440px);
+      max-height:72vh;
+      overflow:auto;
+      border-radius:28px 28px 0 0;
+      background:rgba(255,255,255,.22);
+      backdrop-filter:blur(22px);
+      box-shadow:0 -18px 40px rgba(45,82,154,.18), inset 0 1px 0 rgba(255,255,255,.22);
+      padding:18px 18px 24px;
+      transition:bottom .25s ease;
+      z-index:90;
+    }
+
+    .sheet.show{
+      bottom:0;
+    }
+
+    .sheet-handle{
+      width:48px;
+      height:5px;
+      border-radius:999px;
+      background:rgba(255,255,255,.75);
+      margin:0 auto 16px;
+    }
+
+    .sheet-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .sheet-title{
+      font-size:24px;
+      font-weight:700;
+      color:rgba(39,77,146,.98);
+      letter-spacing:-.03em;
+    }
+
+    .sheet-close{
+      border:none;
+      background:none;
+      font-size:28px;
+      color:rgba(39,77,146,.72);
+      cursor:pointer;
+    }
+
+    .sheet-list{
+      display:grid;
+      gap:14px;
+    }
+
+    .sheet-row{
+      display:grid;
+      grid-template-columns:16px 1fr auto;
+      gap:12px;
+      align-items:center;
+      color:rgba(39,77,146,.94);
+    }
+
+    .sheet-main{
+      font-size:18px;
+      font-weight:600;
+    }
+
+    .sheet-sub{
+      font-size:14px;
+      color:rgba(39,77,146,.68);
+      margin-top:4px;
+    }
+
+    .sheet-tag{
+      font-size:13px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.28);
+      color:rgba(39,77,146,.86);
+    }
+
+    .sheet-actions{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .sheet-btn{
+      border:none;
+      border-radius:18px;
+      padding:14px 16px;
+      background:rgba(255,255,255,.28);
+      color:rgba(39,77,146,.96);
+      font-size:17px;
+      font-weight:600;
+      cursor:pointer;
+      text-align:left;
+      box-shadow:0 8px 20px rgba(72,116,190,.08);
+    }
+
+    .check-btn{
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      border:1.5px solid rgba(39,77,146,.28);
+      background:rgba(255,255,255,.35);
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      color:#37b56a;
+    }
+
+    .check-btn.done{
+      background:rgba(255,255,255,.72);
+    }
+
     @media (max-width:420px){
       .page{padding:24px 18px 122px}
-      .brand h1{font-size:64px}
+      .brand h1{font-size:70px}
       .brand .sub{font-size:14px}
       .hello h2{font-size:28px}
       .hello p{font-size:18px}
@@ -372,7 +501,7 @@
   </style>
 </head>
 <body>
-  <main class="page">
+  <main class="page" id="homeTop">
     <div class="wrap">
       <div class="brand">
         <h1>MAIVI</h1>
@@ -384,11 +513,11 @@
         <p id="moodText">Aujourd’hui est calme</p>
       </section>
 
-      <section class="calendar-shell">
+      <section class="calendar-shell" id="calendarSection">
         <div class="calendar-head">
-          <button id="prevMonth">‹</button>
+          <button id="prevMonth" aria-label="Mois précédent">‹</button>
           <div class="calendar-month" id="monthLabel">Avril 2024</div>
-          <button id="nextMonth">›</button>
+          <button id="nextMonth" aria-label="Mois suivant">›</button>
         </div>
 
         <div class="weekdays">
@@ -406,19 +535,19 @@
       <section>
         <h4 class="quick-title">Accès rapides</h4>
         <div class="quick-grid">
-          <button class="quick-item">
+          <button class="quick-item" id="openTasks">
             <div class="quick-icon" style="color:var(--tasks)">✓</div>
             <div class="quick-label">Tâches</div>
           </button>
-          <button class="quick-item">
+          <button class="quick-item" id="openCourses">
             <div class="quick-icon" style="color:var(--courses)">🛒</div>
             <div class="quick-label">Courses</div>
           </button>
-          <button class="quick-item">
+          <button class="quick-item" id="openHealth">
             <div class="quick-icon" style="color:var(--health)">♡</div>
             <div class="quick-label">Santé</div>
           </button>
-          <button class="quick-item">
+          <button class="quick-item" id="openMessagesQuick">
             <div class="quick-icon" style="color:var(--messages)">💬</div>
             <div class="quick-label">Messages</div>
           </button>
@@ -428,43 +557,93 @@
   </main>
 
   <nav class="nav">
-    <button class="nav-item home">
+    <button class="nav-item home" id="goHome">
       <div class="nav-icon">⌂</div>
       <div class="nav-label">Accueil</div>
     </button>
-    <button class="nav-item agenda">
+    <button class="nav-item agenda" id="goAgenda">
       <div class="nav-icon">◫</div>
       <div class="nav-label">Agenda</div>
     </button>
-    <button class="nav-item add">
+    <button class="nav-item add" id="goAdd">
       <div class="nav-icon">＋</div>
       <div class="nav-label">Ajouter</div>
     </button>
-    <button class="nav-item messages">
+    <button class="nav-item messages" id="goMessages">
       <div class="nav-icon">💬</div>
       <div class="nav-label">Messages</div>
     </button>
-    <button class="nav-item profile">
+    <button class="nav-item profile" id="goProfile">
       <div class="nav-icon">👤</div>
       <div class="nav-label">Profil</div>
     </button>
   </nav>
 
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <section class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div class="sheet-title" id="sheetTitle">Panneau</div>
+      <button class="sheet-close" id="sheetClose">×</button>
+    </div>
+    <div id="sheetContent"></div>
+  </section>
+
   <script>
-    const state = {
+    const storeKey = "maivi-home-v2-functional";
+
+    const defaults = {
       selectedDate: "2024-04-24",
       events: [
-        { date:"2024-04-24", time:"14:00", title:"Shooting mariage", color:"#f7e7a8" },
-        { date:"2024-04-24", time:"16:00", title:"Appel client", color:"#9ee9c8" },
-        { date:"2024-04-24", time:"19:00", title:"Dîner famille", color:"#73d7ff" },
-        { date:"2024-04-25", time:"09:00", title:"Vétérinaire", color:"#ffbdb7" },
-        { date:"2024-04-12", time:"11:00", title:"Message école", color:"#d7b5ff" },
-        { date:"2024-04-26", time:"18:30", title:"Courses", color:"#9ce3b2" },
-        { date:"2024-04-17", time:"13:00", title:"Déjeuner famille", color:"#f7e7a8" },
-        { date:"2024-04-29", time:"10:30", title:"Pharmacie", color:"#9ee9c8" }
+        { id: 1, date:"2024-04-24", time:"14:00", title:"Shooting mariage", color:"#f7e7a8", place:"Studio" },
+        { id: 2, date:"2024-04-24", time:"16:00", title:"Appel client", color:"#9ee9c8", place:"Téléphone" },
+        { id: 3, date:"2024-04-24", time:"19:00", title:"Dîner famille", color:"#73d9ff", place:"Maison" },
+        { id: 4, date:"2024-04-25", time:"09:00", title:"Vétérinaire", color:"#ffbdb7", place:"Cabinet" },
+        { id: 5, date:"2024-04-12", time:"11:00", title:"Message école", color:"#d8b8ff", place:"Saint-Lô" },
+        { id: 6, date:"2024-04-26", time:"18:30", title:"Courses", color:"#9ce3b2", place:"Supermarché" },
+        { id: 7, date:"2024-04-17", time:"13:00", title:"Déjeuner famille", color:"#f7e7a8", place:"Centre-ville" },
+        { id: 8, date:"2024-04-29", time:"10:30", title:"Pharmacie", color:"#9ee9c8", place:"Rue principale" }
+      ],
+      tasks: [
+        { id: 1, title:"Passer à la pharmacie", meta:"Santé", done:true, color:"#ffd1c8" },
+        { id: 2, title:"Finir le dossier client", meta:"Travail", done:false, color:"#9ee9c8" },
+        { id: 3, title:"Appeler le plombier", meta:"Maison", done:false, color:"#73d9ff" }
+      ],
+      courses: [
+        { id: 1, title:"Lait", qty:"2 bouteilles", color:"#9ce3b2" },
+        { id: 2, title:"Pâtes", qty:"3 paquets", color:"#9ce3b2" },
+        { id: 3, title:"Pommes", qty:"1 kg", color:"#9ce3b2" }
+      ],
+      health: [
+        { id: 1, title:"Rappel ordonnance", meta:"Vendredi 10h", color:"#ffd1c8" },
+        { id: 2, title:"Vaccin Emma", meta:"Le 27 avril", color:"#ffd1c8" }
+      ],
+      messages: [
+        { id: 1, title:"Ma famille", text:"Qui s’occupe du barbecue dimanche ?", time:"18:42", color:"#d8b8ff" },
+        { id: 2, title:"Groupe voisins", text:"Pierre passe ce soir.", time:"Hier", color:"#d8b8ff" },
+        { id: 3, title:"Sophie Martin", text:"Je ramène le dessert.", time:"Ven.", color:"#d8b8ff" }
+      ],
+      members: [
+        { id: 1, name:"Léo", role:"Créateur du groupe", status:"Actif", color:"#ffd1c8" },
+        { id: 2, name:"Julie", role:"Co-organisatrice", status:"Maison", color:"#ffd1c8" },
+        { id: 3, name:"Emma", role:"Famille", status:"École", color:"#ffd1c8" }
       ]
     };
 
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(storeKey);
+        return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(defaults));
+      } catch (e) {
+        return JSON.parse(JSON.stringify(defaults));
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    }
+
+    const state = loadState();
     let currentMonth = new Date(state.selectedDate + "T12:00:00");
 
     const monthLabel = document.getElementById("monthLabel");
@@ -472,8 +651,26 @@
     const eventsList = document.getElementById("eventsList");
     const moodText = document.getElementById("moodText");
 
+    const sheet = document.getElementById("sheet");
+    const sheetBackdrop = document.getElementById("sheetBackdrop");
+    const sheetTitle = document.getElementById("sheetTitle");
+    const sheetContent = document.getElementById("sheetContent");
+
     function formatTime(time){
       return time.replace(":", "h");
+    }
+
+    function openSheet(title, html){
+      sheetTitle.textContent = title;
+      sheetContent.innerHTML = html;
+      sheet.classList.add("show");
+      sheetBackdrop.classList.add("show");
+      bindDynamicSheetActions();
+    }
+
+    function closeSheet(){
+      sheet.classList.remove("show");
+      sheetBackdrop.classList.remove("show");
     }
 
     function renderCalendar(){
@@ -495,33 +692,23 @@
       const cells = [];
 
       for(let i = 0; i < offset; i++){
-        cells.push({
-          day: prevMonthDays - offset + 1 + i,
-          muted: true,
-          date: null
-        });
+        cells.push({ day: prevMonthDays - offset + 1 + i, muted: true, date: null });
       }
 
       for(let d = 1; d <= daysInMonth; d++){
         const dateStr = `${year}-${String(month + 1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-        cells.push({
-          day: d,
-          muted: false,
-          date: dateStr
-        });
+        cells.push({ day: d, muted: false, date: dateStr });
       }
 
       while(cells.length % 7 !== 0){
-        cells.push({
-          day: cells.length - (offset + daysInMonth) + 1,
-          muted: true,
-          date: null
-        });
+        cells.push({ day: cells.length - (offset + daysInMonth) + 1, muted: true, date: null });
       }
 
       calendarGrid.innerHTML = cells.map(cell => {
         const selected = cell.date === state.selectedDate;
-        const dayEvents = cell.date ? state.events.filter(e => e.date === cell.date).slice(0,3) : [];
+        const dayEvents = cell.date
+          ? state.events.filter(e => e.date === cell.date).slice(0, 3)
+          : [];
 
         return `
           <div class="day ${cell.muted ? "muted" : ""} ${selected ? "selected" : ""}" ${cell.date ? `data-date="${cell.date}"` : ""}>
@@ -538,6 +725,7 @@
       calendarGrid.querySelectorAll(".day[data-date]").forEach(el => {
         el.addEventListener("click", () => {
           state.selectedDate = el.dataset.date;
+          saveState();
           renderCalendar();
           renderEvents();
         });
@@ -566,6 +754,206 @@
       else moodText.textContent = "Aujourd’hui est fluide";
     }
 
+    function renderTasksSheet(){
+      return `
+        <div class="sheet-list">
+          ${state.tasks.map(t => `
+            <div class="sheet-row">
+              <button class="check-btn ${t.done ? "done" : ""}" data-task-id="${t.id}">${t.done ? "✓" : ""}</button>
+              <div>
+                <div class="sheet-main">${t.title}</div>
+                <div class="sheet-sub">${t.meta}</div>
+              </div>
+              <span class="dot" style="background:${t.color}"></span>
+            </div>
+          `).join("")}
+        </div>
+        <div class="sheet-actions">
+          <button class="sheet-btn" id="addTaskAction">+ Ajouter une tâche</button>
+        </div>
+      `;
+    }
+
+    function renderCoursesSheet(){
+      return `
+        <div class="sheet-list">
+          ${state.courses.map(c => `
+            <div class="sheet-row">
+              <span class="dot" style="background:${c.color}"></span>
+              <div>
+                <div class="sheet-main">${c.title}</div>
+                <div class="sheet-sub">${c.qty}</div>
+              </div>
+              <span class="sheet-tag">Courses</span>
+            </div>
+          `).join("")}
+        </div>
+        <div class="sheet-actions">
+          <button class="sheet-btn" id="addCourseAction">+ Ajouter un produit</button>
+        </div>
+      `;
+    }
+
+    function renderHealthSheet(){
+      return `
+        <div class="sheet-list">
+          ${state.health.map(h => `
+            <div class="sheet-row">
+              <span class="dot" style="background:${h.color}"></span>
+              <div>
+                <div class="sheet-main">${h.title}</div>
+                <div class="sheet-sub">${h.meta}</div>
+              </div>
+              <span class="sheet-tag">Santé</span>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderMessagesSheet(){
+      return `
+        <div class="sheet-list">
+          ${state.messages.map(m => `
+            <div class="sheet-row">
+              <span class="dot" style="background:${m.color}"></span>
+              <div>
+                <div class="sheet-main">${m.title}</div>
+                <div class="sheet-sub">${m.text}</div>
+              </div>
+              <span class="sheet-tag">${m.time}</span>
+            </div>
+          `).join("")}
+        </div>
+        <div class="sheet-actions">
+          <button class="sheet-btn" id="addMessageAction">+ Nouveau message</button>
+        </div>
+      `;
+    }
+
+    function renderProfileSheet(){
+      return `
+        <div class="sheet-list">
+          ${state.members.map(m => `
+            <div class="sheet-row">
+              <span class="dot" style="background:${m.color}"></span>
+              <div>
+                <div class="sheet-main">${m.name}</div>
+                <div class="sheet-sub">${m.role}</div>
+              </div>
+              <span class="sheet-tag">${m.status}</span>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderAddSheet(){
+      return `
+        <div class="sheet-actions">
+          <button class="sheet-btn" id="addEventAction">+ Nouveau rendez-vous</button>
+          <button class="sheet-btn" id="addTaskFromAdd">+ Nouvelle tâche</button>
+          <button class="sheet-btn" id="addMessageFromAdd">+ Nouveau message</button>
+        </div>
+      `;
+    }
+
+    function bindDynamicSheetActions(){
+      document.querySelectorAll("[data-task-id]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.dataset.taskId);
+          const task = state.tasks.find(t => t.id === id);
+          if(!task) return;
+          task.done = !task.done;
+          saveState();
+          openSheet("Tâches", renderTasksSheet());
+        });
+      });
+
+      const addTaskAction = document.getElementById("addTaskAction");
+      if(addTaskAction){
+        addTaskAction.addEventListener("click", () => {
+          const title = prompt("Nouvelle tâche");
+          if(!title) return;
+          state.tasks.push({
+            id: Date.now(),
+            title,
+            meta: "Ajoutée aujourd’hui",
+            done: false,
+            color: "#9ee9c8"
+          });
+          saveState();
+          openSheet("Tâches", renderTasksSheet());
+        });
+      }
+
+      const addCourseAction = document.getElementById("addCourseAction");
+      if(addCourseAction){
+        addCourseAction.addEventListener("click", () => {
+          const title = prompt("Nouveau produit");
+          if(!title) return;
+          const qty = prompt("Quantité", "1") || "1";
+          state.courses.push({ id: Date.now(), title, qty, color: "#9ce3b2" });
+          saveState();
+          openSheet("Courses", renderCoursesSheet());
+        });
+      }
+
+      const addMessageAction = document.getElementById("addMessageAction");
+      if(addMessageAction){
+        addMessageAction.addEventListener("click", () => {
+          const text = prompt("Nouveau message");
+          if(!text) return;
+          state.messages.unshift({
+            id: Date.now(),
+            title: "Nouvelle discussion",
+            text,
+            time: "Maintenant",
+            color: "#d8b8ff"
+          });
+          saveState();
+          openSheet("Messages", renderMessagesSheet());
+        });
+      }
+
+      const addEventAction = document.getElementById("addEventAction");
+      if(addEventAction){
+        addEventAction.addEventListener("click", () => {
+          const title = prompt("Nouveau rendez-vous");
+          if(!title) return;
+          const time = prompt("Heure", "18:00") || "18:00";
+          state.events.push({
+            id: Date.now(),
+            date: state.selectedDate,
+            time,
+            title,
+            color: "#8fc7ff",
+            place: ""
+          });
+          saveState();
+          renderCalendar();
+          renderEvents();
+          closeSheet();
+        });
+      }
+
+      const addTaskFromAdd = document.getElementById("addTaskFromAdd");
+      if(addTaskFromAdd){
+        addTaskFromAdd.addEventListener("click", () => {
+          closeSheet();
+          setTimeout(() => openSheet("Tâches", renderTasksSheet()), 80);
+        });
+      }
+
+      const addMessageFromAdd = document.getElementById("addMessageFromAdd");
+      if(addMessageFromAdd){
+        addMessageFromAdd.addEventListener("click", () => {
+          closeSheet();
+          setTimeout(() => openSheet("Messages", renderMessagesSheet()), 80);
+        });
+      }
+    }
+
     document.getElementById("prevMonth").addEventListener("click", () => {
       currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
       renderCalendar();
@@ -575,6 +963,28 @@
       currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
       renderCalendar();
     });
+
+    document.getElementById("goHome").addEventListener("click", () => {
+      document.querySelector(".page").scrollTo({ top: 0, behavior: "smooth" });
+      closeSheet();
+    });
+
+    document.getElementById("goAgenda").addEventListener("click", () => {
+      document.getElementById("calendarSection").scrollIntoView({ behavior: "smooth", block: "start" });
+      closeSheet();
+    });
+
+    document.getElementById("goAdd").addEventListener("click", () => openSheet("Ajouter", renderAddSheet()));
+    document.getElementById("goMessages").addEventListener("click", () => openSheet("Messages", renderMessagesSheet()));
+    document.getElementById("goProfile").addEventListener("click", () => openSheet("Profil", renderProfileSheet()));
+
+    document.getElementById("openTasks").addEventListener("click", () => openSheet("Tâches", renderTasksSheet()));
+    document.getElementById("openCourses").addEventListener("click", () => openSheet("Courses", renderCoursesSheet()));
+    document.getElementById("openHealth").addEventListener("click", () => openSheet("Santé", renderHealthSheet()));
+    document.getElementById("openMessagesQuick").addEventListener("click", () => openSheet("Messages", renderMessagesSheet()));
+
+    document.getElementById("sheetClose").addEventListener("click", closeSheet);
+    document.getElementById("sheetBackdrop").addEventListener("click", closeSheet);
 
     renderCalendar();
     renderEvents();
