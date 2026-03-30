@@ -1,207 +1,319 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maivi</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MAIVI</title>
+  <style>
+    :root{
+      --blue:#2f62b4;
+      --blue-soft:#7fb3ee;
+      --bg-top:#ffffff;
+      --bg-bottom:#79aee6;
 
-<style>
-body{
-  margin:0;
-  font-family:-apple-system, system-ui;
-  background:linear-gradient(to bottom, #ffffff, #79aee6);
-  color:#2e5aa7;
-}
+      --home:#f7e8a5;
+      --tasks:#9ee9c9;
+      --add:#71d7ff;
+      --messages:#d8b6ff;
+      --profile:#ffbeb7;
+    }
 
-/* GLOBAL */
-.container{
-  padding:40px 20px 120px;
-  max-width:420px;
-  margin:auto;
-}
+    *{box-sizing:border-box}
 
-/* LOGO */
-.logo{
-  text-align:center;
-  font-size:64px;
-  font-weight:800;
-  letter-spacing:-2px;
-  color:#dff0ff;
-  text-shadow:0 8px 25px rgba(0,0,0,0.15);
-}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:linear-gradient(to bottom,var(--bg-top),var(--bg-bottom));
+      color:var(--blue);
+      min-height:100vh;
+    }
 
-.subtitle{
-  text-align:center;
-  margin-top:10px;
-  opacity:0.6;
-}
+    .app{
+      max-width:430px;
+      margin:0 auto;
+      min-height:100vh;
+      padding:32px 24px 120px;
+      position:relative;
+    }
 
-/* GREETING */
-.greeting{
-  text-align:center;
-  margin:40px 0;
-}
+    .logo-wrap{
+      text-align:center;
+      margin-top:4px;
+    }
 
-.greeting h2{
-  margin:0;
-  font-size:28px;
-}
+    .logo{
+      margin:0;
+      font-size:72px;
+      line-height:1;
+      font-weight:800;
+      letter-spacing:-0.06em;
+      color:#dff1ff;
+      text-shadow:
+        0 1px 0 rgba(255,255,255,.8),
+        0 3px 0 rgba(128,180,236,.35),
+        0 10px 22px rgba(70,120,200,.18);
+    }
 
-.greeting p{
-  margin-top:8px;
-  opacity:0.7;
-}
+    .tagline{
+      margin-top:10px;
+      font-size:18px;
+      letter-spacing:.18em;
+      color:rgba(78,76,167,.9);
+      text-transform:lowercase;
+    }
 
-/* CALENDAR */
-.calendar{
-  margin-top:20px;
-  text-align:center;
-}
+    .hello{
+      text-align:center;
+      margin:42px 0 46px;
+    }
 
-.month{
-  font-size:22px;
-  margin-bottom:20px;
-}
+    .hello h2{
+      margin:0;
+      font-size:32px;
+      font-weight:700;
+      letter-spacing:-0.03em;
+      color:rgba(45,84,155,.98);
+    }
 
-.days{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:12px;
-}
+    .hello p{
+      margin:10px 0 0;
+      font-size:20px;
+      color:rgba(66,102,165,.8);
+    }
 
-.day{
-  padding:10px 0;
-  font-size:16px;
-}
+    .section-title{
+      margin:0 0 24px;
+      font-size:30px;
+      font-weight:700;
+      color:rgba(255,255,255,.96);
+      text-shadow:0 1px 8px rgba(72,112,188,.16);
+    }
 
-.active{
-  background:radial-gradient(circle,#6fd3ff,#2a90ff);
-  color:white;
-  border-radius:50%;
-  width:42px;
-  height:42px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin:auto;
-}
+    .events{
+      display:grid;
+      gap:24px;
+      margin-top:8px;
+    }
 
-/* EVENTS */
-.events{
-  margin-top:50px;
-}
+    .event{
+      display:grid;
+      grid-template-columns:18px 72px 1fr;
+      align-items:center;
+      column-gap:14px;
+      color:rgba(255,255,255,.97);
+      text-shadow:0 1px 8px rgba(72,112,188,.12);
+    }
 
-.events h3{
-  margin-bottom:20px;
-}
+    .event-dot{
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      box-shadow:0 4px 10px rgba(0,0,0,.08);
+    }
 
-.event{
-  display:flex;
-  align-items:center;
-  margin-bottom:20px;
-  font-size:18px;
-}
+    .event-time{
+      font-size:20px;
+      font-weight:500;
+    }
 
-.dot{
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  margin-right:12px;
-}
+    .event-text{
+      font-size:21px;
+      font-weight:500;
+      line-height:1.2;
+    }
 
-.blue{background:#6fd3ff;}
-.green{background:#8df5c2;}
-.purple{background:#c6a8ff;}
+    .dot-home{background:var(--home)}
+    .dot-tasks{background:var(--tasks)}
+    .dot-add{background:var(--add)}
+    .dot-messages{background:var(--messages)}
+    .dot-profile{background:var(--profile)}
 
-/* NAV BAR */
-.nav{
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  width:90%;
-  max-width:420px;
-  height:70px;
+    .next{
+      margin-top:44px;
+      color:rgba(255,255,255,.9);
+    }
 
-  display:flex;
-  justify-content:space-around;
-  align-items:center;
+    .next-label{
+      font-size:17px;
+      opacity:.85;
+      margin-bottom:8px;
+    }
 
-  background:rgba(255,255,255,0.15);
-  backdrop-filter:blur(20px);
-  border-radius:40px;
-}
+    .next-text{
+      font-size:22px;
+      font-weight:600;
+      line-height:1.25;
+      text-shadow:0 1px 8px rgba(72,112,188,.12);
+    }
 
-.nav button{
-  background:none;
-  border:none;
-  font-size:24px;
-  opacity:0.6;
-}
+    .nav{
+      position:fixed;
+      left:50%;
+      bottom:22px;
+      transform:translateX(-50%);
+      width:min(92vw,430px);
+      padding:14px 18px 12px;
+      border-radius:34px;
+      background:rgba(117,170,232,.18);
+      backdrop-filter:blur(16px);
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      align-items:end;
+      gap:6px;
+      box-shadow:
+        0 14px 30px rgba(65,110,190,.16),
+        inset 0 1px 0 rgba(255,255,255,.18);
+    }
 
-.nav .center{
-  font-size:36px;
-  opacity:1;
-}
-</style>
+    .nav-item{
+      border:none;
+      background:none;
+      padding:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      color:rgba(255,255,255,.92);
+      font:inherit;
+      cursor:pointer;
+    }
 
+    .nav-icon{
+      font-size:28px;
+      line-height:1;
+      filter:drop-shadow(0 4px 8px rgba(60,110,180,.15));
+    }
+
+    .nav-label{
+      font-size:12px;
+      font-weight:600;
+      letter-spacing:.01em;
+    }
+
+    .nav-item.home .nav-icon,
+    .nav-item.home .nav-label{
+      color:var(--home);
+    }
+
+    .nav-item.tasks .nav-icon,
+    .nav-item.tasks .nav-label{
+      color:var(--tasks);
+    }
+
+    .nav-item.add .nav-icon,
+    .nav-item.add .nav-label{
+      color:var(--add);
+    }
+
+    .nav-item.messages .nav-icon,
+    .nav-item.messages .nav-label{
+      color:var(--messages);
+    }
+
+    .nav-item.profile .nav-icon,
+    .nav-item.profile .nav-label{
+      color:var(--profile);
+    }
+
+    .nav-item.add .nav-icon{
+      width:62px;
+      height:62px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:50%;
+      background:radial-gradient(circle at 30% 25%, #c9f6ff 0%, #81dcff 40%, #4cbcff 100%);
+      color:white;
+      font-size:38px;
+      box-shadow:0 10px 24px rgba(59,177,255,.28);
+      margin-top:-22px;
+    }
+
+    @media (max-width:420px){
+      .logo{font-size:60px}
+      .tagline{font-size:15px}
+      .hello h2{font-size:28px}
+      .hello p{font-size:18px}
+      .section-title{font-size:26px}
+      .event{
+        grid-template-columns:14px 60px 1fr;
+        column-gap:12px;
+      }
+      .event-time{font-size:18px}
+      .event-text{font-size:19px}
+      .next-text{font-size:20px}
+      .nav-label{font-size:11px}
+    }
+  </style>
 </head>
-
 <body>
-
-<div class="container">
-
-  <div class="logo">maivi</div>
-  <div class="subtitle">ma maison - ma vie</div>
-
-  <div class="greeting">
-    <h2>Salut Léo</h2>
-    <p>Aujourd’hui est calme</p>
-  </div>
-
-  <div class="calendar">
-    <div class="month">Avril 2024</div>
-
-    <div class="days">
-      <div class="day">21</div>
-      <div class="day">22</div>
-      <div class="day">23</div>
-      <div class="day active">24</div>
-      <div class="day">25</div>
-      <div class="day">26</div>
-      <div class="day">27</div>
-    </div>
-  </div>
-
-  <div class="events">
-    <h3>Aujourd’hui</h3>
-
-    <div class="event">
-      <div class="dot blue"></div>
-      14h — Shooting mariage
+  <main class="app">
+    <div class="logo-wrap">
+      <h1 class="logo">maivi</h1>
+      <div class="tagline">ma maison - ma vie</div>
     </div>
 
-    <div class="event">
-      <div class="dot green"></div>
-      16h — Appel client
-    </div>
+    <section class="hello">
+      <h2>Bonjour Léo</h2>
+      <p>Aujourd’hui est calme</p>
+    </section>
 
-    <div class="event">
-      <div class="dot purple"></div>
-      19h — Dîner famille
-    </div>
+    <section>
+      <h3 class="section-title">Aujourd’hui</h3>
 
-  </div>
+      <div class="events">
+        <div class="event">
+          <span class="event-dot dot-home"></span>
+          <span class="event-time">14h</span>
+          <span class="event-text">Shooting mariage</span>
+        </div>
 
-</div>
+        <div class="event">
+          <span class="event-dot dot-tasks"></span>
+          <span class="event-time">16h</span>
+          <span class="event-text">Appel client</span>
+        </div>
 
-<div class="nav">
-  <button>⌂</button>
-  <button>✓</button>
-  <button class="center">+</button>
-  <button>💬</button>
-  <button>👤</button>
-</div>
+        <div class="event">
+          <span class="event-dot dot-add"></span>
+          <span class="event-time">19h</span>
+          <span class="event-text">Dîner famille</span>
+        </div>
+      </div>
+    </section>
 
+    <section class="next">
+      <div class="next-label">Prochain rendez-vous</div>
+      <div class="next-text">Demain 9h — Vétérinaire</div>
+    </section>
+  </main>
+
+  <nav class="nav">
+    <button class="nav-item home" aria-label="Accueil">
+      <span class="nav-icon">⌂</span>
+      <span class="nav-label">Accueil</span>
+    </button>
+
+    <button class="nav-item tasks" aria-label="Tâches">
+      <span class="nav-icon">✓</span>
+      <span class="nav-label">Tâches</span>
+    </button>
+
+    <button class="nav-item add" aria-label="Ajouter">
+      <span class="nav-icon">＋</span>
+      <span class="nav-label">Ajouter</span>
+    </button>
+
+    <button class="nav-item messages" aria-label="Messages">
+      <span class="nav-icon">💬</span>
+      <span class="nav-label">Messages</span>
+    </button>
+
+    <button class="nav-item profile" aria-label="Profil">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">Profil</span>
+    </button>
+  </nav>
 </body>
 </html>
