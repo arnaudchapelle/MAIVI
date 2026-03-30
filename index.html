@@ -4,316 +4,908 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MAIVI</title>
+  <meta name="theme-color" content="#7aaee7" />
   <style>
     :root{
-      --blue:#2f62b4;
-      --blue-soft:#7fb3ee;
-      --bg-top:#ffffff;
-      --bg-bottom:#79aee6;
+      --ink:#2d5aa5;
+      --ink-soft:rgba(45,90,165,.76);
 
-      --home:#f7e8a5;
-      --tasks:#9ee9c9;
-      --add:#71d7ff;
-      --messages:#d8b6ff;
-      --profile:#ffbeb7;
+      --home-top:#ffffff; --home-bottom:#79aee6;
+      --agenda-top:#ffffff; --agenda-bottom:#87b8ef;
+      --tasks-top:#fbfffd; --tasks-bottom:#87d7a8;
+      --add-top:#fbfeff; --add-bottom:#85d7f6;
+      --messages-top:#fcfbff; --messages-bottom:#a7a0f2;
+      --profile-top:#fffaf9; --profile-bottom:#efb4a8;
+
+      --c-home:#f7e7a8;
+      --c-agenda:#8dc4ff;
+      --c-tasks:#9ee9c8;
+      --c-add:#73d7ff;
+      --c-messages:#d7b5ff;
+      --c-profile:#ffbdb7;
+
+      --glass:rgba(123,170,232,.18);
+      --glass-light:rgba(255,255,255,.20);
+      --shadow:0 14px 30px rgba(66,110,187,.16);
     }
 
-    *{box-sizing:border-box}
-
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%}
     body{
       margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:linear-gradient(to bottom,var(--bg-top),var(--bg-bottom));
-      color:var(--blue);
-      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
+      color:var(--ink);
+      overflow:hidden;
+      background:linear-gradient(to bottom,var(--home-top),var(--home-bottom));
     }
 
-    .app{
+    .page{
+      position:fixed;
+      inset:0;
+      overflow:auto;
+      padding:30px 22px 120px;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .25s ease;
+      background:linear-gradient(to bottom,var(--bg-top),var(--bg-bottom));
+    }
+    .page.active{opacity:1;pointer-events:auto}
+    .page.home{--bg-top:var(--home-top);--bg-bottom:var(--home-bottom)}
+    .page.agenda{--bg-top:var(--agenda-top);--bg-bottom:var(--agenda-bottom)}
+    .page.tasks{--bg-top:var(--tasks-top);--bg-bottom:var(--tasks-bottom)}
+    .page.add{--bg-top:var(--add-top);--bg-bottom:var(--add-bottom)}
+    .page.messages{--bg-top:var(--messages-top);--bg-bottom:var(--messages-bottom)}
+    .page.profile{--bg-top:var(--profile-top);--bg-bottom:var(--profile-bottom)}
+
+    .wrap{
       max-width:430px;
       margin:0 auto;
-      min-height:100vh;
-      padding:32px 24px 120px;
-      position:relative;
     }
 
-    .logo-wrap{
+    .brand{
       text-align:center;
-      margin-top:4px;
+      margin-top:2px;
     }
-
-    .logo{
+    .brand h1{
       margin:0;
       font-size:72px;
       line-height:1;
+      letter-spacing:-.065em;
       font-weight:800;
-      letter-spacing:-0.06em;
-      color:#dff1ff;
+      color:#e5f3ff;
       text-shadow:
         0 1px 0 rgba(255,255,255,.8),
-        0 3px 0 rgba(128,180,236,.35),
-        0 10px 22px rgba(70,120,200,.18);
+        0 3px 0 rgba(130,184,240,.35),
+        0 12px 26px rgba(73,123,202,.16);
     }
-
-    .tagline{
-      margin-top:10px;
+    .brand p{
+      margin:8px 0 0;
       font-size:18px;
-      letter-spacing:.18em;
-      color:rgba(78,76,167,.9);
+      letter-spacing:.16em;
+      color:rgba(80,76,172,.9);
       text-transform:lowercase;
     }
 
-    .hello{
+    .hero{
       text-align:center;
-      margin:42px 0 46px;
+      margin:36px 0 36px;
     }
-
-    .hello h2{
+    .hero h2{
       margin:0;
       font-size:32px;
-      font-weight:700;
-      letter-spacing:-0.03em;
-      color:rgba(45,84,155,.98);
+      letter-spacing:-.03em;
+      color:rgba(43,82,153,.98);
     }
-
-    .hello p{
+    .hero p{
       margin:10px 0 0;
       font-size:20px;
-      color:rgba(66,102,165,.8);
+      color:rgba(66,100,164,.8);
     }
 
     .section-title{
-      margin:0 0 24px;
+      margin:0 0 18px;
       font-size:30px;
-      font-weight:700;
-      color:rgba(255,255,255,.96);
-      text-shadow:0 1px 8px rgba(72,112,188,.16);
+      color:rgba(255,255,255,.95);
+      text-shadow:0 1px 10px rgba(75,116,191,.14);
+      letter-spacing:-.03em;
+    }
+    .subtle-title{
+      margin:0 0 18px;
+      font-size:28px;
+      color:rgba(43,82,153,.95);
+      letter-spacing:-.03em;
     }
 
-    .events{
+    .list{
       display:grid;
-      gap:24px;
-      margin-top:8px;
+      gap:18px;
     }
 
-    .event{
+    .event-row{
       display:grid;
-      grid-template-columns:18px 72px 1fr;
+      grid-template-columns:14px 58px 1fr;
       align-items:center;
-      column-gap:14px;
-      color:rgba(255,255,255,.97);
-      text-shadow:0 1px 8px rgba(72,112,188,.12);
+      gap:14px;
+      color:rgba(255,255,255,.96);
+      text-shadow:0 1px 8px rgba(77,116,189,.12);
     }
+    .event-time{font-size:20px;font-weight:500}
+    .event-text{font-size:22px;font-weight:500;line-height:1.15}
 
-    .event-dot{
+    .dot{
       width:12px;
       height:12px;
       border-radius:50%;
-      box-shadow:0 4px 10px rgba(0,0,0,.08);
+      box-shadow:0 3px 10px rgba(0,0,0,.08);
+      display:inline-block;
+      flex-shrink:0;
     }
 
-    .event-time{
-      font-size:20px;
-      font-weight:500;
+    .next{
+      margin-top:42px;
+      color:rgba(255,255,255,.92);
+      text-shadow:0 1px 8px rgba(77,116,189,.12);
     }
-
-    .event-text{
-      font-size:21px;
-      font-weight:500;
+    .next small{
+      display:block;
+      font-size:17px;
+      opacity:.86;
+      margin-bottom:8px;
+    }
+    .next strong{
+      font-size:22px;
+      font-weight:600;
       line-height:1.2;
     }
 
-    .dot-home{background:var(--home)}
-    .dot-tasks{background:var(--tasks)}
-    .dot-add{background:var(--add)}
-    .dot-messages{background:var(--messages)}
-    .dot-profile{background:var(--profile)}
-
-    .next{
-      margin-top:44px;
-      color:rgba(255,255,255,.9);
-    }
-
-    .next-label{
-      font-size:17px;
-      opacity:.85;
-      margin-bottom:8px;
-    }
-
-    .next-text{
-      font-size:22px;
-      font-weight:600;
-      line-height:1.25;
-      text-shadow:0 1px 8px rgba(72,112,188,.12);
-    }
-
-    .nav{
-      position:fixed;
-      left:50%;
-      bottom:22px;
-      transform:translateX(-50%);
-      width:min(92vw,430px);
-      padding:14px 18px 12px;
-      border-radius:34px;
-      background:rgba(117,170,232,.18);
-      backdrop-filter:blur(16px);
+    .calendar-head{
       display:grid;
-      grid-template-columns:repeat(5,1fr);
-      align-items:end;
-      gap:6px;
-      box-shadow:
-        0 14px 30px rgba(65,110,190,.16),
-        inset 0 1px 0 rgba(255,255,255,.18);
+      grid-template-columns:40px 1fr 40px;
+      align-items:center;
+      margin:26px 0 12px;
+      color:rgba(53,95,171,.85);
     }
-
-    .nav-item{
+    .calendar-head button{
       border:none;
       background:none;
-      padding:0;
+      font-size:46px;
+      line-height:1;
+      color:inherit;
+      cursor:pointer;
+    }
+    .calendar-month{
+      text-align:center;
+      font-size:32px;
+      font-weight:700;
+      letter-spacing:-.03em;
+      text-transform:capitalize;
+    }
+    .weekdays,.calendar-grid{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      text-align:center;
+    }
+    .weekdays{margin:14px 0 10px}
+    .weekdays div{
+      font-size:17px;
+      color:rgba(69,105,178,.75);
+      font-weight:500;
+    }
+    .calendar-grid{
+      row-gap:18px;
+      column-gap:2px;
+      margin-bottom:34px;
+    }
+    .day{
+      min-height:42px;
+      position:relative;
       display:flex;
       flex-direction:column;
       align-items:center;
       justify-content:center;
       gap:6px;
-      color:rgba(255,255,255,.92);
-      font:inherit;
+      color:rgba(45,85,163,.9);
+      font-size:18px;
+      font-weight:500;
       cursor:pointer;
+      user-select:none;
+    }
+    .day.muted{opacity:.44}
+    .day.selected{
+      color:#fff;
+      font-weight:700;
+    }
+    .day.selected::before{
+      content:"";
+      position:absolute;
+      width:50px;
+      height:50px;
+      border-radius:50%;
+      background:radial-gradient(circle at 30% 25%, #b6efff 0%, #66d0ff 42%, #2994ff 100%);
+      box-shadow:0 12px 26px rgba(41,148,255,.24);
+      z-index:-1;
+    }
+    .day-dots{
+      position:absolute;
+      bottom:-8px;
+      left:50%;
+      transform:translateX(-50%);
+      display:flex;
+      gap:4px;
+    }
+    .day-dots i{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      display:block;
     }
 
+    .glass-nav{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:22px;
+      width:min(92vw,430px);
+      height:78px;
+      border-radius:999px;
+      background:var(--glass);
+      backdrop-filter:blur(16px);
+      box-shadow:var(--shadow), inset 0 1px 0 var(--glass-light);
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      align-items:end;
+      padding:12px 14px 10px;
+      z-index:60;
+    }
+    .nav-item{
+      border:none;
+      background:none;
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:4px;
+      font:inherit;
+      padding:0;
+    }
     .nav-icon{
       font-size:28px;
       line-height:1;
-      filter:drop-shadow(0 4px 8px rgba(60,110,180,.15));
+      filter:drop-shadow(0 4px 8px rgba(73,114,191,.13));
     }
-
     .nav-label{
       font-size:12px;
       font-weight:600;
       letter-spacing:.01em;
     }
-
-    .nav-item.home .nav-icon,
-    .nav-item.home .nav-label{
-      color:var(--home);
-    }
-
-    .nav-item.tasks .nav-icon,
-    .nav-item.tasks .nav-label{
-      color:var(--tasks);
-    }
-
-    .nav-item.add .nav-icon,
-    .nav-item.add .nav-label{
-      color:var(--add);
-    }
-
-    .nav-item.messages .nav-icon,
-    .nav-item.messages .nav-label{
-      color:var(--messages);
-    }
-
-    .nav-item.profile .nav-icon,
-    .nav-item.profile .nav-label{
-      color:var(--profile);
-    }
-
-    .nav-item.add .nav-icon{
-      width:62px;
-      height:62px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+    .nav-item[data-page="home"]{color:var(--c-home)}
+    .nav-item[data-page="agenda"]{color:var(--c-agenda)}
+    .nav-item[data-page="tasks"]{color:var(--c-tasks)}
+    .nav-item[data-page="messages"]{color:var(--c-messages)}
+    .nav-item[data-page="profile"]{color:var(--c-profile)}
+    .nav-item.add-center{color:#fff}
+    .nav-item.add-center .nav-icon{
+      width:64px;
+      height:64px;
       border-radius:50%;
-      background:radial-gradient(circle at 30% 25%, #c9f6ff 0%, #81dcff 40%, #4cbcff 100%);
-      color:white;
+      display:grid;
+      place-items:center;
+      margin-top:-18px;
       font-size:38px;
-      box-shadow:0 10px 24px rgba(59,177,255,.28);
-      margin-top:-22px;
+      background:radial-gradient(circle at 30% 25%, #cff7ff 0%, #89e0ff 40%, #4ec2ff 100%);
+      box-shadow:0 12px 26px rgba(75,191,255,.28);
+      border:2px solid rgba(255,255,255,.16);
     }
+
+    .task-row{
+      display:grid;
+      grid-template-columns:28px 1fr auto;
+      align-items:center;
+      gap:14px;
+      color:rgba(35,84,120,.96);
+    }
+    .check{
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      border:1.6px solid rgba(255,255,255,.78);
+      background:rgba(255,255,255,.16);
+      display:grid;
+      place-items:center;
+      color:#fff;
+      cursor:pointer;
+      box-shadow:0 6px 16px rgba(75,120,150,.12);
+      backdrop-filter:blur(10px);
+    }
+    .check.done{
+      color:#59c686;
+      background:rgba(255,255,255,.28);
+    }
+    .task-title{font-size:21px;line-height:1.15}
+    .task-meta{font-size:15px;color:rgba(55,108,96,.72);margin-top:4px}
+
+    .message-row{
+      display:grid;
+      grid-template-columns:48px 1fr auto;
+      align-items:center;
+      gap:14px;
+      color:rgba(65,60,156,.96);
+    }
+    .avatar{
+      width:48px;
+      height:48px;
+      border-radius:50%;
+      background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.52));
+      display:grid;
+      place-items:center;
+      box-shadow:0 10px 20px rgba(73,82,164,.12);
+      font-size:22px;
+    }
+    .message-name, .member-name{
+      font-size:22px;
+      font-weight:600;
+      line-height:1.1;
+    }
+    .message-snippet, .member-role{
+      font-size:16px;
+      color:rgba(83,82,164,.72);
+      margin-top:4px;
+    }
+    .message-time{
+      font-size:15px;
+      color:rgba(83,82,164,.66);
+    }
+
+    .member-row{
+      display:grid;
+      grid-template-columns:56px 1fr auto;
+      align-items:center;
+      gap:14px;
+      color:rgba(141,78,72,.98);
+    }
+    .pill{
+      font-size:14px;
+      color:#fff;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.2);
+      backdrop-filter:blur(10px);
+      box-shadow:0 6px 16px rgba(159,111,96,.12);
+    }
+
+    .add-wrap{
+      text-align:center;
+      margin-top:54px;
+      color:#fff;
+    }
+    .add-orb{
+      width:96px;
+      height:96px;
+      border-radius:50%;
+      margin:0 auto 26px;
+      display:grid;
+      place-items:center;
+      font-size:58px;
+      font-weight:300;
+      background:radial-gradient(circle at 30% 25%, #d6f9ff 0%, #95e5ff 42%, #51c5ff 100%);
+      box-shadow:0 16px 34px rgba(68,183,255,.24);
+    }
+    .add-wrap h3{
+      margin:0 0 10px;
+      font-size:32px;
+      letter-spacing:-.03em;
+    }
+    .add-wrap p{
+      margin:0 auto;
+      max-width:320px;
+      font-size:19px;
+      line-height:1.45;
+      color:rgba(255,255,255,.86);
+    }
+    .quick-list{
+      margin-top:34px;
+      display:grid;
+      gap:16px;
+    }
+    .quick-row{
+      display:grid;
+      grid-template-columns:14px 1fr;
+      gap:14px;
+      color:rgba(255,255,255,.96);
+      font-size:22px;
+      align-items:center;
+      text-align:left;
+      max-width:320px;
+      margin:0 auto;
+      cursor:pointer;
+    }
+
+    .tasks .brand h1{
+      color:#ecfff2;
+      text-shadow:0 1px 0 rgba(255,255,255,.8),0 3px 0 rgba(133,223,164,.3),0 10px 22px rgba(83,170,112,.15);
+    }
+    .tasks .brand p{color:rgba(45,142,90,.86)}
+    .tasks .hero h2{color:rgba(35,110,68,.98)}
+    .tasks .hero p, .tasks .task-meta{color:rgba(44,133,81,.76)}
+
+    .messages .brand h1{
+      color:#f3f0ff;
+      text-shadow:0 1px 0 rgba(255,255,255,.8),0 3px 0 rgba(164,150,250,.25),0 10px 22px rgba(101,94,192,.14);
+    }
+    .messages .brand p{color:rgba(98,84,186,.84)}
+    .messages .hero h2{color:rgba(72,65,161,.98)}
+    .messages .hero p{color:rgba(92,83,179,.74)}
+
+    .profile .brand h1{
+      color:#fff2ef;
+      text-shadow:0 1px 0 rgba(255,255,255,.8),0 3px 0 rgba(242,172,157,.24),0 10px 22px rgba(193,109,93,.14);
+    }
+    .profile .brand p{color:rgba(169,92,80,.84)}
+    .profile .hero h2{color:rgba(139,77,69,.98)}
+    .profile .hero p{color:rgba(165,92,80,.74)}
 
     @media (max-width:420px){
-      .logo{font-size:60px}
-      .tagline{font-size:15px}
-      .hello h2{font-size:28px}
-      .hello p{font-size:18px}
-      .section-title{font-size:26px}
-      .event{
-        grid-template-columns:14px 60px 1fr;
-        column-gap:12px;
-      }
+      .page{padding:28px 18px 118px}
+      .brand h1{font-size:60px}
+      .brand p{font-size:15px}
+      .hero h2{font-size:28px}
+      .hero p{font-size:18px}
+      .section-title,.subtle-title{font-size:26px}
+      .event-row{grid-template-columns:14px 52px 1fr}
       .event-time{font-size:18px}
       .event-text{font-size:19px}
-      .next-text{font-size:20px}
-      .nav-label{font-size:11px}
+      .task-title,.message-name,.member-name{font-size:19px}
+      .quick-row{font-size:19px}
+      .calendar-month{font-size:28px}
     }
   </style>
 </head>
 <body>
-  <main class="app">
-    <div class="logo-wrap">
-      <h1 class="logo">maivi</h1>
-      <div class="tagline">ma maison - ma vie</div>
-    </div>
+  <section class="page home active" id="page-home">
+    <div class="wrap">
+      <div class="brand">
+        <h1>maivi</h1>
+        <p>ma maison - ma vie</p>
+      </div>
 
-    <section class="hello">
-      <h2>Bonjour Léo</h2>
-      <p>Aujourd’hui est calme</p>
-    </section>
+      <div class="hero">
+        <h2>Bonjour Léo</h2>
+        <p id="homeMood">Aujourd’hui est calme</p>
+      </div>
 
-    <section>
       <h3 class="section-title">Aujourd’hui</h3>
+      <div class="list" id="todayList"></div>
 
-      <div class="events">
-        <div class="event">
-          <span class="event-dot dot-home"></span>
-          <span class="event-time">14h</span>
-          <span class="event-text">Shooting mariage</span>
-        </div>
+      <div class="next">
+        <small>Prochain rendez-vous</small>
+        <strong id="nextEvent">Demain 9h — Vétérinaire</strong>
+      </div>
+    </div>
+  </section>
 
-        <div class="event">
-          <span class="event-dot dot-tasks"></span>
-          <span class="event-time">16h</span>
-          <span class="event-text">Appel client</span>
-        </div>
+  <section class="page agenda" id="page-agenda">
+    <div class="wrap">
+      <div class="brand">
+        <h1>maivi</h1>
+        <p>ma maison - ma vie</p>
+      </div>
 
-        <div class="event">
-          <span class="event-dot dot-add"></span>
-          <span class="event-time">19h</span>
-          <span class="event-text">Dîner famille</span>
+      <div class="calendar-head">
+        <button id="prevMonth">‹</button>
+        <div class="calendar-month" id="monthLabel">Avril 2024</div>
+        <button id="nextMonth">›</button>
+      </div>
+
+      <div class="weekdays">
+        <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
+      </div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+
+      <h3 class="subtle-title">Rendez-vous</h3>
+      <div class="list" id="agendaDayList"></div>
+    </div>
+  </section>
+
+  <section class="page tasks" id="page-tasks">
+    <div class="wrap">
+      <div class="brand">
+        <h1>maivi</h1>
+        <p>ma maison - ma vie</p>
+      </div>
+
+      <div class="hero">
+        <h2>Tâches</h2>
+        <p>Ce qu’il reste à faire aujourd’hui</p>
+      </div>
+
+      <div class="list" id="tasksList"></div>
+    </div>
+  </section>
+
+  <section class="page add" id="page-add">
+    <div class="wrap">
+      <div class="brand">
+        <h1>maivi</h1>
+        <p>ma maison - ma vie</p>
+      </div>
+
+      <div class="add-wrap">
+        <div class="add-orb">+</div>
+        <h3>Ajouter</h3>
+        <p>Crée un rendez-vous, une tâche ou une discussion dans le même geste.</p>
+
+        <div class="quick-list">
+          <div class="quick-row" id="addEventBtn">
+            <span class="dot" style="background:var(--c-agenda)"></span>
+            <span>Nouveau rendez-vous</span>
+          </div>
+          <div class="quick-row" id="addTaskBtn">
+            <span class="dot" style="background:var(--c-tasks)"></span>
+            <span>Nouvelle tâche</span>
+          </div>
+          <div class="quick-row" id="addMessageBtn">
+            <span class="dot" style="background:var(--c-messages)"></span>
+            <span>Nouveau message</span>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="next">
-      <div class="next-label">Prochain rendez-vous</div>
-      <div class="next-text">Demain 9h — Vétérinaire</div>
-    </section>
-  </main>
+  <section class="page messages" id="page-messages">
+    <div class="wrap">
+      <div class="brand">
+        <h1>maivi</h1>
+        <p>ma maison - ma vie</p>
+      </div>
 
-  <nav class="nav">
-    <button class="nav-item home" aria-label="Accueil">
-      <span class="nav-icon">⌂</span>
-      <span class="nav-label">Accueil</span>
+      <div class="hero">
+        <h2>Messages</h2>
+        <p>Les échanges du groupe</p>
+      </div>
+
+      <div class="list" id="messagesList"></div>
+    </div>
+  </section>
+
+  <section class="page profile" id="page-profile">
+    <div class="wrap">
+      <div class="brand">
+        <h1>maivi</h1>
+        <p>ma maison - ma vie</p>
+      </div>
+
+      <div class="hero">
+        <h2>Profil</h2>
+        <p>Les membres de ta vie commune</p>
+      </div>
+
+      <div class="list" id="membersList"></div>
+    </div>
+  </section>
+
+  <nav class="glass-nav">
+    <button class="nav-item" data-page="home">
+      <div class="nav-icon">⌂</div>
+      <div class="nav-label">Accueil</div>
     </button>
-
-    <button class="nav-item tasks" aria-label="Tâches">
-      <span class="nav-icon">✓</span>
-      <span class="nav-label">Tâches</span>
+    <button class="nav-item" data-page="agenda">
+      <div class="nav-icon">◫</div>
+      <div class="nav-label">Agenda</div>
     </button>
-
-    <button class="nav-item add" aria-label="Ajouter">
-      <span class="nav-icon">＋</span>
-      <span class="nav-label">Ajouter</span>
+    <button class="nav-item add-center" data-page="add">
+      <div class="nav-icon">＋</div>
+      <div class="nav-label">Ajouter</div>
     </button>
-
-    <button class="nav-item messages" aria-label="Messages">
-      <span class="nav-icon">💬</span>
-      <span class="nav-label">Messages</span>
+    <button class="nav-item" data-page="messages">
+      <div class="nav-icon">💬</div>
+      <div class="nav-label">Messages</div>
     </button>
-
-    <button class="nav-item profile" aria-label="Profil">
-      <span class="nav-icon">👤</span>
-      <span class="nav-label">Profil</span>
+    <button class="nav-item" data-page="profile">
+      <div class="nav-icon">👤</div>
+      <div class="nav-label">Profil</div>
     </button>
   </nav>
+
+  <script>
+    const LS_KEY = "maivi-redesign-app-v1";
+
+    const initialState = {
+      currentDate: "2024-04-24",
+      events: [
+        { id: 1, date: "2024-04-24", time: "14:00", title: "Shooting mariage", type: "home" },
+        { id: 2, date: "2024-04-24", time: "16:00", title: "Appel client", type: "tasks" },
+        { id: 3, date: "2024-04-24", time: "19:00", title: "Dîner famille", type: "add" },
+        { id: 4, date: "2024-04-25", time: "09:00", title: "Vétérinaire", type: "profile" },
+        { id: 5, date: "2024-04-26", time: "18:30", title: "Courses", type: "tasks" },
+        { id: 6, date: "2024-04-12", time: "11:00", title: "Message école", type: "messages" },
+        { id: 7, date: "2024-04-17", time: "13:00", title: "Déjeuner famille", type: "home" },
+        { id: 8, date: "2024-04-29", time: "10:30", title: "Pharmacie", type: "tasks" },
+        { id: 9, date: "2024-04-04", time: "20:00", title: "Discussion voisins", type: "messages" }
+      ],
+      tasks: [
+        { id: 1, title: "Passer à la pharmacie", meta: "Santé", done: true, color: "tasks" },
+        { id: 2, title: "Finir le dossier client", meta: "Travail", done: true, color: "messages" },
+        { id: 3, title: "Appeler le plombier", meta: "Maison", done: true, color: "add" },
+        { id: 4, title: "Commander des fleurs", meta: "Personnel", done: false, color: "profile" },
+        { id: 5, title: "Acheter du lait", meta: "Courses", done: false, color: "home" }
+      ],
+      messages: [
+        { id: 1, avatar: "👨‍👩‍👧", name: "Ma famille", snippet: "Qui s’occupe du barbecue dimanche ?", time: "18:42" },
+        { id: 2, avatar: "🏘️", name: "Groupe voisins", snippet: "Pierre passe ce soir.", time: "Hier" },
+        { id: 3, avatar: "👨", name: "Jean Dupuis", snippet: "Super, on se voit vers 19h30", time: "Mar." },
+        { id: 4, avatar: "👩", name: "Sophie Martin", snippet: "Je ramène le dessert", time: "Ven." }
+      ],
+      members: [
+        { id: 1, avatar: "👨", name: "Léo", role: "Créateur du groupe", status: "Actif" },
+        { id: 2, avatar: "👩", name: "Julie", role: "Co-organisatrice", status: "Maison" },
+        { id: 3, avatar: "👧", name: "Emma", role: "Famille", status: "École" },
+        { id: 4, avatar: "👦", name: "Noah", role: "Famille", status: "Sport" }
+      ]
+    };
+
+    function clone(data){
+      return JSON.parse(JSON.stringify(data));
+    }
+
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if(raw) return JSON.parse(raw);
+      }catch(e){}
+      return clone(initialState);
+    }
+
+    function saveState(){
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+    }
+
+    let state = loadState();
+    let currentMonth = new Date(state.currentDate + "T12:00:00");
+
+    const pages = document.querySelectorAll(".page");
+    const navItems = document.querySelectorAll(".nav-item");
+    const todayList = document.getElementById("todayList");
+    const nextEvent = document.getElementById("nextEvent");
+    const homeMood = document.getElementById("homeMood");
+    const calendarGrid = document.getElementById("calendarGrid");
+    const monthLabel = document.getElementById("monthLabel");
+    const agendaDayList = document.getElementById("agendaDayList");
+    const tasksList = document.getElementById("tasksList");
+    const messagesList = document.getElementById("messagesList");
+    const membersList = document.getElementById("membersList");
+
+    const typeColors = {
+      home: "var(--c-home)",
+      agenda: "var(--c-agenda)",
+      tasks: "var(--c-tasks)",
+      add: "var(--c-add)",
+      messages: "var(--c-messages)",
+      profile: "var(--c-profile)"
+    };
+
+    function humanTime(hhmm){
+      return hhmm.replace(":", "h");
+    }
+
+    function sortEvents(a,b){
+      return (a.date + a.time).localeCompare(b.date + b.time);
+    }
+
+    function renderHome(){
+      const today = state.currentDate;
+      const eventsToday = state.events
+        .filter(e => e.date === today)
+        .sort((a,b)=>a.time.localeCompare(b.time));
+
+      todayList.innerHTML = eventsToday.map(e => `
+        <div class="event-row">
+          <span class="dot" style="background:${typeColors[e.type] || typeColors.agenda}"></span>
+          <span class="event-time">${humanTime(e.time)}</span>
+          <span class="event-text">${e.title}</span>
+        </div>
+      `).join("") || `<div style="color:white;opacity:.9">Aucun rendez-vous aujourd’hui</div>`;
+
+      const future = state.events
+        .filter(e => (e.date + e.time) > (today + "23:59"))
+        .sort(sortEvents)[0];
+
+      nextEvent.textContent = future
+        ? `${new Date(future.date + "T12:00:00").toLocaleDateString("fr-FR",{weekday:"long", day:"numeric", month:"short"})} ${humanTime(future.time)} — ${future.title}`
+        : "Aucun rendez-vous à venir";
+
+      if(eventsToday.length === 0) homeMood.textContent = "Aujourd’hui est calme";
+      else if(eventsToday.length >= 4) homeMood.textContent = "Aujourd’hui est chargé";
+      else homeMood.textContent = "Aujourd’hui est fluide";
+    }
+
+    function renderAgenda(){
+      const y = currentMonth.getFullYear();
+      const m = currentMonth.getMonth();
+      monthLabel.textContent = currentMonth.toLocaleDateString("fr-FR", { month:"long", year:"numeric" });
+
+      const first = new Date(y, m, 1);
+      let start = first.getDay();
+      start = start === 0 ? 6 : start - 1;
+      const daysInMonth = new Date(y, m + 1, 0).getDate();
+      const daysPrev = new Date(y, m, 0).getDate();
+
+      const cells = [];
+      for(let i=0; i<start; i++){
+        cells.push({ day: daysPrev - start + 1 + i, muted:true, date:null });
+      }
+
+      for(let d=1; d<=daysInMonth; d++){
+        const dateStr = `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+        cells.push({ day:d, muted:false, date:dateStr });
+      }
+
+      while(cells.length % 7 !== 0){
+        cells.push({ day: cells.length - (start + daysInMonth) + 1, muted:true, date:null });
+      }
+
+      calendarGrid.innerHTML = cells.map(c => {
+        const isSelected = c.date === state.currentDate;
+        const dots = c.date
+          ? state.events
+              .filter(e => e.date === c.date)
+              .slice(0,3)
+              .map(e => `<i style="background:${typeColors[e.type] || typeColors.agenda}"></i>`)
+              .join("")
+          : "";
+
+        return `
+          <div class="day ${c.muted ? "muted" : ""} ${isSelected ? "selected" : ""}" ${c.date ? `data-date="${c.date}"` : ""}>
+            <span>${c.day}</span>
+            ${dots ? `<div class="day-dots">${dots}</div>` : ""}
+          </div>
+        `;
+      }).join("");
+
+      const selectedEvents = state.events
+        .filter(e => e.date === state.currentDate)
+        .sort((a,b)=>a.time.localeCompare(b.time));
+
+      agendaDayList.innerHTML = selectedEvents.map(e => `
+        <div class="event-row" style="color:rgba(45,85,163,.96);text-shadow:none">
+          <span class="dot" style="background:${typeColors[e.type] || typeColors.agenda}"></span>
+          <span class="event-time">${humanTime(e.time)}</span>
+          <span class="event-text">${e.title}</span>
+        </div>
+      `).join("") || `<div style="color:rgba(45,85,163,.8)">Aucun rendez-vous ce jour</div>`;
+
+      calendarGrid.querySelectorAll(".day[data-date]").forEach(el => {
+        el.addEventListener("click", () => {
+          state.currentDate = el.dataset.date;
+          saveState();
+          renderHome();
+          renderAgenda();
+        });
+      });
+    }
+
+    function renderTasks(){
+      tasksList.innerHTML = state.tasks.map(t => `
+        <div class="task-row">
+          <button class="check ${t.done ? "done" : ""}" data-task="${t.id}">${t.done ? "✓" : ""}</button>
+          <div>
+            <div class="task-title">${t.title}</div>
+            <div class="task-meta">${t.meta}</div>
+          </div>
+          <span class="dot" style="background:${typeColors[t.color] || typeColors.tasks}"></span>
+        </div>
+      `).join("");
+
+      tasksList.querySelectorAll("[data-task]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.dataset.task);
+          const task = state.tasks.find(t => t.id === id);
+          if(!task) return;
+          task.done = !task.done;
+          saveState();
+          renderTasks();
+        });
+      });
+    }
+
+    function renderMessages(){
+      messagesList.innerHTML = state.messages.map(m => `
+        <div class="message-row">
+          <div class="avatar">${m.avatar}</div>
+          <div>
+            <div class="message-name">${m.name}</div>
+            <div class="message-snippet">${m.snippet}</div>
+          </div>
+          <div class="message-time">${m.time}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderMembers(){
+      membersList.innerHTML = state.members.map(m => `
+        <div class="member-row">
+          <div class="avatar">${m.avatar}</div>
+          <div>
+            <div class="member-name">${m.name}</div>
+            <div class="member-role">${m.role}</div>
+          </div>
+          <div class="pill">${m.status}</div>
+        </div>
+      `).join("");
+    }
+
+    function showPage(name){
+      pages.forEach(p => p.classList.toggle("active", p.id === `page-${name}`));
+      navItems.forEach(n => n.classList.toggle("active", n.dataset.page === name));
+    }
+
+    document.getElementById("prevMonth").addEventListener("click", () => {
+      currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+      renderAgenda();
+    });
+
+    document.getElementById("nextMonth").addEventListener("click", () => {
+      currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+      renderAgenda();
+    });
+
+    navItems.forEach(btn => {
+      btn.addEventListener("click", () => showPage(btn.dataset.page));
+    });
+
+    document.getElementById("addTaskBtn").addEventListener("click", () => {
+      const title = prompt("Nouvelle tâche");
+      if(!title) return;
+      state.tasks.unshift({
+        id: Date.now(),
+        title,
+        meta: "Ajoutée",
+        done: false,
+        color: "tasks"
+      });
+      saveState();
+      renderTasks();
+      showPage("tasks");
+    });
+
+    document.getElementById("addEventBtn").addEventListener("click", () => {
+      const title = prompt("Nouveau rendez-vous");
+      if(!title) return;
+      const time = prompt("Heure (ex: 18:30)", "18:00") || "18:00";
+      state.events.push({
+        id: Date.now(),
+        date: state.currentDate,
+        time,
+        title,
+        type: "agenda"
+      });
+      saveState();
+      renderHome();
+      renderAgenda();
+      showPage("agenda");
+    });
+
+    document.getElementById("addMessageBtn").addEventListener("click", () => {
+      const text = prompt("Nouveau message");
+      if(!text) return;
+      state.messages.unshift({
+        id: Date.now(),
+        avatar: "💬",
+        name: "Nouvelle discussion",
+        snippet: text,
+        time: "À l’instant"
+      });
+      saveState();
+      renderMessages();
+      showPage("messages");
+    });
+
+    renderHome();
+    renderAgenda();
+    renderTasks();
+    renderMessages();
+    renderMembers();
+    showPage("home");
+  </script>
 </body>
 </html>
