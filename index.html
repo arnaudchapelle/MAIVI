@@ -349,4 +349,1307 @@
       box-shadow:0 -18px 40px rgba(45,82,154,.12), inset 0 1px 0 rgba(255,255,255,.16);
       padding:18px 18px 24px;transition:bottom .25s ease;z-index:90
     }
-    .sheet.show,.detail-panel
+    .sheet.show,.detail-panel.show{bottom:0}
+    .sheet-handle,.ev-handle,.detail-handle{width:48px;height:5px;border-radius:999px;background:rgba(255,255,255,.6);margin:0 auto 16px}
+    .sheet-head,.detail-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+    .sheet-title,.detail-title{font-size:24px;font-weight:700;color:rgba(39,77,146,.98);letter-spacing:-.03em}
+    .sheet-close,.detail-close{border:none;background:none;font-size:28px;color:rgba(39,77,146,.72);cursor:pointer}
+    .sheet-list{display:grid;gap:14px}
+    .sheet-row{display:grid;grid-template-columns:16px 1fr auto;gap:12px;align-items:center;color:rgba(39,77,146,.94)}
+    .sheet-main{font-size:18px;font-weight:600}
+    .sheet-sub{font-size:14px;color:rgba(39,77,146,.68);margin-top:4px}
+    .sheet-tag{font-size:13px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.18);color:rgba(39,77,146,.86)}
+    .sheet-actions{display:grid;gap:10px;margin-top:10px}
+    .sheet-btn,.detail-btn{
+      border:none;border-radius:18px;padding:14px 16px;background:rgba(255,255,255,.18);color:rgba(39,77,146,.96);
+      font-size:17px;font-weight:600;cursor:pointer;text-align:left;box-shadow:none
+    }
+    .check-btn{
+      width:24px;height:24px;border-radius:50%;border:1.5px solid rgba(39,77,146,.28);
+      background:rgba(255,255,255,.22);display:grid;place-items:center;cursor:pointer;color:#37b56a
+    }
+    .check-btn.done{background:rgba(255,255,255,.42)}
+
+    .detail-content{display:grid;gap:12px}
+    .detail-block{background:rgba(255,255,255,.16);border-radius:18px;padding:14px}
+    .detail-k{font-size:11px;font-weight:900;letter-spacing:.06em;color:rgba(63,98,160,.72);margin-bottom:6px}
+    .detail-v{font-size:16px;font-weight:800;color:rgba(39,77,146,.96);line-height:1.3}
+    .detail-actions{display:grid;gap:10px;margin-top:10px}
+    .detail-btn.delete{background:rgba(255,212,212,.38);color:#a84242}
+
+    .modal-bg{z-index:120}
+    .ev-modal{
+      position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(94vw,460px);max-height:88vh;
+      background:rgba(255,255,255,.52);backdrop-filter:blur(22px);border-radius:28px 28px 0 0;overflow:hidden;
+      box-shadow:0 -18px 40px rgba(45,82,154,.12)
+    }
+    .ev-header{padding:12px 14px 14px;background:linear-gradient(135deg,rgba(126,169,159,.7),rgba(169,203,195,.7))}
+    .ev-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .ev-type-btn{border:none;border-radius:14px;padding:10px 8px;background:rgba(255,255,255,.16);color:white;font-size:12px;font-weight:800;cursor:pointer}
+    .ev-type-btn.active{background:rgba(255,255,255,.64);color:rgba(43,82,154,.98)}
+    .ev-body{padding:18px 16px 10px;overflow:auto;max-height:calc(88vh - 170px)}
+    .ev-title-input{
+      width:100%;border:none;outline:none;background:rgba(255,255,255,.42);border-radius:18px;padding:16px 16px;
+      font-size:20px;font-weight:800;color:rgba(43,82,154,.98);box-shadow:none;margin-bottom:14px
+    }
+    .ev-date-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+    .ev-date-block{background:rgba(255,255,255,.24);border-radius:18px;padding:12px}
+    .ev-date-label,.ev-section-label{font-size:11px;font-weight:900;letter-spacing:.06em;color:rgba(63,98,160,.72)}
+    .ev-date-input,.ev-time-input,.ev-recur-select{
+      width:100%;border:none;outline:none;background:transparent;color:rgba(43,82,154,.98);font-size:15px;font-weight:700;margin-top:4px;font-family:inherit
+    }
+    .ev-sep{height:.5px;background:rgba(47,65,75,.12);margin:6px 0}
+    .ev-section{background:rgba(255,255,255,.18);border-radius:18px;padding:12px;margin-bottom:12px}
+    .ev-member-chips{display:flex;gap:8px;overflow:auto;padding-top:8px;scrollbar-width:none}
+    .ev-member-chips::-webkit-scrollbar{display:none}
+    .ev-chip{border:none;white-space:nowrap;padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.32);color:rgba(43,82,154,.82);font-size:12px;font-weight:800;cursor:pointer}
+    .ev-chip.sel{background:rgba(43,82,154,.82);color:white}
+    .ev-notes-input{
+      width:100%;border:none;outline:none;background:rgba(255,255,255,.32);color:rgba(43,82,154,.96);font-size:14px;font-weight:700;
+      border-radius:14px;padding:12px;margin-top:8px;min-height:90px;resize:vertical;font-family:inherit
+    }
+    .maps-link{font-size:12px;font-weight:800;color:#2D9E8E;text-decoration:none;display:flex;align-items:center;gap:6px}
+    .maps-dot{width:18px;height:18px;background:#2D9E8E;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:white;font-size:10px}
+    .ev-footer{padding:14px 16px 18px;border-top:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.12)}
+    .ev-save-btn{
+      width:100%;border:none;border-radius:18px;padding:14px 16px;background:linear-gradient(135deg,rgba(126,169,159,.72),rgba(169,203,195,.72));
+      color:white;font-size:16px;font-weight:900;cursor:pointer;box-shadow:none
+    }
+    .ev-cancel-link{display:block;text-align:center;margin-top:10px;font-size:13px;font-weight:800;color:rgba(63,98,160,.76);cursor:pointer}
+
+    .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+    @media (max-width:420px){
+      .page{padding:16px 18px 122px}
+      .brand h1{font-size:48px}
+      .brand .sub{font-size:11px}
+      .quick-grid{gap:10px}
+      .quick-label{font-size:12px}
+      .agenda-big-title{font-size:30px}
+      .month-label-m,.week-label-m,.planning-label-m,.year-label-m{font-size:22px}
+      .week-grid{grid-template-columns:56px repeat(7,1fr)}
+      .week-days{margin-left:64px}
+      .week-time-slot{font-size:10px}
+    }
+  </style>
+</head>
+<body>
+  <main class="page" id="homeTop">
+    <div class="wrap">
+      <div class="brand">
+        <div class="brand-lockup">
+          <h1>MAIVI</h1>
+          <div class="sub">homelife</div>
+        </div>
+      </div>
+
+      <section class="agenda-month-complete" id="agendaMonthComplete">
+        <div class="agenda-topbar">
+          <div>
+            <div class="agenda-big-title" id="agendaBigMonth">Avril</div>
+            <div class="agenda-big-year" id="agendaBigYear">2026</div>
+          </div>
+
+          <div class="agenda-top-actions">
+            <button class="agenda-round-btn" id="openAddEventBtn" aria-label="Ajouter un événement">+</button>
+            <button class="agenda-round-btn light" id="openAgendaSettingsBtn" aria-label="Réglages agenda">⚙</button>
+          </div>
+        </div>
+
+        <div class="agenda-view-tabs">
+          <button class="agenda-tab active" data-view="month">Mois</button>
+          <button class="agenda-tab" data-view="week">Semaine</button>
+          <button class="agenda-tab" data-view="planning">Planning</button>
+          <button class="agenda-tab" data-view="year">Année</button>
+        </div>
+
+        <div class="agenda-filters" id="agendaFilters"></div>
+
+        <div class="view active" id="view-month">
+          <div class="month-shell" id="monthShell">
+            <div class="month-head">
+              <button class="month-nav-btn" id="prevMonthBtn">‹</button>
+              <div class="month-head-center">
+                <span class="month-label-m" id="monthLabelM">Avril</span>
+                <span class="month-label-y" id="monthLabelY">2026</span>
+              </div>
+              <button class="month-nav-btn" id="nextMonthBtn">›</button>
+            </div>
+
+            <div class="month-days-header">
+              <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div class="we">S</div><div class="we">D</div>
+            </div>
+
+            <div class="month-grid" id="monthGrid"></div>
+          </div>
+        </div>
+
+        <div class="view" id="view-week">
+          <div class="week-shell" id="weekShell">
+            <div class="week-head">
+              <button class="month-nav-btn" id="prevWeekBtn">‹</button>
+              <div class="week-head-center">
+                <span class="week-label-m" id="weekLabelM">Semaine</span>
+                <span class="week-label-y" id="weekLabelY">2026</span>
+              </div>
+              <button class="month-nav-btn" id="nextWeekBtn">›</button>
+            </div>
+            <div class="week-days" id="weekDaysHead"></div>
+            <div class="week-grid" id="weekGrid"></div>
+          </div>
+        </div>
+
+        <div class="view" id="view-planning">
+          <div class="planning-shell">
+            <div class="planning-head">
+              <button class="month-nav-btn" id="prevPlanningBtn">‹</button>
+              <div class="planning-head-center">
+                <span class="planning-label-m" id="planningLabelM">Planning</span>
+                <span class="planning-label-y" id="planningLabelY">2026</span>
+              </div>
+              <button class="month-nav-btn" id="nextPlanningBtn">›</button>
+            </div>
+            <div class="planning-list" id="planningList"></div>
+          </div>
+        </div>
+
+        <div class="view" id="view-year">
+          <div class="year-shell">
+            <div class="year-head">
+              <button class="month-nav-btn" id="prevYearBtn">‹</button>
+              <div class="year-head-center">
+                <span class="year-label-m">Année</span>
+                <span class="year-label-y" id="yearLabelY">2026</span>
+              </div>
+              <button class="month-nav-btn" id="nextYearBtn">›</button>
+            </div>
+            <div class="year-grid" id="yearGrid"></div>
+          </div>
+        </div>
+
+        <div class="selected-day-panel" id="selectedDayPanel"></div>
+
+        <div class="agenda-legend">
+          <span><i class="leg-box leg-a"></i>Sem. A — Maman</span>
+          <span><i class="leg-box leg-b"></i>Sem. B — Papa</span>
+          <span><i class="leg-dot leg-vac"></i>Vacances</span>
+        </div>
+      </section>
+
+      <section>
+        <h4 class="quick-title">Accès rapides</h4>
+        <div class="quick-grid">
+          <button class="quick-item" id="openTasks">
+            <div class="quick-icon" style="color:var(--tasks)">✓</div>
+            <div class="quick-label">Tâches</div>
+          </button>
+          <button class="quick-item" id="openCourses">
+            <div class="quick-icon" style="color:var(--courses)">🛒</div>
+            <div class="quick-label">Courses</div>
+          </button>
+          <button class="quick-item" id="openHealth">
+            <div class="quick-icon" style="color:var(--health)">♡</div>
+            <div class="quick-label">Santé</div>
+          </button>
+          <button class="quick-item" id="openMessagesQuick">
+            <div class="quick-icon" style="color:var(--messages)">💬</div>
+            <div class="quick-label">Messages</div>
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <nav class="nav">
+    <button class="nav-item home" id="goHome">
+      <div class="nav-icon">⌂</div>
+      <div class="nav-label">Accueil</div>
+    </button>
+    <button class="nav-item agenda" id="goAgenda">
+      <div class="nav-icon">◫</div>
+      <div class="nav-label">Agenda</div>
+    </button>
+    <button class="nav-item add" id="goAdd">
+      <div class="nav-icon">＋</div>
+      <div class="nav-label">Ajouter</div>
+    </button>
+    <button class="nav-item messages" id="goMessages">
+      <div class="nav-icon">💬</div>
+      <div class="nav-label">Messages</div>
+    </button>
+    <button class="nav-item profile" id="goProfile">
+      <div class="nav-icon">👤</div>
+      <div class="nav-label">Profil</div>
+    </button>
+  </nav>
+
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <section class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div class="sheet-title" id="sheetTitle">Panneau</div>
+      <button class="sheet-close" id="sheetClose">×</button>
+    </div>
+    <div id="sheetContent"></div>
+  </section>
+
+  <div class="detail-backdrop" id="detailBackdrop"></div>
+  <section class="detail-panel" id="detailPanel">
+    <div class="detail-handle"></div>
+    <div class="detail-head">
+      <div class="detail-title">Détail de l’événement</div>
+      <button class="detail-close" id="detailClose">×</button>
+    </div>
+    <div class="detail-content" id="detailContent"></div>
+  </section>
+
+  <div class="modal-bg" id="eventModalBg" onclick="if(event.target===this)closeEventModal()">
+    <div class="ev-modal" id="eventModal">
+      <div class="ev-header" id="ev-header">
+        <div class="ev-handle"></div>
+        <div class="ev-type-grid" id="ev-type-grid">
+          <button class="ev-type-btn active" data-type="normal" onclick="selEvType(this)">Personnel</button>
+          <button class="ev-type-btn" data-type="mariage" onclick="selEvType(this)">Mariage</button>
+          <button class="ev-type-btn" data-type="portrait" onclick="selEvType(this)">Portrait</button>
+          <button class="ev-type-btn" data-type="garde_papa" onclick="selEvType(this)">Garde papa</button>
+          <button class="ev-type-btn" data-type="garde_partage" onclick="selEvType(this)">Garde partagée</button>
+          <button class="ev-type-btn" data-type="vacances" onclick="selEvType(this)">Vacances</button>
+        </div>
+      </div>
+
+      <div class="ev-body">
+        <input class="ev-title-input" id="ett" placeholder="Titre de l'événement">
+
+        <div class="ev-date-row">
+          <div class="ev-date-block">
+            <div class="ev-date-label">DÉBUT</div>
+            <input type="date" class="ev-date-input" id="edd" onchange="updateDateDisplay()">
+            <div class="ev-sep"></div>
+            <div class="ev-date-label">HEURE</div>
+            <input type="time" class="ev-time-input" id="ehd">
+          </div>
+
+          <div class="ev-date-block">
+            <div class="ev-date-label">FIN</div>
+            <input type="date" class="ev-date-input" id="edf" onchange="updateDateDisplay()">
+            <div class="ev-sep"></div>
+            <div class="ev-date-label">HEURE</div>
+            <input type="time" class="ev-time-input" id="ehf">
+          </div>
+        </div>
+
+        <div class="ev-section">
+          <div class="ev-section-label">MEMBRE</div>
+          <div class="ev-member-chips" id="ev-member-chips"></div>
+        </div>
+
+        <div class="ev-section">
+          <div class="ev-section-label">RÉCURRENCE</div>
+          <select class="ev-recur-select" id="erecur" onchange="onRecurChange()">
+            <option value="none">Pas de récurrence</option>
+            <option value="weekly">Toutes les semaines</option>
+            <option value="biweekly_a">Semaines A — garde maman</option>
+            <option value="biweekly_b">Semaines B — garde papa</option>
+            <option value="monthly">Chaque mois</option>
+          </select>
+
+          <div id="recur-end-wrap" style="display:none;margin-top:8px">
+            <div class="ev-section-label">JUSQU'AU</div>
+            <input type="date" class="ev-recur-select" id="erecur-end" style="margin-top:4px">
+          </div>
+        </div>
+
+        <div class="ev-section">
+          <div class="ev-section-label">LIEU</div>
+          <input class="ev-notes-input" id="elieu" placeholder="Adresse, salle, ville..." style="min-height:auto;padding:10px 12px" oninput="updateLieuPreview()">
+          <div id="lieu-preview" style="display:none;margin-top:6px">
+            <a id="lieu-maps-link" href="#" target="_blank" class="maps-link">
+              <span class="maps-dot">↗</span>
+              Ouvrir dans Maps
+            </a>
+          </div>
+        </div>
+
+        <div class="ev-section">
+          <div class="ev-section-label">NOTES</div>
+          <textarea class="ev-notes-input" id="enot" placeholder="Client, informations..."></textarea>
+        </div>
+
+        <input type="hidden" id="eid">
+        <input type="hidden" id="etype" value="normal">
+      </div>
+
+      <div class="ev-footer">
+        <button class="ev-save-btn" id="ev-save-btn" onclick="saveEv()">Enregistrer</button>
+        <span class="ev-cancel-link" onclick="closeEventModal()">Annuler</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const storeKey = "maivi-agenda-complet-v2";
+
+    const defaults = {
+      selectedDate: "2026-04-24",
+      activeView: "month",
+      events: [
+        { id: 1, title:"Shooting mariage", date:"2026-04-24", time:"14:00", date_fin:"2026-04-24", heure_fin:"16:00", color:"#C9A96E", place:"Studio", type:"mariage", membre_id:"leo", recurrence:"none", recurrence_end:null, notes:"RDV clients" },
+        { id: 2, title:"Appel client", date:"2026-04-24", time:"16:00", date_fin:"2026-04-24", heure_fin:"17:00", color:"#9ee9c8", place:"Téléphone", type:"normal", membre_id:"leo", recurrence:"none", recurrence_end:null, notes:"Valider la prestation" },
+        { id: 3, title:"Dîner famille", date:"2026-04-24", time:"19:00", date_fin:"2026-04-24", heure_fin:"21:00", color:"#73d9ff", place:"Maison", type:"normal", membre_id:"julie", recurrence:"none", recurrence_end:null, notes:"" },
+        { id: 4, title:"Vétérinaire", date:"2026-04-25", time:"09:00", date_fin:"2026-04-25", heure_fin:"10:00", color:"#ffbdb7", place:"Cabinet", type:"normal", membre_id:"emma", recurrence:"none", recurrence_end:null, notes:"Carnet à prendre" },
+        { id: 5, title:"Courses", date:"2026-04-26", time:"18:30", date_fin:"2026-04-26", heure_fin:"19:30", color:"#9ce3b2", place:"Supermarché", type:"normal", membre_id:"julie", recurrence:"weekly", recurrence_end:"2026-07-01", notes:"" },
+        { id: 6, title:"Garde papa", date:"2026-04-20", time:"08:00", date_fin:"2026-04-20", heure_fin:"20:00", color:"#2D9E8E", place:"", type:"garde_papa", membre_id:"emma", recurrence:"biweekly_b", recurrence_end:"2026-10-01", notes:"" },
+        { id: 7, title:"Portrait studio", date:"2026-04-17", time:"13:00", date_fin:"2026-04-17", heure_fin:"15:00", color:"#6B8FA3", place:"Studio", type:"portrait", membre_id:"leo", recurrence:"monthly", recurrence_end:"2026-09-30", notes:"pack famille" }
+      ],
+      tasks: [
+        { id: 1, title:"Passer à la pharmacie", meta:"Santé", done:true, color:"#ffd1c8" },
+        { id: 2, title:"Finir le dossier client", meta:"Travail", done:false, color:"#9ee9c8" },
+        { id: 3, title:"Appeler le plombier", meta:"Maison", done:false, color:"#73d9ff" }
+      ],
+      courses: [
+        { id: 1, title:"Lait", qty:"2 bouteilles", color:"#9ce3b2" },
+        { id: 2, title:"Pâtes", qty:"3 paquets", color:"#9ce3b2" },
+        { id: 3, title:"Pommes", qty:"1 kg", color:"#9ce3b2" }
+      ],
+      health: [
+        { id: 1, title:"Rappel ordonnance", meta:"Vendredi 10h", color:"#ffd1c8" },
+        { id: 2, title:"Vaccin Emma", meta:"Le 27 avril", color:"#ffd1c8" }
+      ],
+      messages: [
+        { id: 1, title:"Ma famille", text:"Qui s’occupe du barbecue dimanche ?", time:"18:42", color:"#d8b8ff" },
+        { id: 2, title:"Groupe voisins", text:"Pierre passe ce soir.", time:"Hier", color:"#d8b8ff" },
+        { id: 3, title:"Sophie Martin", text:"Je ramène le dessert.", time:"Ven.", color:"#d8b8ff" }
+      ],
+      members: [
+        { id: "leo", name:"Léo", role:"Créateur du groupe", status:"Actif", color:"#ffd1c8" },
+        { id: "julie", name:"Julie", role:"Co-organisatrice", status:"Maison", color:"#ffd1c8" },
+        { id: "emma", name:"Emma", role:"Famille", status:"École", color:"#ffd1c8" }
+      ]
+    };
+
+    function clone(v){ return JSON.parse(JSON.stringify(v)); }
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(storeKey);
+        return raw ? JSON.parse(raw) : clone(defaults);
+      } catch (e) {
+        return clone(defaults);
+      }
+    }
+    function saveState() { localStorage.setItem(storeKey, JSON.stringify(state)); }
+
+    const state = loadState();
+    let agendaFilter = "all";
+    let monthCursor = new Date(state.selectedDate + "T12:00:00");
+    monthCursor.setDate(1);
+
+    const schoolVacations = [
+      { s:new Date(2026,1,7),  e:new Date(2026,1,23), n:"Hiver 2026" },
+      { s:new Date(2026,3,4),  e:new Date(2026,3,20), n:"Printemps 2026" },
+      { s:new Date(2026,6,4),  e:new Date(2026,8,1),  n:"Été 2026" },
+      { s:new Date(2026,9,17), e:new Date(2026,10,2), n:"Toussaint 2026" },
+      { s:new Date(2026,11,19), e:new Date(2027,0,4), n:"Noël 2026" }
+    ];
+    let gardeRefA = new Date(2026,0,5);
+
+    const agendaMembers = [{id:"all", nom:"Tous", couleur:"#8fc7ff"}].concat(
+      state.members.map(m => ({id:m.id, nom:m.name, couleur:m.color}))
+    );
+
+    const monthBig = document.getElementById("agendaBigMonth");
+    const yearBig = document.getElementById("agendaBigYear");
+    const monthM = document.getElementById("monthLabelM");
+    const monthY = document.getElementById("monthLabelY");
+    const monthGrid = document.getElementById("monthGrid");
+    const selectedDayPanel = document.getElementById("selectedDayPanel");
+    const agendaFilters = document.getElementById("agendaFilters");
+    const prevMonthBtn = document.getElementById("prevMonthBtn");
+    const nextMonthBtn = document.getElementById("nextMonthBtn");
+    const monthShell = document.getElementById("monthShell");
+
+    const weekLabelM = document.getElementById("weekLabelM");
+    const weekLabelY = document.getElementById("weekLabelY");
+    const weekDaysHead = document.getElementById("weekDaysHead");
+    const weekGrid = document.getElementById("weekGrid");
+
+    const planningLabelM = document.getElementById("planningLabelM");
+    const planningLabelY = document.getElementById("planningLabelY");
+    const planningList = document.getElementById("planningList");
+
+    const yearLabelY = document.getElementById("yearLabelY");
+    const yearGrid = document.getElementById("yearGrid");
+
+    const sheet = document.getElementById("sheet");
+    const sheetBackdrop = document.getElementById("sheetBackdrop");
+    const sheetTitle = document.getElementById("sheetTitle");
+    const sheetContent = document.getElementById("sheetContent");
+
+    const detailPanel = document.getElementById("detailPanel");
+    const detailBackdrop = document.getElementById("detailBackdrop");
+    const detailContent = document.getElementById("detailContent");
+
+    const eventModalBg = document.getElementById("eventModalBg");
+
+    function pad(n){ return String(n).padStart(2,"0"); }
+    function toYMD(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+    function sameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+    function formatTime(time){ return time ? time.replace(":", "h") : "—"; }
+
+    function isVacation(d){
+      return schoolVacations.find(v => d >= v.s && d < v.e) || null;
+    }
+
+    function getMonday(d){
+      const dt = new Date(d);
+      const day = dt.getDay();
+      dt.setDate(dt.getDate() + (day === 0 ? -6 : 1 - day));
+      dt.setHours(0,0,0,0);
+      return dt;
+    }
+
+    function weekType(d){
+      const monday = getMonday(d);
+      const ref = getMonday(gardeRefA);
+      const diffDays = Math.round((monday - ref) / 86400000);
+      const diffWeeks = Math.floor(diffDays / 7);
+      return Math.abs(diffWeeks % 2) === 0 ? "A" : "B";
+    }
+
+    function normalizeEvent(e){
+      return {
+        id: e.id || Date.now(),
+        titre: e.titre || e.title || "",
+        date_debut: e.date_debut || e.date || null,
+        heure_debut: e.heure_debut || e.time || null,
+        date_fin: e.date_fin || e.date || null,
+        heure_fin: e.heure_fin || null,
+        couleur: e.couleur || e.color || "#8fc7ff",
+        lieu: e.lieu || e.place || "",
+        notes: e.notes || "",
+        type: e.type || "normal",
+        membre_id: e.membre_id || null,
+        recurrence: e.recurrence || "none",
+        recurrence_end: e.recurrence_end || null
+      };
+    }
+
+    function getSourceEvents(){ return (state.events || []).map(normalizeEvent); }
+    function eventMatchesMember(ev){ return agendaFilter === "all" ? true : ev.membre_id === agendaFilter; }
+
+    function eventOccursOn(ev, dateObj){
+      const target = toYMD(dateObj);
+      const start = ev.date_debut;
+      const end = ev.date_fin || ev.date_debut;
+      if(!start) return false;
+
+      if(!ev.recurrence || ev.recurrence === "none"){
+        return target >= start && target <= end;
+      }
+      if(ev.recurrence_end && target > ev.recurrence_end) return false;
+      if(target < start) return false;
+
+      const startDate = new Date(start + "T00:00:00");
+      const current = new Date(target + "T00:00:00");
+
+      if(ev.recurrence === "weekly") return current.getDay() === startDate.getDay();
+      if(ev.recurrence === "monthly") return current.getDate() === startDate.getDate();
+      if(ev.recurrence === "biweekly_a") return current.getDay() === startDate.getDay() && weekType(current) === "A";
+      if(ev.recurrence === "biweekly_b") return current.getDay() === startDate.getDay() && weekType(current) === "B";
+      return false;
+    }
+
+    function eventsForDay(dateObj){
+      return getSourceEvents()
+        .filter(eventMatchesMember)
+        .filter(ev => eventOccursOn(ev, dateObj))
+        .sort((a,b) => (a.heure_debut || "").localeCompare(b.heure_debut || ""));
+    }
+
+    function renderAgendaFilters(){
+      agendaFilters.innerHTML = agendaMembers.map(m => `
+        <button class="agenda-filter-chip ${agendaFilter === m.id ? "active" : ""}" data-filter="${m.id}">
+          ${m.nom}
+        </button>
+      `).join("");
+      agendaFilters.querySelectorAll("[data-filter]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          agendaFilter = btn.dataset.filter;
+          renderAgendaFilters();
+          rerenderAllAgenda();
+        });
+      });
+    }
+
+    function renderMonthHeaders(){
+      const mLabel = monthCursor.toLocaleDateString("fr-FR",{month:"long"});
+      const yLabel = monthCursor.getFullYear();
+      monthBig.textContent = mLabel.charAt(0).toUpperCase() + mLabel.slice(1);
+      yearBig.textContent = yLabel;
+      monthM.textContent = mLabel.charAt(0).toUpperCase() + mLabel.slice(1);
+      monthY.textContent = yLabel;
+      planningLabelM.textContent = "Planning";
+      planningLabelY.textContent = yLabel;
+      yearLabelY.textContent = yLabel;
+    }
+
+    function renderMonthGrid(){
+      const y = monthCursor.getFullYear();
+      const m = monthCursor.getMonth();
+      const first = new Date(y, m, 1);
+      const firstOffset = (first.getDay() + 6) % 7;
+      const dim = new Date(y, m + 1, 0).getDate();
+      const prevDim = new Date(y, m, 0).getDate();
+      const today = new Date(); today.setHours(0,0,0,0);
+
+      let html = "";
+      for(let i=0; i<firstOffset; i++){
+        const d = prevDim - firstOffset + 1 + i;
+        html += `<div class="month-cell muted"><span class="month-day-number">${d}</span></div>`;
+      }
+
+      for(let d=1; d<=dim; d++){
+        const dt = new Date(y, m, d); dt.setHours(0,0,0,0);
+        const ymd = toYMD(dt);
+        const selected = state.selectedDate === ymd;
+        const isToday = sameDay(dt, today);
+        const vac = isVacation(dt);
+        const weekAB = weekType(dt);
+        const dayEvents = eventsForDay(dt);
+
+        let cls = "month-cell";
+        if(selected) cls += " selected";
+        else cls += weekAB === "A" ? " week-a" : " week-b";
+        if(isToday) cls += " today";
+
+        const dots = dayEvents.slice(0,3).map(ev => `<i style="background:${ev.couleur}"></i>`).join("");
+        const more = dayEvents.length > 3 ? `<div class="month-more">+${dayEvents.length - 3}</div>` : "";
+        const vacLabel = vac ? `<div class="month-vac-label">vac.</div>` : "";
+
+        html += `
+          <div class="${cls}" data-date="${ymd}">
+            <span class="month-day-number">${d}</span>
+            ${vacLabel}
+            ${dots ? `<div class="month-dots">${dots}</div>` : `<div class="month-dots"></div>`}
+            ${more}
+          </div>
+        `;
+      }
+
+      const totalCells = firstOffset + dim;
+      const remain = (7 - (totalCells % 7)) % 7;
+      for(let i=1; i<=remain; i++){
+        html += `<div class="month-cell muted"><span class="month-day-number">${i}</span></div>`;
+      }
+
+      monthGrid.innerHTML = html;
+      monthGrid.querySelectorAll("[data-date]").forEach(cell => {
+        cell.addEventListener("click", () => {
+          state.selectedDate = cell.dataset.date;
+          saveState();
+          renderMonthGrid();
+          renderSelectedDayPanel();
+          renderWeekView();
+          renderPlanningView();
+        });
+      });
+    }
+
+    function renderSelectedDayPanel(){
+      const d = new Date(state.selectedDate + "T12:00:00");
+      const list = eventsForDay(d);
+      const vac = isVacation(d);
+      const dateLabel = d.toLocaleDateString("fr-FR",{weekday:"long", day:"numeric", month:"long"});
+      let html = `<div class="selected-day-title">${dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1)}</div>`;
+
+      if(vac){
+        html += `
+          <div class="selected-day-event">
+            <span class="dot" style="background:#EDB777"></span>
+            <span class="selected-day-time">Journée</span>
+            <div class="selected-day-main">
+              <div class="selected-day-name">${vac.n}</div>
+              <div class="selected-day-meta">Vacances scolaires</div>
+            </div>
+            <span class="selected-day-type">Vacances</span>
+          </div>
+        `;
+      }
+
+      if(!list.length && !vac){
+        html += `<div class="selected-day-empty">Aucun rendez-vous pour ce jour</div>`;
+      } else {
+        html += list.map(ev => `
+          <div class="selected-day-event" data-open-event="${ev.id}">
+            <span class="dot" style="background:${ev.couleur}"></span>
+            <span class="selected-day-time">${formatTime(ev.heure_debut)}</span>
+            <div class="selected-day-main">
+              <div class="selected-day-name">${ev.titre}</div>
+              <div class="selected-day-meta">
+                ${ev.lieu ? ev.lieu : ""}
+                ${ev.notes ? (ev.lieu ? " · " : "") + ev.notes : ""}
+              </div>
+            </div>
+            <span class="selected-day-type">${ev.type || "événement"}</span>
+          </div>
+        `).join("");
+      }
+
+      selectedDayPanel.innerHTML = html;
+      selectedDayPanel.querySelectorAll("[data-open-event]").forEach(row => {
+        row.addEventListener("click", () => openEventDetail(row.dataset.openEvent));
+      });
+    }
+
+    function renderWeekView(){
+      const base = new Date(state.selectedDate + "T12:00:00");
+      const monday = getMonday(base);
+      weekLabelM.textContent = "Semaine";
+      weekLabelY.textContent = `${monday.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})} → ${new Date(monday.getFullYear(), monday.getMonth(), monday.getDate()+6).toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"})}`;
+
+      const days = [];
+      for(let i=0;i<7;i++){
+        const d = new Date(monday);
+        d.setDate(d.getDate()+i);
+        days.push(d);
+      }
+
+      weekDaysHead.innerHTML = days.map(d => `
+        <div class="week-day-head ${toYMD(d)===state.selectedDate ? "active" : ""}">
+          ${d.toLocaleDateString("fr-FR",{weekday:"short"})}<br>${d.getDate()}
+        </div>
+      `).join("");
+
+      const slots = [];
+      for(let h=8;h<=20;h+=2) slots.push(h);
+
+      let leftCol = `<div class="week-time-col">${slots.map(h => `<div class="week-time-slot">${String(h).padStart(2,"0")}h</div>`).join("")}</div>`;
+      let cols = days.map(d => {
+        const evs = eventsForDay(d);
+        return `
+          <div class="week-col">
+            ${slots.map(h => {
+              const slotEvents = evs.filter(ev => {
+                if(!ev.heure_debut) return false;
+                const hh = parseInt(ev.heure_debut.split(":")[0],10);
+                return hh >= h && hh < h+2;
+              });
+              return `
+                <div class="week-cell">
+                  ${slotEvents.map(ev => `
+                    <div class="week-event" data-open-event="${ev.id}" style="background:${ev.couleur}">
+                      ${ev.titre}
+                      <small>${formatTime(ev.heure_debut)}</small>
+                    </div>
+                  `).join("")}
+                </div>
+              `;
+            }).join("")}
+          </div>
+        `;
+      }).join("");
+
+      weekGrid.innerHTML = leftCol + cols;
+
+      weekGrid.querySelectorAll("[data-open-event]").forEach(el => {
+        el.addEventListener("click", () => openEventDetail(el.dataset.openEvent));
+      });
+    }
+
+    function renderPlanningView(){
+      const y = monthCursor.getFullYear();
+      const m = monthCursor.getMonth();
+      const dim = new Date(y, m+1, 0).getDate();
+
+      let html = "";
+      for(let d=1; d<=dim; d++){
+        const dt = new Date(y, m, d);
+        const evs = eventsForDay(dt);
+        const vac = isVacation(dt);
+        if(!evs.length && !vac) continue;
+
+        html += `<div class="planning-day"><div class="planning-day-title">${dt.toLocaleDateString("fr-FR",{weekday:"long", day:"numeric", month:"long"})}</div>`;
+
+        if(vac){
+          html += `
+            <div class="planning-event">
+              <span class="dot" style="background:#EDB777"></span>
+              <span class="selected-day-time">Journée</span>
+              <div class="selected-day-main">
+                <div class="selected-day-name">${vac.n}</div>
+                <div class="selected-day-meta">Vacances scolaires</div>
+              </div>
+              <span class="selected-day-type">Vacances</span>
+            </div>
+          `;
+        }
+
+        html += evs.map(ev => `
+          <div class="planning-event" data-open-event="${ev.id}">
+            <span class="dot" style="background:${ev.couleur}"></span>
+            <span class="selected-day-time">${formatTime(ev.heure_debut)}</span>
+            <div class="selected-day-main">
+              <div class="selected-day-name">${ev.titre}</div>
+              <div class="selected-day-meta">${ev.lieu || ""}</div>
+            </div>
+            <span class="selected-day-type">${ev.type}</span>
+          </div>
+        `).join("");
+
+        html += `</div>`;
+      }
+
+      planningList.innerHTML = html || `<div class="selected-day-empty">Aucun événement ce mois-ci</div>`;
+
+      planningList.querySelectorAll("[data-open-event]").forEach(el => {
+        el.addEventListener("click", () => openEventDetail(el.dataset.openEvent));
+      });
+    }
+
+    function renderYearView(){
+      const year = monthCursor.getFullYear();
+      yearLabelY.textContent = year;
+      let html = "";
+
+      for(let m=0;m<12;m++){
+        const first = new Date(year, m, 1);
+        const firstOffset = (first.getDay() + 6) % 7;
+        const dim = new Date(year, m+1, 0).getDate();
+        const prevDim = new Date(year, m, 0).getDate();
+        let cells = "";
+
+        for(let i=0;i<firstOffset;i++){
+          const d = prevDim - firstOffset + 1 + i;
+          cells += `<div class="mini-day muted">${d}</div>`;
+        }
+
+        for(let d=1; d<=dim; d++){
+          const dt = new Date(year, m, d);
+          const has = eventsForDay(dt).length > 0 || !!isVacation(dt);
+          cells += `<div class="mini-day ${has ? "has" : ""}" data-year-month="${m}" data-year-day="${d}">${d}</div>`;
+        }
+
+        const total = firstOffset + dim;
+        const rem = (7 - (total % 7)) % 7;
+        for(let i=1;i<=rem;i++) cells += `<div class="mini-day muted">${i}</div>`;
+
+        html += `
+          <div class="mini-month" data-open-month="${m}">
+            <div class="mini-month-title">${new Date(year,m,1).toLocaleDateString("fr-FR",{month:"long"})}</div>
+            <div class="mini-weekdays"><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div></div>
+            <div class="mini-grid">${cells}</div>
+          </div>
+        `;
+      }
+
+      yearGrid.innerHTML = html;
+
+      yearGrid.querySelectorAll("[data-open-month]").forEach(el => {
+        el.addEventListener("click", () => {
+          const m = Number(el.dataset.openMonth);
+          monthCursor = new Date(year, m, 1);
+          setActiveView("month");
+          rerenderAllAgenda();
+        });
+      });
+
+      yearGrid.querySelectorAll("[data-year-month][data-year-day]").forEach(el => {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const m = Number(el.dataset.yearMonth);
+          const d = Number(el.dataset.yearDay);
+          state.selectedDate = `${year}-${pad(m+1)}-${pad(d)}`;
+          monthCursor = new Date(year, m, 1);
+          saveState();
+          setActiveView("month");
+          rerenderAllAgenda();
+        });
+      });
+    }
+
+    function prevMonthComplete(){ monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth() - 1, 1); rerenderAllAgenda(false); }
+    function nextMonthComplete(){ monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 1); rerenderAllAgenda(false); }
+
+    function prevWeek(){
+      const d = new Date(state.selectedDate + "T12:00:00");
+      d.setDate(d.getDate() - 7);
+      state.selectedDate = toYMD(d);
+      monthCursor = new Date(d.getFullYear(), d.getMonth(), 1);
+      saveState();
+      rerenderAllAgenda();
+    }
+    function nextWeek(){
+      const d = new Date(state.selectedDate + "T12:00:00");
+      d.setDate(d.getDate() + 7);
+      state.selectedDate = toYMD(d);
+      monthCursor = new Date(d.getFullYear(), d.getMonth(), 1);
+      saveState();
+      rerenderAllAgenda();
+    }
+
+    function prevYear(){ monthCursor = new Date(monthCursor.getFullYear()-1, monthCursor.getMonth(), 1); rerenderAllAgenda(false); }
+    function nextYear(){ monthCursor = new Date(monthCursor.getFullYear()+1, monthCursor.getMonth(), 1); rerenderAllAgenda(false); }
+
+    function addSwipe(el, onLeft, onRight){
+      let sx = 0, sy = 0, moved = false;
+      el.addEventListener("touchstart", e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; moved = false; }, { passive:true });
+      el.addEventListener("touchmove", e => {
+        const dx = Math.abs(e.touches[0].clientX - sx);
+        const dy = Math.abs(e.touches[0].clientY - sy);
+        if(dx > dy && dx > 10) moved = true;
+      }, { passive:true });
+      el.addEventListener("touchend", e => {
+        if(!moved) return;
+        const dx = e.changedTouches[0].clientX - sx;
+        const dy = Math.abs(e.changedTouches[0].clientY - sy);
+        if(Math.abs(dx) > 55 && dy < 80){ dx < 0 ? onLeft() : onRight(); }
+      }, { passive:true });
+    }
+
+    function setActiveView(view){
+      state.activeView = view;
+      saveState();
+      document.querySelectorAll(".agenda-tab").forEach(btn => btn.classList.toggle("active", btn.dataset.view === view));
+      document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === `view-${view}`));
+    }
+
+    function rerenderAllAgenda(updateSelectedDay = true){
+      renderMonthHeaders();
+      renderMonthGrid();
+      renderWeekView();
+      renderPlanningView();
+      renderYearView();
+      if(updateSelectedDay) renderSelectedDayPanel();
+    }
+
+    function openSheet(title, html){
+      sheetTitle.textContent = title;
+      sheetContent.innerHTML = html;
+      sheet.classList.add("show");
+      sheetBackdrop.classList.add("show");
+      bindDynamicSheetActions();
+    }
+    function closeSheet(){ sheet.classList.remove("show"); sheetBackdrop.classList.remove("show"); }
+
+    function renderTasksSheet(){
+      return `
+        <div class="sheet-list">
+          ${state.tasks.map(t => `
+            <div class="sheet-row">
+              <button class="check-btn ${t.done ? "done" : ""}" data-task-id="${t.id}">${t.done ? "✓" : ""}</button>
+              <div>
+                <div class="sheet-main">${t.title}</div>
+                <div class="sheet-sub">${t.meta}</div>
+              </div>
+              <span class="dot" style="background:${t.color}"></span>
+            </div>
+          `).join("")}
+        </div>
+        <div class="sheet-actions">
+          <button class="sheet-btn" id="addTaskAction">+ Ajouter une tâche</button>
+        </div>
+      `;
+    }
+
+    function renderCoursesSheet(){
+      return `
+        <div class="sheet-list">
+          ${state.courses.map(c => `
+            <div class="sheet-row">
+              <span class="dot" style="background:${c.color}"></span>
+              <div>
+                <div class="sheet-main">${c.title}</div>
+                <div class="sheet-sub">${c.qty}</div>
+              </div>
+              <span class="sheet-tag">Courses</span>
+            </div>
+          `).join("")}
+        </div>
+        <div class="sheet-actions">
+          <button class="sheet-btn" id="addCourseAction">+ Ajouter un produit</button>
+        </div>
+      `;
+    }
+
+    function renderHealthSheet(){
+      return `
+        <div class="sheet-list">
+          ${state.health.map(h => `
+            <div class="sheet-row">
+              <span class="dot" style="background:${h.color}"></span>
+              <div>
+                <div class="sheet-main">${h.title}</div>
+                <div class="sheet-sub">${h.meta}</div>
+              </div>
+              <span class="sheet-tag">Santé</span>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderMessagesSheet(){
+      return `
+        <div class="sheet-list">
+          ${state.messages.map(m => `
+            <div class="sheet-row">
+              <span class="dot" style="background:${m.color}"></span>
+              <div>
+                <div class="sheet-main">${m.title}</div>
+                <div class="sheet-sub">${m.text}</div>
+              </div>
+              <span class="sheet-tag">${m.time}</span>
+            </div>
+          `).join("")}
+        </div>
+        <div class="sheet-actions">
+          <button class="sheet-btn" id="addMessageAction">+ Nouveau message</button>
+        </div>
+      `;
+    }
+
+    function renderProfileSheet(){
+      return `
+        <div class="sheet-list">
+          ${state.members.map(m => `
+            <div class="sheet-row">
+              <span class="dot" style="background:${m.color}"></span>
+              <div>
+                <div class="sheet-main">${m.name}</div>
+                <div class="sheet-sub">${m.role}</div>
+              </div>
+              <span class="sheet-tag">${m.status}</span>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function bindDynamicSheetActions(){
+      document.querySelectorAll("[data-task-id]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.dataset.taskId);
+          const task = state.tasks.find(t => t.id === id);
+          if(!task) return;
+          task.done = !task.done;
+          saveState();
+          openSheet("Tâches", renderTasksSheet());
+        });
+      });
+
+      const addTaskAction = document.getElementById("addTaskAction");
+      if(addTaskAction){
+        addTaskAction.addEventListener("click", () => {
+          const title = prompt("Nouvelle tâche");
+          if(!title) return;
+          state.tasks.push({ id: Date.now(), title, meta: "Ajoutée aujourd’hui", done: false, color: "#9ee9c8" });
+          saveState();
+          openSheet("Tâches", renderTasksSheet());
+        });
+      }
+
+      const addCourseAction = document.getElementById("addCourseAction");
+      if(addCourseAction){
+        addCourseAction.addEventListener("click", () => {
+          const title = prompt("Nouveau produit");
+          if(!title) return;
+          const qty = prompt("Quantité", "1") || "1";
+          state.courses.push({ id: Date.now(), title, qty, color: "#9ce3b2" });
+          saveState();
+          openSheet("Courses", renderCoursesSheet());
+        });
+      }
+
+      const addMessageAction = document.getElementById("addMessageAction");
+      if(addMessageAction){
+        addMessageAction.addEventListener("click", () => {
+          const text = prompt("Nouveau message");
+          if(!text) return;
+          state.messages.unshift({ id: Date.now(), title: "Nouvelle discussion", text, time: "Maintenant", color: "#d8b8ff" });
+          saveState();
+          openSheet("Messages", renderMessagesSheet());
+        });
+      }
+    }
+
+    function openEventDetail(id){
+      const ev = getSourceEvents().find(x => String(x.id) === String(id));
+      if(!ev) return;
+
+      detailContent.innerHTML = `
+        <div class="detail-content">
+          <div class="detail-block">
+            <div class="detail-k">TITRE</div>
+            <div class="detail-v">${ev.titre}</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-k">DATE</div>
+            <div class="detail-v">${ev.date_debut}${ev.date_fin && ev.date_fin !== ev.date_debut ? " → " + ev.date_fin : ""}</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-k">HEURE</div>
+            <div class="detail-v">${formatTime(ev.heure_debut)}${ev.heure_fin ? " → " + formatTime(ev.heure_fin) : ""}</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-k">TYPE</div>
+            <div class="detail-v">${ev.type || "normal"}</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-k">LIEU</div>
+            <div class="detail-v">${ev.lieu || "—"}</div>
+          </div>
+          <div class="detail-block">
+            <div class="detail-k">NOTES</div>
+            <div class="detail-v">${ev.notes || "—"}</div>
+          </div>
+          <div class="detail-actions">
+            <button class="detail-btn" id="detailEditBtn">Modifier</button>
+            <button class="detail-btn delete" id="detailDeleteBtn">Supprimer</button>
+          </div>
+        </div>
+      `;
+
+      detailPanel.classList.add("show");
+      detailBackdrop.classList.add("show");
+
+      document.getElementById("detailEditBtn").onclick = () => {
+        closeEventDetail();
+        setTimeout(() => openEventModal(ev.id), 100);
+      };
+
+      document.getElementById("detailDeleteBtn").onclick = () => {
+        if(!confirm("Supprimer cet événement ?")) return;
+        state.events = state.events.filter(x => String(x.id) !== String(ev.id));
+        saveState();
+        closeEventDetail();
+        rerenderAllAgenda();
+      };
+    }
+
+    function closeEventDetail(){
+      detailPanel.classList.remove("show");
+      detailBackdrop.classList.remove("show");
+    }
+
+    const TYPE_HEADERS = {
+      normal:       { bg:'linear-gradient(135deg,rgba(126,169,159,.7),rgba(169,203,195,.7))' },
+      mariage:      { bg:'linear-gradient(135deg,rgba(201,169,110,.72),rgba(223,192,138,.72))' },
+      portrait:     { bg:'linear-gradient(135deg,rgba(107,143,163,.72),rgba(138,175,196,.72))' },
+      garde_papa:   { bg:'linear-gradient(135deg,rgba(126,169,159,.72),rgba(92,143,133,.72))' },
+      garde_partage:{ bg:'linear-gradient(135deg,rgba(155,127,212,.72),rgba(192,167,232,.72))' },
+      vacances:     { bg:'linear-gradient(135deg,rgba(237,183,119,.72),rgba(212,150,90,.72))' }
+    };
+
+    const modalMembers = [
+      { id:"", nom:"Tous" },
+      ...state.members.map(m => ({ id:m.id, nom:m.name }))
+    ];
+
+    function openEventModal(id = null, prefillDate = null){
+      const chips = document.getElementById("ev-member-chips");
+      const nd = prefillDate || state.selectedDate;
+
+      chips.innerHTML = modalMembers.map((m, i) => `
+        <button class="ev-chip ${i===0 ? "sel" : ""}" data-mid="${m.id}" onclick="selMemChip(this)">
+          ${m.nom}
+        </button>
+      `).join("");
+
+      if(id){
+        const e = state.events.find(x => String(x.id) === String(id));
+        if(e){
+          document.getElementById("ett").value = e.title || "";
+          document.getElementById("edd").value = e.date || nd;
+          document.getElementById("ehd").value = e.time || "";
+          document.getElementById("edf").value = e.date_fin || e.date || nd;
+          document.getElementById("ehf").value = e.heure_fin || "";
+          document.getElementById("enot").value = e.notes || "";
+          document.getElementById("elieu").value = e.place || e.lieu || "";
+          updateLieuPreview();
+          document.getElementById("etype").value = e.type || "normal";
+          document.getElementById("erecur").value = e.recurrence || "none";
+          document.getElementById("recur-end-wrap").style.display = (e.recurrence && e.recurrence !== "none") ? "block" : "none";
+          document.getElementById("erecur-end").value = e.recurrence_end || "";
+
+          if(e.membre_id){
+            document.querySelectorAll(".ev-chip").forEach(c => {
+              c.classList.toggle("sel", c.dataset.mid === e.membre_id);
+            });
+          }
+
+          const typeBtn = document.querySelector(`.ev-type-btn[data-type="${e.type || 'normal'}"]`);
+          if(typeBtn) selEvType(typeBtn);
+        }
+      } else {
+        document.getElementById("ett").value = "";
+        document.getElementById("edd").value = nd;
+        document.getElementById("ehd").value = "";
+        document.getElementById("edf").value = nd;
+        document.getElementById("ehf").value = "";
+        document.getElementById("enot").value = "";
+        document.getElementById("elieu").value = "";
+        document.getElementById("etype").value = "normal";
+        document.getElementById("erecur").value = "none";
+        document.getElementById("erecur-end").value = "";
+        document.getElementById("recur-end-wrap").style.display = "none";
+        document.getElementById("lieu-preview").style.display = "none";
+        const normalBtn = document.querySelector('.ev-type-btn[data-type="normal"]');
+        if(normalBtn) selEvType(normalBtn);
+      }
+
+      document.getElementById("eid").value = id || "";
+      eventModalBg.classList.add("show");
+    }
+
+    function closeEventModal(){ eventModalBg.classList.remove("show"); }
+
+    function selMemChip(chip){
+      document.querySelectorAll(".ev-chip").forEach(c => c.classList.remove("sel"));
+      chip.classList.add("sel");
+    }
+
+    function selEvType(btn){
+      const type = btn.dataset.type;
+      document.getElementById("etype").value = type;
+      const hdr = document.getElementById("ev-header");
+      const saveBtn = document.getElementById("ev-save-btn");
+      const conf = TYPE_HEADERS[type] || TYPE_HEADERS.normal;
+      hdr.style.background = conf.bg;
+      saveBtn.style.background = conf.bg;
+      document.querySelectorAll(".ev-type-btn").forEach(b => b.classList.toggle("active", b === btn));
+
+      const start = document.getElementById("edd").value;
+      if(start){
+        const d = new Date(start + "T00:00:00");
+        if(type === "mariage"){
+          d.setDate(d.getDate() + 1);
+          document.getElementById("edf").value = toYMD(d);
+        } else if(type === "portrait"){
+          document.getElementById("edf").value = start;
+          const hd = document.getElementById("ehd").value;
+          if(hd){
+            const [h, m] = hd.split(":").map(Number);
+            document.getElementById("ehf").value = String(Math.min(h + 2, 23)).padStart(2,"0") + ":" + String(m).padStart(2,"0");
+          }
+        } else {
+          document.getElementById("edf").value = start;
+        }
+      }
+    }
+
+    function onRecurChange(){
+      const v = document.getElementById("erecur").value;
+      document.getElementById("recur-end-wrap").style.display = v === "none" ? "none" : "block";
+    }
+
+    function updateLieuPreview(){
+      const val = document.getElementById("elieu").value.trim();
+      const preview = document.getElementById("lieu-preview");
+      const link = document.getElementById("lieu-maps-link");
+      if(val.length > 2){
+        preview.style.display = "block";
+        link.href = `https://maps.apple.com/?q=${encodeURIComponent(val)}`;
+      } else {
+        preview.style.display = "none";
+      }
+    }
+
+    function updateDateDisplay(){
+      const s = document.getElementById("edd").value;
+      const f = document.getElementById("edf").value;
+      if(s && f && f < s) document.getElementById("edf").value = s;
+    }
+
+    function saveEv(){
+      const t = document.getElementById("ett").value.trim();
+      if(!t){ alert("Titre requis"); return; }
+
+      const selChip = document.querySelector(".ev-chip.sel");
+      const memId = selChip ? selChip.dataset.mid : "";
+
+      const type = document.getElementById("etype").value;
+      const recur = document.getElementById("erecur").value || "none";
+      const recurEnd = document.getElementById("erecur-end").value || null;
+
+      const typeColors = {
+        garde_papa:"#2D9E8E",
+        garde_partage:"#9B7FD4",
+        vacances:"#F5A623",
+        mariage:"#C9A96E",
+        portrait:"#6B8FA3",
+        normal:"#8fc7ff"
+      };
+
+      const payload = {
+        id: document.getElementById("eid").value || Date.now(),
+        title: t,
+        date: document.getElementById("edd").value,
+        time: document.getElementById("ehd").value || null,
+        date_fin: document.getElementById("edf").value || document.getElementById("edd").value,
+        heure_fin: document.getElementById("ehf").value || null,
+        color: typeColors[type] || "#8fc7ff",
+        notes: document.getElementById("enot").value || null,
+        place: document.getElementById("elieu").value || null,
+        type,
+        membre_id: memId || null,
+        recurrence: recur,
+        recurrence_end: recur !== "none" ? recurEnd : null
+      };
+
+      const existingIndex = state.events.findIndex(x => String(x.id) === String(payload.id));
+      if(existingIndex >= 0) state.events[existingIndex] = payload;
+      else state.events.push(payload);
+
+      saveState();
+      rerenderAllAgenda();
+      closeEventModal();
+    }
+
+    document.querySelectorAll(".agenda-tab").forEach(btn => {
+      btn.addEventListener("click", () => setActiveView(btn.dataset.view));
+    });
+
+    prevMonthBtn.addEventListener("click", prevMonthComplete);
+    nextMonthBtn.addEventListener("click", nextMonthComplete);
+    addSwipe(monthShell, () => nextMonthComplete(), () => prevMonthComplete());
+
+    document.getElementById("prevWeekBtn").addEventListener("click", prevWeek);
+    document.getElementById("nextWeekBtn").addEventListener("click", nextWeek);
+    document.getElementById("prevPlanningBtn").addEventListener("click", prevMonthComplete);
+    document.getElementById("nextPlanningBtn").addEventListener("click", nextMonthComplete);
+    document.getElementById("prevYearBtn").addEventListener("click", prevYear);
+    document.getElementById("nextYearBtn").addEventListener("click", nextYear);
+
+    document.getElementById("openAddEventBtn").addEventListener("click", () => openEventModal());
+    document.getElementById("openAgendaSettingsBtn").addEventListener("click", () => {
+      alert("Réglages garde A/B à rebrancher ensuite.");
+    });
+
+    document.getElementById("goHome").addEventListener("click", () => {
+      document.querySelector(".page").scrollTo({ top: 0, behavior: "smooth" });
+      closeSheet(); closeEventDetail();
+    });
+    document.getElementById("goAgenda").addEventListener("click", () => {
+      document.getElementById("agendaMonthComplete").scrollIntoView({ behavior: "smooth", block: "start" });
+      closeSheet(); closeEventDetail();
+    });
+    document.getElementById("goAdd").addEventListener("click", () => openEventModal());
+    document.getElementById("goMessages").addEventListener("click", () => openSheet("Messages", renderMessagesSheet()));
+    document.getElementById("goProfile").addEventListener("click", () => openSheet("Profil", renderProfileSheet()));
+
+    document.getElementById("openTasks").addEventListener("click", () => openSheet("Tâches", renderTasksSheet()));
+    document.getElementById("openCourses").addEventListener("click", () => openSheet("Courses", renderCoursesSheet()));
+    document.getElementById("openHealth").addEventListener("click", () => openSheet("Santé", renderHealthSheet()));
+    document.getElementById("openMessagesQuick").addEventListener("click", () => openSheet("Messages", renderMessagesSheet()));
+
+    document.getElementById("sheetClose").addEventListener("click", closeSheet);
+    document.getElementById("sheetBackdrop").addEventListener("click", closeSheet);
+    document.getElementById("detailClose").addEventListener("click", closeEventDetail);
+    document.getElementById("detailBackdrop").addEventListener("click", closeEventDetail);
+
+    setActiveView(state.activeView || "month");
+    renderAgendaFilters();
+    renderMonthHeaders();
+    rerenderAllAgenda();
+  </script>
+</body>
+</html>
